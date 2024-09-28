@@ -1,0 +1,15 @@
+{
+  "name": "mediconnect",
+  "version": "1.0.0",
+  "description": "MediConnect is a health portal that bridges that streamlines the medical formalities so that the doctors can focus on patients",
+  "main": "UserService.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
