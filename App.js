@@ -4,7 +4,7 @@ import { SafeAreaProvider} from 'react-native-safe-area-context';
 import HomeStack from './src/TabNavigation/HomeStack';
 import PrescriptionDetail from './src/screens/PrescriptionDetail';
 import AppointmentDetails from './src/screens/AppointmentDetails';
-
+import NewAppointment from './src/screens/NewAppointment';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -15,6 +15,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeStack} />
         <Stack.Screen name="PrescriptionDetail" component={PrescriptionDetail} />
         <Stack.Screen name="AppointmentDetails" component={AppointmentDetails} />
+        <Stack.Screen name="NewAppointment" component={NewAppointment} />
 
       </Stack.Navigator>
       </SafeAreaProvider>

@@ -55,7 +55,7 @@ export default function AppointmentDetails() {
             </View>
             </>
             }
-            {(AppointmentDetail.status === 'Scheduled' || AppointmentDetail.status === 'rescheduled') && (
+            {(AppointmentDetail.status === 'Scheduled' || AppointmentDetail.status === 'scheduled' || AppointmentDetail.status === 'rescheduled' || AppointmentDetail.status === 'Rescheduled' || AppointmentDetail.status === 'ReScheduled') && (
               <View style={styles.BottomButtons}>
                 <TouchableOpacity style={styles.RescheduleButton}>
                   <Text style={styles.RescheduleButtonText}>Reschedule</Text>
@@ -82,8 +82,6 @@ const styles = StyleSheet.create({
         fontSize:hp(2.8),
         fontWeight:"bold",
         color:"#41474D",
-        
-        
     },
     TopView:{
         flexDirection:"row",

@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
   container: {
     position: 'relative',
     zIndex: 1,
-    marginTop: hp(7),
+    marginTop: hp(2),
   },
   boxStyles: {
     borderRadius: 20,

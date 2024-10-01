@@ -68,11 +68,11 @@ export default function AppointmentCard({ Appointments }) {
     (state) => state.selectedAppointmentMonth
   );
 
-  // if (!Appointments || Object.keys(Appointments).length === 0) {
-  //   return (
-  //     <Text style={styles.noAppointmentsText}>No appointments available</Text>
-  //   );
-  // }
+  if (!Appointments || Object.keys(Appointments).length === 0) {
+    return (
+       <Text style={styles.noAppointmentsText}>No appointments available</Text>
+    );
+  }
 
   return (
     <FlatList

@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import { StyleSheet, Text, View} from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import AntDesign from '@expo/vector-icons/AntDesign';
+import Entypo from '@expo/vector-icons/Entypo';
 import DropdownDates from "../components/DropDownDates";
 import AppointmentCard from "../components/AppointmentCard";
 import { useMediConnectStore } from "../Store/Store";
+import { useNavigation } from '@react-navigation/native';
+
 
 export default function AppointmentScreen() {
+  const navigation = useNavigation();
   const [Appointments, setAppointments] = useState({});
   const [MonthData, setMonthData] = useState([]);
   const [Loading, setLoading] = useState(true);
@@ -63,8 +66,7 @@ export default function AppointmentScreen() {
         <Text style={styles.AppointmentText}>My Appointments</Text>
       </View>
       <View style={styles.NewApointmentView}>
-        <AntDesign name="pluscircle" size={hp(2)} color="#2F3D7E" style={styles.plusIcon} />
-        <Text style={styles.NewAppointmentText}>New Appointment</Text>
+        <Entypo name="plus" size={hp(4)} color="white" style={styles.plusIcon} onPress={()=>navigation.navigate("NewAppointment")} />
       </View>
       <DropdownDates Data={MonthData}/>
 
@@ -83,7 +85,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingVertical: hp(1),
-    paddingHorizontal: wp(4)
+    paddingHorizontal: wp(4),
+    position: "relative"
   },
   AppointmentView:{
     paddingTop: hp(0.5),
@@ -99,17 +102,17 @@ const styles = StyleSheet.create({
     color: "#41474D",
   },
   NewApointmentView: {
-    flexDirection: "row",
     alignItems: "center",
     position: "absolute",
-    left: wp(4),
-    top: hp(8),
+    right: wp(4),
+    bottom: hp(3),
+    zIndex:1,
+    backgroundColor:"#2F3D7E",
+    borderRadius:28,
+    width:wp(12),
+    height:hp(5.5),
+    justifyContent:"center"
   },
   plusIcon: {
-    marginRight: wp(1)
-  },
-  NewAppointmentText: {
-    fontSize: hp(2),
-    fontWeight: "bold",
   }
 });
