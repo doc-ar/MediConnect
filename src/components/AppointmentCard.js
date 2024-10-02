@@ -6,6 +6,7 @@ import {
 import { useMediConnectStore } from "../Store/Store";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useState, useEffect } from "react";
 const AppointmentItem = ({ appointment }) => {
   const navigation = useNavigation();
   return (
@@ -64,15 +65,31 @@ const AppointmentItem = ({ appointment }) => {
 };
 
 export default function AppointmentCard({ Appointments }) {
+  console.log(Appointments);
   const selectedAppointmentMonth = useMediConnectStore(
     (state) => state.selectedAppointmentMonth
   );
+
+  const [AppointmentMonthYear, setAppointmentMonthYear] = useState("");
+
 
   if (!Appointments || Object.keys(Appointments).length === 0) {
     return (
        <Text style={styles.noAppointmentsText}>No appointments available</Text>
     );
   }
+
+  const separateDate=(dateString)=> {
+    const [year,month,day] = dateString.split('-'); 
+    setAppointmentMonthYear(`${month} ${year}`);
+  }
+
+useEffect(() => {
+    if (Appointments && Object.keys(Appointments).length !== 0) {
+        const LatestAppointmentData = Appointments[Object.keys(Appointments)[0]][0];
+        separateDate(LatestAppointmentData.date);
+    }
+}, [Appointments]);
 
   return (
     <FlatList
@@ -88,7 +105,7 @@ export default function AppointmentCard({ Appointments }) {
               <Text style={styles.dateText}>{date}</Text>
               <View style={styles.daymonthSection}>
                 <Text style={styles.dayText}>{firstAppointment.day} </Text>
-                <Text style={styles.monthText}>{selectedAppointmentMonth}</Text>
+                <Text style={styles.monthText}>{AppointmentMonthYear}</Text>
               </View>
             </View>
             <FlatList
@@ -146,7 +163,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#2F3D7E",
     width: wp(90),
-    marginRight: wp(4),
+    marginRight: wp(5),
   },
   canceledCard: {
     backgroundColor: "#FEE2E2",
