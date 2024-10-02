@@ -320,15 +320,14 @@ const styles = StyleSheet.create({
       color: "#41474D",
     },
     LatestPrescriptionText:{
-        marginBottom:hp(1.5),
-        fontSize:hp(2),
+        fontSize:hp(2.5),
         fontWeight:"bold",
         alignSelf:"flex-start",
-        marginTop:hp(1.8),
+        marginTop:hp(2.3),
     },
     PastPrescriptionText:{
         marginTop:hp(2),
-        fontSize:hp(2),
+        fontSize:hp(2.5),
         fontWeight:"bold",
         alignSelf:"flex-start"
     }

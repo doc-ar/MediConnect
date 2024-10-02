@@ -31,7 +31,7 @@ export default function HomeStack() {
           tabBarIcon: () => (
             <Ionicons
               name="home-sharp"
-              size={24}
+              size={26}
               color={activeTab=="Home"? "#2F3D7E":"gray"}
             />
           )
@@ -54,7 +54,7 @@ export default function HomeStack() {
            tabBarIcon: () => (
             <MaterialCommunityIcons
               name="clipboard-plus"
-              size={24}
+              size={26}
               color={activeTab=="Prescription"? "#2F3D7E":"gray"}
             />
           ),
@@ -76,7 +76,7 @@ export default function HomeStack() {
            tabBarIcon: () => (
             <MaterialIcons
               name="sticky-note-2"
-              size={24}
+              size={26}
               color={activeTab=="Appointment"? "#2F3D7E":"gray"}
             />
           )
@@ -98,7 +98,7 @@ export default function HomeStack() {
            tabBarIcon: () => (
             <Ionicons
               name="settings-sharp"
-              size={24}
+              size={26}
               color={activeTab=="Settings"? "#2F3D7E":"gray"}
             />
           )

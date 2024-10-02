@@ -37,7 +37,7 @@ export default function HomeScreen() {
             <View style={styles.container}>
                 <View style={styles.TopView}>
                     <Text style={styles.LogoText}>MediConnect</Text>
-                    <Ionicons style={styles.NotificationIcon} name="notifications-outline" size={hp(3)} color="black" />
+                    <Ionicons style={styles.NotificationIcon} name="notifications-outline" size={hp(4)} color="black" />
                 </View>
                 <View style={styles.PatientView}>
                     <Image source={{ uri: "https://img.freepik.com/premium-photo/portrait-lovely-pretty-positive-woman-toothy-beaming-smile-blue-background_525549-5283.jpg?w=360" }} style={styles.PatientImage} />
@@ -94,13 +94,13 @@ const styles = StyleSheet.create({
     },
     TopView: {
         flexDirection: "row", justifyContent: "space-between", width: wp(98),
-        height: hp(3)
+        height: hp(4)
     },
     BioView: {
         flexDirection: "row", justifyContent: "space-between", width: wp(96)
     },
     LogoText: {
-        fontSize: hp(3),
+        fontSize: hp(4),
         fontWeight: "bold",
         color: "#2F3D7E",
         left: 3,
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
         marginRight: wp(3),
     },
     PatientName: {
-        fontSize: hp(2),
+        fontSize: hp(2.3),
         fontWeight: "bold",
     },
     PatientAgeGender: {

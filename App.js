@@ -5,6 +5,9 @@ import HomeStack from './src/TabNavigation/HomeStack';
 import PrescriptionDetail from './src/screens/PrescriptionDetail';
 import AppointmentDetails from './src/screens/AppointmentDetails';
 import NewAppointment from './src/screens/NewAppointment';
+import LoginScreen from './src/screens/LoginScreen';
+import SignUpScreen from './src/screens/SignUpScreen';
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -12,6 +15,8 @@ export default function App() {
     <NavigationContainer>
       <SafeAreaProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="Home" component={HomeStack} />
         <Stack.Screen name="PrescriptionDetail" component={PrescriptionDetail} />
         <Stack.Screen name="AppointmentDetails" component={AppointmentDetails} />

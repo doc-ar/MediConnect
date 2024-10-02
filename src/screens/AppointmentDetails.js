@@ -11,7 +11,6 @@ export default function AppointmentDetails() {
 
     const { AppointmentDetail } = route.params; 
 
-    console.log(AppointmentDetail); 
 
     return (
     <View style={styles.container}>

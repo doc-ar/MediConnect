@@ -65,7 +65,6 @@ const AppointmentItem = ({ appointment }) => {
 };
 
 export default function AppointmentCard({ Appointments }) {
-  console.log(Appointments);
   const selectedAppointmentMonth = useMediConnectStore(
     (state) => state.selectedAppointmentMonth
   );
