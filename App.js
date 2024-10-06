@@ -7,6 +7,8 @@ import AppointmentDetails from './src/screens/AppointmentDetails';
 import NewAppointment from './src/screens/NewAppointment';
 import LoginScreen from './src/screens/LoginScreen';
 import SignUpScreen from './src/screens/SignUpScreen';
+import ForgotPassword from './src/screens/ForgotPassword';
+import RegisterDetails from './src/screens/RegisterDetails';
 
 const Stack = createNativeStackNavigator();
 
@@ -16,12 +18,13 @@ export default function App() {
       <SafeAreaProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} />
+        <Stack.Screen name="SignUp" component={SignUpScreen}/>
         <Stack.Screen name="Home" component={HomeStack} />
         <Stack.Screen name="PrescriptionDetail" component={PrescriptionDetail} />
         <Stack.Screen name="AppointmentDetails" component={AppointmentDetails} />
         <Stack.Screen name="NewAppointment" component={NewAppointment} />
-
+        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+        <Stack.Screen name="RegisterDetails" component={RegisterDetails} /> 
       </Stack.Navigator>
       </SafeAreaProvider>
     </NavigationContainer>

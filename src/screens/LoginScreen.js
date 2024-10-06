@@ -2,7 +2,6 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useState } from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Entypo } from '@expo/vector-icons';
@@ -13,7 +12,7 @@ export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="#2F3D7E" />
             <View style={styles.topContainer}>
                 <Text style={styles.TopSignInText}>Sign In</Text>
@@ -60,9 +59,9 @@ export default function LoginScreen({ navigation }) {
                     </TouchableOpacity>
                 </View>
             </View>
-                <Text style={styles.footerText}>Don't have an account? <TouchableOpacity><Text style={styles.signInText}>Sign Up</Text></TouchableOpacity></Text>
-            
-        </SafeAreaView>
+                <Text style={styles.footerText}>Don't have an account? <TouchableOpacity onPress={()=>navigation.navigate('SignUp')} ><Text style={styles.signInText}>Sign Up</Text></TouchableOpacity></Text>
+                <TouchableOpacity onPress={()=>navigation.navigate('ForgotPassword')} ><Text style={[styles.footerText, styles.signInText]}>Forgot your Password?</Text></TouchableOpacity>
+        </View>
     );
 }
 
@@ -75,10 +74,9 @@ const styles = StyleSheet.create({
     topContainer: {
         backgroundColor: '#2F3D7E',
         width: wp(100),
-        height: hp(27),
+        height: hp(25),
         justifyContent: 'center',
-        alignItems: 'center'
-        
+        alignItems: 'center',
     },
     TopSignInText: {
         color: 'white',
@@ -95,7 +93,6 @@ const styles = StyleSheet.create({
     inputContainer: {
         width: wp(85),
         marginTop: hp(5),
-        
     },
     label: {
         marginTop: hp(3),
@@ -163,5 +160,6 @@ const styles = StyleSheet.create({
     signInText: {
         color: '#2F3D7E',
         fontWeight: 'bold',
+        textDecorationLine:'underline'
     },
 });
