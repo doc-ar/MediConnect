@@ -57,14 +57,15 @@ backArrow:{
 },
   inputfield:{
     width: wp(90),
-    height: hp(5),
-    marginHorizontal: wp(5),
     marginVertical: hp(2),
-    borderRadius: 3,
-    paddingHorizontal:wp(2),
-    borderWidth: wp(0.5),
-    borderColor:"#41474D"
-    
+    marginTop: hp(1),
+    borderRadius: 10,
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: wp(1.2),
+    height:hp(5),
+    justifyContent:'center',
+    color:"black",
+    fontSize: hp(2.2)
   },
   BottomView:{
     display:"flex",
