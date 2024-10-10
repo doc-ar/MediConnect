@@ -4,6 +4,7 @@ import { useRoute } from "@react-navigation/native";
 import { useNavigation } from '@react-navigation/native';
 import { AntDesign } from "@expo/vector-icons";
 import MedicationTable from "../components/MedicationTable";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AppointmentDetails() {
     const route = useRoute(); 
@@ -13,7 +14,7 @@ export default function AppointmentDetails() {
 
 
     return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
         <View style={styles.TopView}>
             <AntDesign name="arrowleft" size={hp(3.5)} color="#646466" style={styles.backArrow} onPress={()=>navigation.goBack()}/>
             <   Text style={styles.AppointmentText}>Appointment Details</Text>
@@ -67,7 +68,7 @@ export default function AppointmentDetails() {
             
             
         </View>
-    </View>
+    </SafeAreaView>
     );
 }
 

@@ -6,7 +6,7 @@ import DropdownDates from "../components/DropDownDates";
 import AppointmentCard from "../components/AppointmentCard";
 import { useMediConnectStore } from "../Store/Store";
 import { useNavigation } from '@react-navigation/native';
-
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function AppointmentScreen() {
   const navigation = useNavigation();
@@ -61,7 +61,7 @@ export default function AppointmentScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.AppointmentView}>
         <Text style={styles.AppointmentText}>My Appointments</Text>
       </View>
@@ -75,7 +75,7 @@ export default function AppointmentScreen() {
       )}
 
       {Loading && <Text>Loading Appointments...</Text>}
-    </View>
+    </SafeAreaView>
   );
 }
 

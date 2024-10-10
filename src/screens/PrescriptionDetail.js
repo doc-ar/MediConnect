@@ -3,13 +3,14 @@ import { StyleSheet,Text,View} from "react-native";
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function PrescriptionDetail({route}) {
     const navigation = useNavigation();
 
     const prescriptionDetails=route.params;
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <View style={styles.TopView}>
             <AntDesign name="arrowleft" size={hp(3.5)} color="#646466" style={styles.backArrow} onPress={()=>navigation.goBack()}/>
             <Text style={styles.PrescriptionText}>Prescription</Text>
@@ -20,7 +21,7 @@ export default function PrescriptionDetail({route}) {
             <Text style={styles.Text}>Dated: {prescriptionDetails.prescription.Date}</Text>
             <Text style={styles.Text}>Doctor: {prescriptionDetails.prescription.Doctor}</Text>
             </View>
-        </View>
+        </SafeAreaView>
     );
 }
 

@@ -7,6 +7,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import AppointmentCard from '../components/AppointmentCard';
 import { Entypo } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 export default function HomeScreen() {
 
 
@@ -32,9 +33,8 @@ export default function HomeScreen() {
 
 
     return (
-        <>
+        <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="white" />
-            <View style={styles.container}>
                 <View style={styles.TopView}>
                     <Text style={styles.LogoText}>MediConnect</Text>
                     <Ionicons style={styles.NotificationIcon} name="notifications-outline" size={hp(4)} color="black" />
@@ -80,8 +80,7 @@ export default function HomeScreen() {
                         <AppointmentCard Appointments={LatestAppointmentData} />
                     </>
                 }
-            </View>
-        </>
+        </SafeAreaView>
     );
 }
 

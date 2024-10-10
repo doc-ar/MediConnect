@@ -284,24 +284,29 @@ export default function PrescriptionScreen({navigation}){
     ]);
 
     return(
-        <>
+        <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="white"/>
-            <ScrollView contentContainerStyle={styles.container}>
               <View style={styles.TopView}>
                 <Text style={styles.PrescriptionText}>My Prescriptions</Text>
                 </View>
+            <ScrollView contentContainerStyle={styles.scrollView}>
+
                 <Text style={styles.LatestPrescriptionText}>Latest Prescription</Text>
                 <MedicationTable Medication={Prescriptions[1].Medication}/>
                 <Text style={styles.PastPrescriptionText}>Past Prescriptions</Text>
                 <PrescriptionTable Prescription={Prescriptions} Navigation={navigation}/>
             </ScrollView>
-        </>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         backgroundColor: 'white',
+        flex:1
+    },
+    scrollView:{
+        flexGrow:1,
         alignItems:"center",
         paddingVertical:hp(1),
         paddingHorizontal:wp(4)

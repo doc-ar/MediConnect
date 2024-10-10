@@ -4,6 +4,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import {useState} from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function ForgotPassword(){
   const navigation = useNavigation();
@@ -11,9 +12,8 @@ export default function ForgotPassword(){
     const [email, setEmail] = useState('');
 
     return(
-      <>
+      <SafeAreaView style={styles.container}>
         <StatusBar barStyle="light-content" backgroundColor="#2F3D7E" />
-        <View style={styles.container}>
         <View style={styles.TopView}>
           <AntDesign name="arrowleft" size={hp(3.5)} color="#646466" style={styles.backArrow} onPress={()=>navigation.goBack()}/>
           <Text style={styles.ForgotPasswordText}>Forgot Password</Text>
@@ -26,8 +26,7 @@ export default function ForgotPassword(){
       ></TextInput>
         <TouchableOpacity style={styles.button}><Text style={styles.buttontext}>Send</Text></TouchableOpacity>
         </View>
-      </View>
-      </>
+      </SafeAreaView>
     );
 }
 const styles = StyleSheet.create({

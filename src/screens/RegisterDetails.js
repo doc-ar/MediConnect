@@ -4,6 +4,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function RegisterDetails() {
     const navigation = useNavigation();
@@ -47,9 +48,8 @@ export default function RegisterDetails() {
     
 
     return (
-        <>
+        <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="#2F3D7E" />
-            <View style={styles.container}>
                 <Text style={styles.MediConnectText}>MediConnect</Text>
                 <ScrollView contentContainerStyle={styles.inputContainer}>
                     <Text style={styles.required}>*Required Fields</Text>
@@ -204,8 +204,7 @@ export default function RegisterDetails() {
 
                     </View>
                 </ScrollView>
-            </View>
-        </>
+        </SafeAreaView>
     );
 }
 

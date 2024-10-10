@@ -5,6 +5,7 @@ import { useState } from 'react';
 import EvilIcons from '@expo/vector-icons/EvilIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import { Entypo } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function LoginScreen({ navigation }) {
 
@@ -12,7 +13,7 @@ export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
 
     return (
-        <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="#2F3D7E" />
             <View style={styles.topContainer}>
                 <Text style={styles.TopSignInText}>Sign In</Text>
@@ -61,7 +62,7 @@ export default function LoginScreen({ navigation }) {
             </View>
                 <Text style={styles.footerText}>Don't have an account? <TouchableOpacity onPress={()=>navigation.navigate('SignUp')} ><Text style={styles.signInText}>Sign Up</Text></TouchableOpacity></Text>
                 <TouchableOpacity onPress={()=>navigation.navigate('ForgotPassword')} ><Text style={[styles.footerText, styles.signInText]}>Forgot your Password?</Text></TouchableOpacity>
-        </View>
+        </SafeAreaView>
     );
 }
 
