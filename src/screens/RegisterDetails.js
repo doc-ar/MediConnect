@@ -42,7 +42,6 @@ export default function RegisterDetails() {
             navigation.navigate('Home');
         } else {
             setEmptyReqFields(true);
-            Alert.alert("Error", "Please fill all required fields and ensure the date is valid.");
         }
     };
     
