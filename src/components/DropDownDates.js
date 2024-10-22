@@ -8,15 +8,13 @@ export default function DropDownDates({ Data }) {
   const setSelectedAppointmentMonth = useMediConnectStore(state => state.setSelectedAppointmentMonth);
   const selectedAppointmentMonth = useMediConnectStore(state => state.selectedAppointmentMonth);
 
-  // Find the default option object from the Data array that matches the selected month
   const defaultOption = Data.find((item) => item === selectedAppointmentMonth) 
     ? { key: selectedAppointmentMonth, value: selectedAppointmentMonth }
-    : { key: Data[0], value: Data[0] }; // Fallback to the first item if no match
+    : { key: Data[0], value: Data[0] };
 
   return (
     <View style={styles.container}>
       <SelectList
-        onSelect={() => console.log(selectedAppointmentMonth)}
         setSelected={setSelectedAppointmentMonth}
         data={Data}
         arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />}

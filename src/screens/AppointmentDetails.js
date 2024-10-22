@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { AntDesign } from "@expo/vector-icons";
 import MedicationTable from "../components/MedicationTable";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { StatusBar } from "expo-status-bar";
 export default function AppointmentDetails() {
     const route = useRoute(); 
     const navigation = useNavigation();
@@ -15,6 +15,7 @@ export default function AppointmentDetails() {
 
     return (
     <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" backgroundColor="white"/>
         <View style={styles.TopView}>
             <AntDesign name="arrowleft" size={hp(3.5)} color="#646466" style={styles.backArrow} onPress={()=>navigation.goBack()}/>
             <   Text style={styles.AppointmentText}>Appointment Details</Text>
@@ -77,6 +78,7 @@ const styles = StyleSheet.create({
         flex:1,
         backgroundColor:"white",
         paddingVertical:hp(1),
+        paddingHorizontal:wp(2)
     },
     AppointmentText:{
         fontSize:hp(2.8),
@@ -178,26 +180,27 @@ const styles = StyleSheet.create({
         alignSelf:"center",
     },
       RescheduleButton:{
-        backgroundColor:"#2F3D7E",
+        backgroundColor: "#2F3D7E",
         paddingVertical:hp(1),
         paddingHorizontal:wp(1),
         borderRadius:10,
         marginVertical:hp(1),
-        width: wp(25),
+        width: wp(90),
         alignItems:"center"
       },
       RescheduleButtonText:{
-        color:"white",
+        color: "white",
         fontSize:hp(1.8),
         fontWeight:"bold"
       },
       CancelButton:{
-        backgroundColor:"red",
         paddingVertical:hp(1),
         paddingHorizontal:wp(1),
         borderRadius:10,
-        width: wp(25),
-        alignItems:"center"
+        width: wp(90),
+        alignItems:"center",
+        backgroundColor: "#a1020a",
+
 
       },
       CancelButtonText:{

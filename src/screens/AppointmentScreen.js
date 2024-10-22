@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View} from "react-native";
+import { StyleSheet, Text, View, ScrollView} from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import Entypo from '@expo/vector-icons/Entypo';
 import DropdownDates from "../components/DropDownDates";
@@ -7,7 +7,7 @@ import AppointmentCard from "../components/AppointmentCard";
 import { useMediConnectStore } from "../Store/Store";
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { StatusBar } from "expo-status-bar";
 export default function AppointmentScreen() {
   const navigation = useNavigation();
   const [Appointments, setAppointments] = useState({});
@@ -20,10 +20,9 @@ export default function AppointmentScreen() {
     fetchAppointments();
   }, []);
 
-  // Set the selected month after MonthData is updated
   useEffect(() => {
     if (MonthData.length > 0) {
-      setSelectedAppointmentMonth(MonthData[MonthData.length - 1]); // Set the last month as selected
+      setSelectedAppointmentMonth(MonthData[MonthData.length - 1]); 
     }
   }, [MonthData]);
 
@@ -37,7 +36,7 @@ export default function AppointmentScreen() {
     }
   };
 
-  // Group appointments by month and year
+  
   function groupAppointmentsByMonthYear(data) {
     const groupedData = {};
 
@@ -62,6 +61,7 @@ export default function AppointmentScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="white"/>
       <View style={styles.AppointmentView}>
         <Text style={styles.AppointmentText}>My Appointments</Text>
       </View>
@@ -69,12 +69,15 @@ export default function AppointmentScreen() {
         <Entypo name="plus" size={hp(4)} color="white" style={styles.plusIcon} onPress={()=>navigation.navigate("NewAppointment")} />
       </View>
       <DropdownDates Data={MonthData}/>
-
-      {!Loading && selectedAppointmentMonth && (
-        <AppointmentCard Appointments={Appointments[selectedAppointmentMonth] || {}} />
+      <View>
+      {!Loading && selectedAppointmentMonth && Appointments[selectedAppointmentMonth] ? (
+      <AppointmentCard Appointments={Appointments[selectedAppointmentMonth]} />
+        ) : (
+          <></>
       )}
 
-      {Loading && <Text>Loading Appointments...</Text>}
+      {Loading && <Text>Loading Appointments ...</Text>}
+      </View>
     </SafeAreaView>
   );
 }
@@ -85,7 +88,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     paddingVertical: hp(1),
-    paddingHorizontal: wp(4),
+    paddingHorizontal: wp(1),
     position: "relative"
   },
   AppointmentView:{

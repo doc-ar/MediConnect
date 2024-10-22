@@ -29,7 +29,7 @@ export default function HomeScreen({navigation}) {
         endTime: "5:00 PM",
         status: "Scheduled",
         image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtJ43pA5ohSHvxkSP_0VAxPy8GZAUgDydGQ8kyYZewhxXpYtRoL8SSHfQtpruehLB29Ls&usqp=CAU"
-        
+        ,key:"01"
     });
 
 
@@ -236,8 +236,9 @@ const styles = StyleSheet.create({
         alignItems:"center",
         paddingVertical:hp(1),
         backgroundColor:"#EBEDF3",
-        width: wp(70),
-        paddingLeft: wp(3)
+        width: wp(73),
+        paddingLeft: wp(3),
+        paddingRight: wp(3)
     },
     AppointmentDetailsView2:{
         flexDirection:"column",
