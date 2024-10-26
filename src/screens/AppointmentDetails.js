@@ -6,10 +6,13 @@ import { AntDesign } from "@expo/vector-icons";
 import MedicationTable from "../components/MedicationTable";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import Modal from "react-native-modal";
+import { useState } from "react";
+
 export default function AppointmentDetails() {
     const route = useRoute(); 
     const navigation = useNavigation();
-
+    const [isCancelModalVisible, setCancelModalVisible] = useState(false);
     const { AppointmentDetail } = route.params; 
 
 
@@ -57,14 +60,25 @@ export default function AppointmentDetails() {
             </>
             }
             {(AppointmentDetail.status === 'Scheduled' || AppointmentDetail.status === 'scheduled' || AppointmentDetail.status === 'rescheduled' || AppointmentDetail.status === 'Rescheduled' || AppointmentDetail.status === 'ReScheduled') && (
+              <>
               <View style={styles.BottomButtons}>
-                <TouchableOpacity style={styles.RescheduleButton}>
+                <TouchableOpacity onPress={()=>navigation.navigate('RescheduleScreen')} style={styles.RescheduleButton}>
                   <Text style={styles.RescheduleButtonText}>Reschedule</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.CancelButton}>
+                <TouchableOpacity style={styles.CancelButton} onPress={()=>setCancelModalVisible(true)}>
                   <Text style={styles.CancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
+              <Modal isVisible={isCancelModalVisible}>
+                <View style={styles.CancelModalView}>
+                    <Text style={styles.ModalText}>Do you want to cancel your Appointment?</Text>
+                    <View style={styles.CancelModalButtons}>
+                      <TouchableOpacity onPress={()=>setCancelModalVisible(false)} style={styles.CancelModalCancelButton}><Text style={styles.CancelButtonText}>Don't Cancel</Text></TouchableOpacity>
+                      <TouchableOpacity style={styles.CancelModalButton}><Text style={styles.RescheduleButtonText}>Yes, Cancel Appointment</Text></TouchableOpacity>
+                    </View>
+                </View>
+              </Modal>
+              </>
             )}
             
             
@@ -200,13 +214,48 @@ const styles = StyleSheet.create({
         width: wp(90),
         alignItems:"center",
         backgroundColor: "#a1020a",
-
-
       },
       CancelButtonText:{
         color:"white",
         fontSize:hp(1.8),
         fontWeight:"bold"
+      },
+      CancelModalView:{
+        backgroundColor:"white",
+        borderRadius:20,
+        height:hp(25),
+        width:wp(80),
+        alignSelf:"center"
+      },
+      ModalText:{
+        fontSize:hp(2),
+        fontWeight:"bold",
+        textAlign:"center",
+        marginTop:hp(2)
+      },
+      CancelModalButtons:{
+        flexDirection:"column",
+        justifyContent:"space-between",
+        alignItems:"center",
+        marginVertical:hp(2),
+        height:hp(12)
+      },
+      CancelModalCancelButton:{
+        paddingVertical:hp(1),
+        paddingHorizontal:wp(1),
+        borderRadius:10,
+        width: wp(70),
+        height: hp(5),
+        alignItems:"center",
+        backgroundColor: "#a1020a",
+      },
+      CancelModalButton:{
+        paddingVertical:hp(1),
+        paddingHorizontal:wp(1),
+        borderRadius:10,
+        width: wp(70),
+        height: hp(5),
+        alignItems:"center",
+        backgroundColor: "#2F3D7E",
       }
-      
 });

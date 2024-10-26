@@ -124,7 +124,7 @@ const styles= StyleSheet.create({
     },
     button:{
       width:wp(90),
-      height:hp(7),
+      height:hp(6),
       backgroundColor:"#EBEDF3",
       borderRadius:hp(1.5),
       flexDirection:"row",

@@ -17,6 +17,7 @@ import TermsConditionsScreen from './src/screens/TermsConditionsScreen';
 import AppInfoScreen from './src/screens/AppInfoScreen';
 import EditProfile from './src/screens/EditProfile';
 import NotificationScreen from './src/screens/NotificationScreen';
+import RescheduleScreen from './src/screens/RescheduleScreen';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -26,7 +27,7 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         {/*<Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen}/>*/}
-        <Stack.Screen name="Home" component={HomeStack} />
+        <Stack.Screen name="HomeStack" component={HomeStack} />
         <Stack.Screen name="PrescriptionDetail" component={PrescriptionDetail} />
         <Stack.Screen name="AppointmentDetails" component={AppointmentDetails} />
         <Stack.Screen name="NewAppointment" component={NewAppointment} />
@@ -40,6 +41,7 @@ export default function App() {
         <Stack.Screen name="TermsConditionsScreen" component={TermsConditionsScreen} />
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="NotificationScreen" component={NotificationScreen} />
+        <Stack.Screen name="RescheduleScreen" component={RescheduleScreen} />
 
       </Stack.Navigator>
       </SafeAreaProvider>

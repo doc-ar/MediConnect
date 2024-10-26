@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
-import { ScrollView } from "react-native-web";
+import { ScrollView } from "react-native";
 
 export default function TermsConditionsScreen(){
     const navigation = useNavigation();

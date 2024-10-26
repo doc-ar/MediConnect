@@ -239,17 +239,18 @@ const styles= StyleSheet.create({
         fontSize: hp(2.2),
     },
     submitButton: {
-        paddingVertical: hp(1.5),
+        paddingVertical: hp(1),
         alignItems: "center",
         width: wp(40),
         backgroundColor: "#2F3D7E",
         borderRadius: 10,
         justifyContent: "center",
-        marginTop: hp(3),
+        marginTop: hp(1),
+        height:hp(5)
     },
     submitButtonText: {
         color: "white",
-        fontSize: hp(2.7),
+        fontSize: hp(2.2),
         fontWeight: "bold",
     },
     ButtonsView: {

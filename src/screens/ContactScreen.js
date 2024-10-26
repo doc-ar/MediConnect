@@ -78,13 +78,13 @@ const styles = StyleSheet.create({
     marginVertical:hp(1)
     },
     purposeText:{
-        fontSize:hp(2.5),
+        fontSize:hp(2),
         fontWeight:"550",
         marginVertical: hp(2)
     },
 
     NumText:{
-        fontSize:hp(2.3),
+        fontSize:hp(2),
         marginLeft:wp(2)
     },
     NumView2:{
