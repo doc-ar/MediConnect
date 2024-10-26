@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     PatientImage: {
         width: wp(22),
         height: wp(22),
-        borderRadius: 40,
+        borderRadius: 50,
         marginRight: wp(3),
     },
     PatientName: {
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
         marginVertical:hp(0.5)
       },
       data:{
-        fontSize:hp(2.1),
+        fontSize:hp(1.8),
         fontWeight:"400"
       },
       LatestAppView:{
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
         height:hp(8)
     },
     DoctorName:{
-        fontSize:hp(2.5),
+        fontSize:hp(2.3),
         fontWeight:"bold"
     },
     AppointmentDetailsText:{

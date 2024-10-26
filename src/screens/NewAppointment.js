@@ -1,13 +1,13 @@
-import { StyleSheet, Text, View, ScrollView } from "react-native";
+import React, { useState, useEffect } from "react";
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, TouchableOpacity } from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useState, useEffect } from "react";
-import { SelectList } from "react-native-dropdown-select-list";
-import { FontAwesome } from "@expo/vector-icons";
 import Calendar from "react-native-calendars/src/calendar";
+import { SelectList } from "react-native-dropdown-select-list";
+import {RadioButton } from 'react-native-paper';
+
 export default function NewAppointment() {
     const navigation = useNavigation();
 
@@ -18,13 +18,21 @@ export default function NewAppointment() {
     const [DoctorType, setDoctorType] = useState("");
     const [IsDataFetched, setIsDataFetched] = useState(false);
     const [SelectedDoctorSchedule, setSelectedDoctorSchedule] = useState([]);
-    const [selectedDate,setSelectedDate]=useState('22/10/2024');
-
+    const [minDate, setMinDate] = useState('');
+    const [maxDate, setMaxDate] = useState('');
+    const [markedDates, setMarkedDates] = useState({});
+    const [selectedDate,setSelectedDate] = useState('');
+    const [EnableSlots, setEnableSlots] = useState(false);
+    const [EnableCalender, setEnableCalender] = useState(false);
+    const [SlotsList, setSlotsList] = useState([]);
+    const [SelectedSlot, setSelectedSlot] = useState('');
+    const [SubmitError, setSubmitError] = useState('');
     useEffect(() => {
         fetchDoctorData();
+        setMinMaxDate();
     }, []);
 
-    useEffect(()=>{
+    useEffect(() => {
         const filteredDoctors = DoctorsList.filter(doctor => doctor.designation === DoctorType);
         const doctors = filteredDoctors.map(doctor => ({
             key: doctor.name, 
@@ -32,8 +40,7 @@ export default function NewAppointment() {
         }));
         const uniqueDoctors = [...new Set(doctors)];
         setDoctorsNameList(uniqueDoctors);
-
-    },[DoctorType]);
+    }, [DoctorType]);
 
     useEffect(() => {
         const selectedDoctor = DoctorsList.find(doctor => doctor.name === DoctorsName);
@@ -41,6 +48,34 @@ export default function NewAppointment() {
             setSelectedDoctorSchedule(selectedDoctor.schedule);
         }
     }, [DoctorsName]);
+
+    useEffect(() => {
+        const Slots = SelectedDoctorSchedule.find(scheduleItem => scheduleItem.date === selectedDate)?.slots || [];
+        if (Slots) {
+            setSlotsList(Slots);
+        }
+    }, [selectedDate]);
+
+    useEffect(() => {
+        const dates = {};
+    
+        SelectedDoctorSchedule.forEach(scheduleItem => {
+            dates[scheduleItem.date] = {
+                marked: true
+            };
+        });
+    
+        if (selectedDate) {
+            dates[selectedDate] = {
+                selected: true,
+                selectedColor: '#2F3D7E',
+                selectedTextColor: 'white',
+                dotColor:"transparent"
+            };
+        }
+        setMarkedDates(dates);
+    }, [SelectedDoctorSchedule, selectedDate]);
+    
 
     const fetchDoctorData = async () => {
         try {
@@ -59,6 +94,25 @@ export default function NewAppointment() {
         }
     };
 
+    const setMinMaxDate = () => {
+        const today = new Date();
+        const minDateApp = today.toISOString().split('T')[0];
+        const maxDateApp = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+        const formattedMaxDate = maxDateApp.toISOString().split('T')[0];
+        setMaxDate(formattedMaxDate);
+        setMinDate(minDateApp);
+    };
+
+    const handleSubmit =()=>{
+        if(!DoctorType || !DoctorsName || !selectedDate || !SelectedSlot){
+            setSubmitError("All the Categories must be filled to Scehdule Appointment");
+        }
+        else{
+            navigation.goBack();
+        }
+        }
+    
+
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="white" />
@@ -69,29 +123,71 @@ export default function NewAppointment() {
             {IsDataFetched && (
                 <ScrollView contentContainerStyle={styles.BottomView}>
                     <Text style={styles.FormTexts}>Select Doctor type:</Text>
-                        <SelectList
-                            setSelected={setDoctorType}
-                            data={DoctorTypesList}
-                            arrowicon={<FontAwesome name="chevron-down" size={hp(2)} color={'black'} />}
-                            boxStyles={styles.boxStyles}
-                            defaultOption={{ key: "Select Option", value: "Select Option" }} 
-                            dropdownStyles={styles.dropdownStyles}
-                            search={true}
-                        />
-
-                    <Text style={styles.FormTexts}>Select Doctor:</Text>
-                        <SelectList
-                            setSelected={setDoctorsName}
-                            data={DoctorsNameList}
-                            arrowicon={<FontAwesome name="chevron-down" size={hp(2)} color={'black'} />}
-                            boxStyles={styles.boxStyles}
-                            defaultOption={{ key: "Select Option", value: "Select Option" }} 
-                            dropdownStyles={styles.dropdownStyles}
-                            search={true}
+                    <SelectList
+                        setSelected={(Type)=>{setDoctorType(Type); setDoctorsName("");}}
+                        data={DoctorTypesList}
+                        arrowicon={<FontAwesome name="chevron-down" size={hp(2)} color={'black'} />}
+                        boxStyles={styles.boxStyles}
+                        defaultOption={{ key: "Select Option", value: "Select Option" }} 
+                        dropdownStyles={styles.dropdownStyles}
+                        search={true}
                     />
 
-                    <Calendar/>
-
+                    <Text style={styles.FormTexts}>Select Doctor:</Text>
+                    <SelectList
+                        key={DoctorType}
+                        setSelected={(Name)=>{
+                            setDoctorsName(Name);
+                            setEnableCalender(true);
+                        }}
+                        data={DoctorsNameList}
+                        arrowicon={<FontAwesome name="chevron-down" size={hp(2)} color={'black'}/>}
+                        boxStyles={styles.boxStyles}
+                        defaultOption={{ key: "Select Option", value: "Select Option" }} 
+                        dropdownStyles={styles.dropdownStyles}
+                        search={true}
+                    />
+                    <Text style={styles.TimeSlotsText}>Select from Available Dates: </Text>
+                    <Calendar 
+                        style={{ marginHorizontal: wp(3), marginVertical: hp(2), borderRadius: 40, elevation: 4, paddingVertical: hp(2)}}
+                        disabledByDefault={!EnableCalender}
+                        minDate={minDate}
+                        maxDate={maxDate}
+                        markedDates={markedDates}
+                        initialDate={minDate}
+                        hideExtraDays={true}
+                        onDayPress={(date) => {
+                            setSelectedDate(date.dateString);
+                            setEnableSlots(true);
+                        }}               
+                    />
+                    {EnableSlots ? (
+                        SlotsList.length > 0 ? (
+                            <>
+                                <Text style={styles.TimeSlotsText}>Select from Available Time Slots:</Text>
+                                {SlotsList.map((slot, index) => (
+                                    <View key={index} style={styles.RadioButton}>
+                                        <RadioButton
+                                            value={slot}
+                                            status={slot === SelectedSlot ? 'checked' : 'unchecked'}
+                                            onPress={() => setSelectedSlot(slot)}
+                                            color="#2F3D7E"
+                                        />
+                                        <Text style={styles.RadioButtonText}>{slot}</Text>
+                                    </View>
+                                ))}
+                            </>
+                        ) : (
+                            <Text style={styles.SlotsHeadingText}>Doctor has no time slots available for this day</Text>
+                        )
+                    ) : (
+                        <></>
+                    )}
+                    {SubmitError && <Text style={styles.SubmitError}>{SubmitError}</Text>}
+                    <TouchableOpacity style={styles.Button} onPress={handleSubmit}>
+                        <Text style={styles.ButtonText}>Schedule Appointment</Text>
+                    </TouchableOpacity>
+                    
                 </ScrollView>
             )}
         </SafeAreaView>
@@ -103,6 +199,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         flex: 1,
         paddingVertical: hp(1),
+        
     },
     AppointmentText: {
         fontSize: hp(2.8),
@@ -111,7 +208,7 @@ const styles = StyleSheet.create({
     },
     TopView: {
         flexDirection: "row",
-        marginTop: hp(0.5),
+        marginTop: hp(2),
         justifyContent: "center",
         width: wp(100),
         alignItems: "center",
@@ -125,7 +222,7 @@ const styles = StyleSheet.create({
     },
     BottomView: {
         width: wp(100),
-        paddingHorizontal: wp(2)
+        paddingHorizontal: wp(2),
     },
     FormTexts: {
         fontSize: hp(2.3),
@@ -151,5 +248,40 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         zIndex:2,
         alignSelf: "center",
+    },
+    TimeSlotsText:{
+        fontSize: hp(1.8),
+        marginTop: hp(2),
+    },
+    RadioButton:{
+        flexDirection:"row",
+        alignItems:"center",
+        marginTop:hp(1)
+    },
+    RadioButtonText:{
+        fontSize: hp(1.8),
+        marginLeft: wp(2)
+    },
+    Button:{
+        borderRadius: 12,
+        width: wp(90),
+        alignSelf:"center",
+        backgroundColor:"#2F3D7E",
+        height:hp(5.5),
+        justifyContent:"center",
+        alignItems:"center",
+        marginVertical:hp(2),
+      
+    },
+    ButtonText:{
+        color:"white",
+        fontWeight:"bold",
+        fontSize:hp(1.8)
+    },
+    SubmitError:{
+        fontSize: hp(1.5),
+        color: "red",
+        alignSelf: "center",
+        marginTop: hp(1)
     }
 });
