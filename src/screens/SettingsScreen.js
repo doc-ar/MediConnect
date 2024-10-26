@@ -20,7 +20,7 @@ export default function SettingsScreen() {
                 <View style={styles.BottomView}>
                     <View style={styles.imageContainer}>
                         <Image source={{ uri: "https://img.freepik.com/premium-photo/portrait-lovely-pretty-positive-woman-toothy-beaming-smile-blue-background_525549-5283.jpg?w=360" }} style={styles.PatientImage} />
-                        <MaterialCommunityIcons name="pencil-circle" size={hp(5)} color="#2F3D7E" style={styles.pencilicon}/>
+                        <MaterialCommunityIcons name="pencil-circle" size={hp(5)} color="#2F3D7E" style={styles.pencilicon} onPress={()=>navigation.navigate("SetImage")}/>
                     </View>
                     <Text style={styles.PatientName}>Sarah</Text>
                     <Text style={styles.PatientEmail}>sarah.chris@gmail.com</Text>

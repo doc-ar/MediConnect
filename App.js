@@ -18,6 +18,7 @@ import AppInfoScreen from './src/screens/AppInfoScreen';
 import EditProfile from './src/screens/EditProfile';
 import NotificationScreen from './src/screens/NotificationScreen';
 import RescheduleScreen from './src/screens/RescheduleScreen';
+import SetImage from './src/screens/SetImage';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -42,7 +43,7 @@ export default function App() {
         <Stack.Screen name="EditProfile" component={EditProfile} />
         <Stack.Screen name="NotificationScreen" component={NotificationScreen} />
         <Stack.Screen name="RescheduleScreen" component={RescheduleScreen} />
-
+        <Stack.Screen name="SetImage" component={SetImage}/>
       </Stack.Navigator>
       </SafeAreaProvider>
     </NavigationContainer>
