@@ -34,9 +34,13 @@ app.get("/auth", authenticateToken, async (req, res) => {
   }
 });
 
+app.get("/auth/validate", authenticateToken, async (req, res) => {
+  return res.status(200);
+});
+
 app.get("/auth/refresh-token", (req, res) => {
   try {
-    const refreshToken = req.cookies.refresh_token;
+    const refreshToken = req.cookies.refresh_token || req.body.refresh_token;
     if (refreshToken === null)
       return res.status(401).json({ error: "Null refresh token" });
     jwt.verify(
@@ -94,5 +98,5 @@ app.post("/auth/login", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`User service is running on ${PORT}`);
+  console.log(`Auth service is running on ${PORT}`);
 });
