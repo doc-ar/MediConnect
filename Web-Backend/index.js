@@ -48,6 +48,57 @@ app.post("/web/create-doctor-profile", authMiddleware, async (req, res) => {
   }
 });
 
+app.get("/web/doctor-data", authMiddleware, async (req, res) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const tokenData = jwt.decode(token);
+    const doctorData = sql`
+      SELECT * FROM doctors
+      WHERE user_id = ${tokenData.user_id};
+    `;
+
+    if (doctorData.length === 0) {
+      return res.status(404).json({ error: "The user does not exist" });
+    }
+
+    const result = await sql`
+      SELECT
+          d.name, u.email, d.contact, d.roomno,
+          d.designation, d.qualification, d.image,
+          json_agg(
+              json_build_object(
+                  'date', slot_data.date,
+                  'day', slot_data.day,
+                  'slots', slot_data.slots
+              )
+          ) AS schedule
+      FROM
+          doctors d
+      JOIN
+          users u ON d.user_id = u.user_id
+      LEFT JOIN (
+          SELECT
+              ts.doctor_id, ts.date, ts.day,
+              array_agg(
+                  to_char(ts.start_time, 'HH:MI am') || ' - ' || to_char(ts.end_time, 'HH:MI am')
+              ) AS slots
+          FROM
+              time_slots ts
+          GROUP BY
+              ts.doctor_id, ts.date, ts.day
+      ) AS slot_data ON slot_data.doctor_id = d.doctor_id
+      WHERE
+          u.user_id = ${tokenData.user_id}
+      GROUP BY
+          d.name, u.email, d.contact, d.roomno, d.designation, d.qualification, d.image;
+    `;
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.patch("/web/update-doctor", authMiddleware, async (req, res) => {
   try {
     const authHeader = req.headers["authorization"];

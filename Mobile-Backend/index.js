@@ -121,45 +121,36 @@ app.get("/mobile/all-appointments", authMiddleware, async (req, res) => {
   }
 });
 
-//app.get("/mobile/latest-prescription", authMiddleware, async (req, res) => {
-//  try {
-//    const authHeader = req.headers["authorization"];
-//    const token = authHeader && authHeader.split(" ")[1];
-//    const tokenData = jwt.decode(token);
-//
-//    const result = await sql`
-//      SELECT appointment_id, COUNT(*)
-//      FROM appointments
-//      GROUP BY appointment_id
-//      HAVING COUNT(*) > 1;
-//    `;
-//
-//    //d.name AS "Doctor",
-//    //TO_CHAR(ts.date, 'YYYY-Mon-DD') AS "Date",
-//    //p.prescription_data AS "Medication"
-//    //WHERE u.user_id = ${tokenData.user_id} AND a.status = 'scheduled'
-//    //ORDER BY ts.date DESC
-//    //LIMIT 1
-//    res.status(200).json(result[0]);
-//  } catch (error) {
-//    res.json({ error: error.message });
-//  }
-//});
-
-app.get("/mobile/get-doctors", authMiddleware, async (req, res) => {
+app.get("/mobile/latest-prescription", authMiddleware, async (req, res) => {
   try {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     const tokenData = jwt.decode(token);
-    const doctorData = sql`
-      SELECT * FROM doctors
-      WHERE user_id = ${tokenData.user_id};
+
+    const result = await sql`
+      SELECT  d.name AS "doctor",
+              TO_CHAR(ts.date, 'YYYY-Mon-DD') AS "date",
+              p.prescription_data AS "medication"
+      FROM prescriptions p
+      JOIN appointments a ON a.appointment_id = p.appointment_id
+      JOIN time_slots ts ON ts.slot_id = a.slot_id
+      JOIN doctors d ON d.doctor_id = a.doctor_id
+      JOIN patients pa ON pa.patient_id = a.patient_id
+      JOIN users u ON u.user_id = pa.user_id
+      WHERE u.user_id = ${tokenData.user_id}
+      AND   a.status = 'scheduled'
+      ORDER BY ts.date DESC
+      LIMIT 1
     `;
 
-    if (doctorData.length === 0) {
-      return res.status(404).json({ error: "The user does not exist" });
-    }
+    res.status(200).json(result[0]);
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
 
+app.get("/mobile/get-doctors", authMiddleware, async (req, res) => {
+  try {
     const result = await sql`
       SELECT
           d.name, u.email, d.contact, d.roomno,
@@ -186,8 +177,6 @@ app.get("/mobile/get-doctors", authMiddleware, async (req, res) => {
           GROUP BY
               ts.doctor_id, ts.date, ts.day
       ) AS slot_data ON slot_data.doctor_id = d.doctor_id
-      WHERE
-          u.user_id = ${tokenData.user_id}
       GROUP BY
           d.name, u.email, d.contact, d.roomno, d.designation, d.qualification, d.image;
     `;
