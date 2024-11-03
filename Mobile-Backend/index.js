@@ -9,7 +9,7 @@ dotenv.config();
 
 const sql = neon(process.env.DATABASE_URL);
 const PORT = process.env.PORT;
-const corsOptions = { credentials: true, origin: "*" };
+const corsOptions = { credentials: true, origin: process.env.URL || "*" };
 
 const app = express();
 app.use(express.json());
