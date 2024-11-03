@@ -9,7 +9,7 @@ dotenv.config();
 
 const sql = neon(process.env.DATABASE_URL);
 const PORT = process.env.PORT;
-const corsOptions = { credentials: true, origin: process.env.URL || "*" };
+const corsOptions = { credentials: true, origin: "*" };
 
 const app = express();
 app.use(express.json());
@@ -199,6 +199,6 @@ app.get("/mobile/get-doctors", authMiddleware, async (req, res) => {
 
 // PATCH Request endpoints
 
-app.listen(3002, () => {
-  console.log("patient service is running");
+app.listen(PORT, () => {
+  console.log(`Mobile Backend is running on port ${PORT}`);
 });
