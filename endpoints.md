@@ -1,67 +1,54 @@
 # Table of Contents
 
 - [Authentication
-  Service](#authentication-service){#toc-authentication-service}
-  - [`POST` /auth/signup](#post-authsignup){#toc-post-authsignup}
-    - [Description](#description){#toc-description}
-    - [Example](#example){#toc-example}
-  - [`POST` /auth/login](#post-authlogin){#toc-post-authlogin}
-    - [Description](#description-1){#toc-description-1}
-    - [Example](#example-1){#toc-example-1}
-  - [`GET` /auth/validate](#get-authvalidate){#toc-get-authvalidate}
-  - [`GET`
-    /auth/refresh-token](#get-authrefresh-token){#toc-get-authrefresh-token}
-    - [Example](#example-2){#toc-example-2}
-- [Mobile Backend](#mobile-backend){#toc-mobile-backend}
-  - [`POST`
-    /mobile/create-patient-profile](#post-mobilecreate-patient-profile){#toc-post-mobilecreate-patient-profile}
-    - [Description](#description-2){#toc-description-2}
-    - [Example](#example-3){#toc-example-3}
-  - [`POST`
-    /mobile/create-appointment](#post-mobilecreate-appointment){#toc-post-mobilecreate-appointment}
-    - [Description](#description-3){#toc-description-3}
-    - [Example](#example-4){#toc-example-4}
-  - [`GET`
-    /mobile/patient-data](#get-mobilepatient-data){#toc-get-mobilepatient-data}
-    - [Description](#description-4){#toc-description-4}
-    - [Example](#example-5){#toc-example-5}
-  - [`GET`
-    /mobile/upcoming-appointments](#get-mobileupcoming-appointments){#toc-get-mobileupcoming-appointments}
-    - [Description](#description-5){#toc-description-5}
-    - [Example](#example-6){#toc-example-6}
-  - [`GET`
-    /mobile/all-appointments](#get-mobileall-appointments){#toc-get-mobileall-appointments}
-    - [Description](#description-6){#toc-description-6}
-    - [Example](#example-7){#toc-example-7}
-  - [`GET`
-    /mobile/latest-prescription](#get-mobilelatest-prescription){#toc-get-mobilelatest-prescription}
-    - [Description](#description-7){#toc-description-7}
-    - [Example](#example-8){#toc-example-8}
-  - [`GET`
-    /mobile/get-doctors](#get-mobileget-doctors){#toc-get-mobileget-doctors}
-    - [Description](#description-8){#toc-description-8}
-    - [Example](#example-9){#toc-example-9}
-  - [`PATCH`
-    /mobile/update-patient](#patch-mobileupdate-patient){#toc-patch-mobileupdate-patient}
-    - [Description](#description-9){#toc-description-9}
-    - [Example](#example-10){#toc-example-10}
-- [Web Backend](#web-backend){#toc-web-backend}
-  - [`POST`
-    /web/create-doctor-profile](#post-webcreate-doctor-profile){#toc-post-webcreate-doctor-profile}
-    - [Description](#description-10){#toc-description-10}
-    - [Example](#example-11){#toc-example-11}
-  - [`GET`
-    /web/doctor-data](#get-webdoctor-data){#toc-get-webdoctor-data}
-    - [Description](#description-11){#toc-description-11}
-    - [Example](#example-12){#toc-example-12}
-  - [`GET`
-    /web/get-patients](#get-webget-patients){#toc-get-webget-patients}
-    - [Description](#description-12){#toc-description-12}
-    - [Example](#example-13){#toc-example-13}
-  - [`PATCH`
-    /web/update-doctor](#patch-webupdate-doctor){#toc-patch-webupdate-doctor}
-    - [Description](#description-13){#toc-description-13}
-    - [Example](#example-14){#toc-example-14}
+  Service](#authentication-service)
+  - [`POST` /auth/signup](#post-authsignup)
+    - [Description](#description)
+    - [Example](#example)
+  - [`POST` /auth/login](#post-authlogin)
+    - [Description](#description-1)
+    - [Example](#example-1)
+  - [`GET` /auth/validate](#get-authvalidate)
+  - [`GET` /auth/refresh-token](#get-authrefresh-token)
+    - [Example](#example-2)
+- [Mobile Backend](#mobile-backend)
+  - [`POST` /mobile/create-patient-profile](#post-mobilecreate-patient-profile)
+    - [Description](#description-2)
+    - [Example](#example-3)
+  - [`POST` /mobile/create-appointment](#post-mobilecreate-appointment)
+    - [Description](#description-3)
+    - [Example](#example-4)
+  - [`GET` /mobile/patient-data](#get-mobilepatient-data)
+    - [Description](#description-4)
+    - [Example](#example-5)
+  - [`GET` /mobile/upcoming-appointments](#get-mobileupcoming-appointments)
+    - [Description](#description-5)
+    - [Example](#example-6)
+  - [`GET` /mobile/all-appointments](#get-mobileall-appointments)
+    - [Description](#description-6)
+    - [Example](#example-7)
+  - [`GET` /mobile/latest-prescription](#get-mobilelatest-prescription)
+    - [Description](#description-7)
+    - [Example](#example-8)
+  - [`GET` /mobile/get-doctors](#get-mobileget-doctors)
+    - [Description](#description-8)
+    - [Example](#example-9)
+  - [`PATCH` /mobile/update-patient](#patch-mobileupdate-patient)
+    - [Description](#description-9)
+    - [Example](#example-10)
+- [Web Backend](#web-backend)
+  - [`POST` /web/create-doctor-profile](#post-webcreate-doctor-profile)
+    - [Description](#description-10)
+    - [Example](#example-11)
+  - [`GET` /web/doctor-data](#get-webdoctor-data)
+    - [Description](#description-11)
+    - [Example](#example-12)
+  - [`GET` /web/get-patients](#get-webget-patients)
+    - [Description](#description-12)
+    - [Example](#example-13)
+  - [`PATCH` /web/update-doctor](#patch-webupdate-doctor)
+    - [Description](#description-13)
+    - [Example](#example-14)
 
 # Authentication Service
 
