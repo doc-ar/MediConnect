@@ -13,7 +13,7 @@ export default function ForgotPassword(){
 
     return(
       <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#2F3D7E" />
+        <StatusBar barStyle="dark-content" backgroundColor="white" />
         <View style={styles.TopView}>
           <AntDesign name="arrowleft" size={hp(3.5)} color="#646466" style={styles.backArrow} onPress={()=>navigation.goBack()}/>
           <Text style={styles.ForgotPasswordText}>Forgot Password</Text>
@@ -88,7 +88,8 @@ backArrow:{
     marginHorizontal: wp(25),
     backgroundColor: "#2F3D7E",
     borderRadius: 5,
-    paddingVertical: hp(1)
+    alignItems:"center",
+    justifyContent:"center"
   },
   buttontext:{
     textAlign: "center",

@@ -1,25 +1,73 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
+import axios from 'axios';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import EvilIcons from '@expo/vector-icons/EvilIcons';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import { Entypo } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import Modal from "react-native-modal";
+
 export default function SignUpScreen() {
     const navigation = useNavigation();
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [email, setEmail] = useState('');
+    const [error,setError] = useState('');
+    const [isModalVisible, setModalVisible] = useState(false);
 
+    const handleSignUp = async () => {
+        setError('');
+
+        if (!email || !password || !confirmPassword) {
+            setError("Fields cannot be empty");
+            return;
+        }
+
+        const emailPattern = /^[a-zA-Z0-9._-]+@gmail\.com$/;
+        if (!emailPattern.test(email)) {
+            setError("Email format is not valid");
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setError("Password and Confirm Password do not match");
+            return;
+        }
+
+        try {
+            const response = await axios.post("https://www.mediconnect.live/auth/signup", {
+                email: email,
+                password: password,
+                role: "patient",
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.status === 200 && response.data) {
+                console.log("Success", response.data.users);
+                setModalVisible(true);
+            } else {
+                setError("Sign Up Failed. Try again.");
+            }
+        } catch (error) {
+            console.error("Error:",  error);
+            setError("Sign Up Failed. Try Again.");
+        }
+    };
+    
+    
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="#2F3D7E" />
             <View style={styles.topContainer}>
-                <Text style={styles.TopSignInText}>Sign Up</Text>
+                <Text style={styles.TopSignUpText}>Sign Up</Text>
                 <Text style={styles.subtitleText}>Create your account to get your</Text>
                 <Text style={styles.subtitleText}>Mediconnect experience started</Text>
             </View>
+            <View style={styles.BottomView}>
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Email Address</Text>
                 <View style={styles.inputWrapper}>
@@ -49,30 +97,30 @@ export default function SignUpScreen() {
                         placeholder="Enter your password..."
                         placeholderTextColor="#B0B0B0"
                         secureTextEntry
-                        value={password}
-                        onChangeText={setPassword}
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
                     />
                 </View>
             </View>
-            <TouchableOpacity style={styles.signInButton} onPress={()=>navigation.navigate('RegisterDetails')}>
-                <Text style={styles.signInButtonText}>Sign Up</Text>
+            <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+                <Text style={styles.signUpButtonText}>Sign Up</Text>
             </TouchableOpacity>
-            <View style={styles.socialContainer}>
-                <Text style={styles.orText}>or</Text>
-                <View style={styles.socialButtons}>
-                    <TouchableOpacity style={styles.SocialMediaIconView}>
-                    <EvilIcons name="sc-facebook" size={hp(4)} color="#2F3D7E" />                    
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.SocialMediaIconView}>
-                    <AntDesign name="google" size={hp(3)} color="#2F3D7E" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.SocialMediaIconView}>
-                    <Entypo name="instagram" size={hp(3)} color="#2F3D7E" />                    
-                    </TouchableOpacity>
-                </View>
+            {error && <Text style={styles.error}>{error}</Text>}
+            <View style={styles.footerView}>
+                <Text style={styles.footerText}>Already have an account? </Text>
+                <TouchableOpacity onPress={()=>navigation.navigate("Login")}><Text style={styles.FooterSignInText}>Login</Text></TouchableOpacity>
             </View>
-                <Text style={styles.footerText}>Already have an account? <TouchableOpacity onPress={()=>navigation.navigate("Login")}><Text style={styles.signInText}>Sign In</Text></TouchableOpacity></Text>
-            
+            <Modal isVisible={isModalVisible}>
+                <View style={styles.ModalView}>
+                    <Text style={styles.ModalText}>Account Successfully Created!</Text>
+                    <AntDesign name="checkcircle" size={hp(9)} color="#2F3D7E" style={styles.Modalcheck}/>
+                    <View style={styles.ModalButtons}>
+                      <TouchableOpacity onPress={()=>setModalVisible(false)} style={styles.ModalCancelButton}><Text style={styles.CancelButtonText}>Cancel</Text></TouchableOpacity>
+                      <TouchableOpacity style={styles.ModalButton} onPress={()=>{navigation.navigate("Login")}}><Text style={styles.LoginButtonText}>Login</Text></TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>     
+            </View>   
         </SafeAreaView>
     );
 }
@@ -86,11 +134,11 @@ const styles = StyleSheet.create({
     topContainer: {
         backgroundColor: '#2F3D7E',
         width: wp(100),
-        height: hp(25),
+        height: hp(30),
         justifyContent: 'center',
         alignItems: 'center',
     },
-    TopSignInText: {
+    TopSignUpText: {
         color: 'white',
         fontSize: hp(6.5),
         fontWeight: '500',
@@ -100,7 +148,13 @@ const styles = StyleSheet.create({
         color: 'white',
         textAlign: 'center',
         marginBottom: hp(1),
-        fontSize: hp(2),
+        fontSize: hp(2.2),
+    },
+    BottomView: {
+        flex: 1,
+        width: wp(100),
+        alignItems: 'center',
+        //justifyContent: 'center',
     },
     inputContainer: {
         width: wp(85),
@@ -124,53 +178,91 @@ const styles = StyleSheet.create({
         fontSize: hp(2.2),
         color: 'black',
     },
-    signInButton: {
+    signUpButton: {
         backgroundColor: '#2F3D7E',
         width: wp(85),
         height: hp(6),
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: hp(3),
+        marginTop: hp(4),
     },
-    signInButtonText: {
+    signUpButtonText: {
         color: 'white',
         fontSize: hp(2.5),
         fontWeight: 'bold',
     },
-    socialContainer: {
-        marginTop: hp(4),
-        alignItems: 'center',
-    },
-    orText: {
-        fontSize: hp(2),
-        color: '#B0B0B0',
-    },
-    socialButtons: {
-        flexDirection: 'row',
-        marginTop: hp(3),
-        justifyContent: 'space-between',
-        width: wp(50),
-    },
-    socialIcon: {
-        
-    },
-    SocialMediaIconView:{
-      borderRadius:15,
-      borderWidth:1.5,
-      borderColor:'#2F3D7E',
-      width:hp(5),
-      height:hp(5),
-      justifyContent:'center',
-      alignItems:'center',
-    },
+   footerView:{
+    flexDirection:"row",
+    marginTop: hp(6),
+   },
     footerText: {
-        marginTop: hp(3),
         fontSize: hp(2),
         color: '#B0B0B0',
     },
-    signInText: {
+    FooterSignInText: {
         color: '#2F3D7E',
         fontWeight: 'bold',
+        fontSize: hp(2),
+        textDecorationLine: 'underline',
+        textDecorationColor:"#2F3D7E"
     },
+    error:{
+        color:"red",
+        marginTop:hp(2),
+        fontSize:hp(2)
+    },
+    ModalView:{
+        backgroundColor:"white",
+        borderRadius:20,
+        height:hp(25),
+        width:wp(80),
+        alignSelf:"center"
+      },
+      ModalText:{
+        fontSize:hp(2),
+        fontWeight:"bold",
+        textAlign:"center",
+        marginVertical:hp(2)
+      },
+      ModalButtons:{
+        alignSelf:"center",
+        flexDirection:"row",
+        justifyContent:"space-between",
+        alignItems:"center",
+        marginVertical:hp(1),
+        height:hp(7),
+        width:wp(70),
+      },
+      ModalCancelButton:{
+        justifyContent:"center",
+        borderRadius:10,
+        width: wp(33),
+        height: hp(5),
+        alignItems:"center",
+        backgroundColor: "white",
+        borderWidth: 1,
+        borderColor:"red"
+      },
+      ModalButton:{
+        justifyContent:"center",
+        borderRadius:10,
+        width: wp(33),
+        height: hp(5),
+        alignItems:"center",
+        backgroundColor: "#2F3D7E",
+      },
+      LoginButtonText:{
+        color:"white",
+        fontSize:hp(1.8),
+        fontWeight:"bold"
+      },
+      CancelButtonText:{
+        color:"red",
+        fontSize:hp(1.8),
+        fontWeight:"bold"
+      },
+      Modalcheck:{
+        alignSelf:"center",
+      }
 });

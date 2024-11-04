@@ -1,13 +1,14 @@
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView,StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
+import { ScrollView,StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useMediConnectStore } from '../Store/Store';
 
 export default function RegisterDetails() {
-    const navigation = useNavigation();
+    const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
+    const setRegistrationDetails = useMediConnectStore(state=>state.setRegistrationDetails)
     const [Name, setName] = useState('');
     const [Contact, setContact] = useState('');
     const [Address, setAddress] = useState('');
@@ -19,29 +20,46 @@ export default function RegisterDetails() {
     const [BloodType, setBloodType] = useState('');
     const [BloodGlucose, setBloodGlucose] = useState('');
     const [BloodPressure, setBloodPressure] = useState('');
-    const [EmptyReqFields, setEmptyReqFields] = useState(true);
+    const [EmptyReqFields, setEmptyReqFields] = useState(false);
     const [IsInvalidDate, setIsInvalidDate] = useState(false);
     
-    const validateAndSubmit = () => {
+    const validateAndSubmit = async () => {
         const dobPattern = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
         const isDateValid = dobPattern.test(DOB);
         
-        // If DOB format is invalid, set the flag
-        if (!isDateValid) {
-            setIsInvalidDate(true);
-        } else {
-            setIsInvalidDate(false);
-        }
-    
-        // Check if all required fields are filled and the date is valid
         if (Name && Contact && Address && DOB && Gender && isDateValid) {
             setEmptyReqFields(false);
+            if (!isDateValid) {
+                setIsInvalidDate(true);
+                return;
+            } 
             console.log({ Name, Contact, Address, DOB, Weight, Gender, BloodGlucose, BloodPressure });
-            
-            // Navigate to the 'Home' screen if all validations pass
-            navigation.navigate('Home');
+            setRegistrationDetails(true);
+            {/*const response = await FetchRequest("https://www.mediconnect.live/mobile/create-patient-profile","post",
+                {   user_id:"ba750072-6f30-4089-b2a9-5bdd136dd72c",
+                    name: Name,
+                    gender: Gender,
+                    address: Address,
+                    weight: Weight,
+                    blood_pressure: BloodPressure,
+                    age: "22",
+                    blood_glucose: BloodGlucose,
+                    contact: Contact,
+                    height: Height,
+                    bloodtype:BloodType,
+                    allergies:Allergy   
+                  }
+            );
+            if (response.status === 200) {
+                setRegistrationDetails(true);
+                console.log("Success: ",response.data);
+                return;
+            }
+            console.log("Error: ",response.data);
+            */}
         } else {
             setEmptyReqFields(true);
+            return;
         }
     };
     
@@ -52,7 +70,7 @@ export default function RegisterDetails() {
                 <Text style={styles.MediConnectText}>MediConnect</Text>
                 <ScrollView contentContainerStyle={styles.inputContainer}>
                     <Text style={styles.required}>*Required Fields</Text>
-                    {/* Name */}
+                   
                     <Text style={styles.label}>Name<Text style={styles.required}>*</Text>
                     </Text>
                     <View style={styles.inputWrapper}>
@@ -189,19 +207,12 @@ export default function RegisterDetails() {
 
 
                     {EmptyReqFields && <Text style={[styles.required, {marginTop: hp(2), alignSelf:"center"}]}>Some required fields are empty</Text>}
-                    <View style={styles.ButtonsView}>
-                    
-                    <TouchableOpacity style={styles.submitButton} onPress={()=>navigation.goBack()}>
-                        <Ionicons name="arrow-back-circle-outline" style={styles.ButtonIcon} size={hp(3)} color="#2F3D7E" />
-                        <Text style={styles.submitButtonText}>Back</Text>
-                    </TouchableOpacity>
-
+            
                     <TouchableOpacity style={styles.submitButton} onPress={validateAndSubmit}>
                         <Text style={styles.submitButtonText}>Next</Text>
                         <Ionicons name="arrow-forward-circle-outline" style={[styles.ButtonIcon, {paddingTop:hp(0.2)}]}  size={hp(3.01)} color="#2F3D7E" />
                     </TouchableOpacity>
 
-                    </View>
                 </ScrollView>
         </SafeAreaView>
     );
@@ -248,23 +259,19 @@ const styles = StyleSheet.create({
         fontSize:hp(2.2)
     },
     submitButton: {
-        paddingVertical: hp(1.5),
+        marginVertical: hp(2.5),
         alignItems: "center",
         width: wp(20),
         flexDirection: "row",
         justifyContent: "space-between",
+        alignSelf:"flex-end"
     },
     submitButtonText: {
         color: "#2F3D7E",
         fontSize: hp(2.7),
         fontWeight: "bold",
     },
-    ButtonsView:{
-        flexDirection:"row",
-        justifyContent:"space-between",
-        marginTop:hp(2),
-        width: wp(90),
-    },
+    
     ButtonIcon:{
         marginTop:hp(0.2),
         marginHorizontal:wp(0.4)

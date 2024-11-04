@@ -19,21 +19,32 @@ import EditProfile from './src/screens/EditProfile';
 import NotificationScreen from './src/screens/NotificationScreen';
 import RescheduleScreen from './src/screens/RescheduleScreen';
 import SetImage from './src/screens/SetImage';
+import { useMediConnectStore } from './src/Store/Store';
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  const IsRegisterationComplete = useMediConnectStore(state=>state.RegistrationDetails);
+  const IsAuthenticated = useMediConnectStore(state=>state.isAuthenticated);
+  
   return (
     <NavigationContainer>
       <SafeAreaProvider>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {/*<Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="SignUp" component={SignUpScreen}/>*/}
+      {!IsAuthenticated &&
+      <>
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPassword}/>
+        <Stack.Screen name="SignUp" component={SignUpScreen}/>
+      </>
+}
+      {IsAuthenticated && <>
+        {!IsRegisterationComplete && <Stack.Screen name="RegisterDetails" component={RegisterDetails} /> }
+        {IsRegisterationComplete && <>
         <Stack.Screen name="HomeStack" component={HomeStack} />
         <Stack.Screen name="PrescriptionDetail" component={PrescriptionDetail} />
         <Stack.Screen name="AppointmentDetails" component={AppointmentDetails} />
         <Stack.Screen name="NewAppointment" component={NewAppointment} />
-        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
-        {/*<Stack.Screen name="RegisterDetails" component={RegisterDetails} />*/}
         <Stack.Screen name="LanguageScreen" component={LanguageScreen} />
         <Stack.Screen name="NotificationSettings" component={NotificationSettings} />
         <Stack.Screen name="HelpScreen" component={HelpScreen} />
@@ -44,6 +55,9 @@ export default function App() {
         <Stack.Screen name="NotificationScreen" component={NotificationScreen} />
         <Stack.Screen name="RescheduleScreen" component={RescheduleScreen} />
         <Stack.Screen name="SetImage" component={SetImage}/>
+        </>}
+        </>
+      }
       </Stack.Navigator>
       </SafeAreaProvider>
     </NavigationContainer>

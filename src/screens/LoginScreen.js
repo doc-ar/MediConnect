@@ -1,23 +1,61 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useState } from 'react';
-import EvilIcons from '@expo/vector-icons/EvilIcons';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import { Entypo } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import axios from 'axios';
+import { useMediConnectStore } from '../Store/Store';
 
 export default function LoginScreen({ navigation }) {
 
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
+    const [error,setError] = useState('');
+    const setTokens = useMediConnectStore((state) => state.setTokens);
+
+    const handleLogin = async () => {
+        setError('');
+
+        if (!email || !password) {
+            setError("Fields cannot be empty");
+            return;
+        }
+
+        const emailPattern = /^[a-zA-Z0-9._-]+@gmail\.com$/;
+        if (!emailPattern.test(email)) {
+            setError("Email format is not valid");
+            return;
+        }
+
+        try {
+            const response = await axios.post("https://www.mediconnect.live/auth/login", {
+                email: email,
+                password: password,
+            }, {
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.status === 200 && response.data) {
+                console.log("Success", response.data);
+                setTokens(response.data.accessToken,response.data.refreshToken);
+                
+            } else {
+                setError("Login Failed. Try again.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            setError("Login Failed. Try Again.");
+        }
+    }
 
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="light-content" backgroundColor="#2F3D7E" />
             <View style={styles.topContainer}>
-                <Text style={styles.TopSignInText}>Sign In</Text>
-                <Text style={styles.subtitleText}>Sign in to Access your</Text>
+                <Text style={styles.TopSignInText}>Login</Text>
+                <Text style={styles.subtitleText}>Login to Access your</Text>
                 <Text style={styles.subtitleText}>MediConnect Experience</Text>
             </View>
             <View style={styles.inputContainer}>
@@ -43,25 +81,15 @@ export default function LoginScreen({ navigation }) {
                     />
                 </View>
             </View>
-            <TouchableOpacity style={styles.signInButton} onPress={()=>navigation.navigate('Home')}>
-                <Text style={styles.signInButtonText}>Sign In</Text>
+            <TouchableOpacity style={styles.signInButton} onPress={handleLogin}>
+                <Text style={styles.signInButtonText}>Login</Text>
             </TouchableOpacity>
-            <View style={styles.socialContainer}>
-                <Text style={styles.orText}>or</Text>
-                <View style={styles.socialButtons}>
-                    <TouchableOpacity style={styles.SocialMediaIconView}>
-                    <EvilIcons name="sc-facebook" size={hp(4)} color="#2F3D7E" />                    
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.SocialMediaIconView}>
-                    <AntDesign name="google" size={hp(3)} color="#2F3D7E" />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.SocialMediaIconView}>
-                    <Entypo name="instagram" size={hp(3)} color="#2F3D7E" />                    
-                    </TouchableOpacity>
-                </View>
+            {error && <Text style={styles.error}>{error}</Text>}
+            <View style={styles.FooterView}>
+                <Text style={styles.FooterText}>Don't have an account? </Text>
+                <TouchableOpacity onPress={()=>navigation.navigate('SignUp')} ><Text style={styles.FooterSignUpText}>Sign Up</Text></TouchableOpacity>
             </View>
-                <Text style={styles.footerText}>Don't have an account? <TouchableOpacity onPress={()=>navigation.navigate('SignUp')} ><Text style={styles.signInText}>Sign Up</Text></TouchableOpacity></Text>
-                <TouchableOpacity onPress={()=>navigation.navigate('ForgotPassword')} ><Text style={[styles.footerText, styles.signInText]}>Forgot your Password?</Text></TouchableOpacity>
+            <TouchableOpacity onPress={()=>navigation.navigate('ForgotPassword')} ><Text style={styles.forgotPassword}>Forgot your Password?</Text></TouchableOpacity>
         </SafeAreaView>
     );
 }
@@ -75,7 +103,7 @@ const styles = StyleSheet.create({
     topContainer: {
         backgroundColor: '#2F3D7E',
         width: wp(100),
-        height: hp(25),
+        height: hp(30),
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -89,7 +117,7 @@ const styles = StyleSheet.create({
         color: 'white',
         textAlign: 'center',
         marginBottom: hp(1),
-        fontSize: hp(2),
+        fontSize: hp(2.2),
     },
     inputContainer: {
         width: wp(85),
@@ -127,40 +155,32 @@ const styles = StyleSheet.create({
         fontSize: hp(2.5),
         fontWeight: 'bold',
     },
-    socialContainer: {
-        marginTop: hp(4),
-        alignItems: 'center',
-    },
-    orText: {
-        fontSize: hp(2),
-        color: '#B0B0B0',
-    },
-    socialButtons: {
-        flexDirection: 'row',
-        marginTop: hp(3),
-        justifyContent: 'space-between',
-        width: wp(50),
-    },
-    socialIcon: {
-        
-    },
-    SocialMediaIconView:{
-      borderRadius:15,
-      borderWidth:1.5,
-      borderColor:'#2F3D7E',
-      width:hp(5),
-      height:hp(5),
-      justifyContent:'center',
-      alignItems:'center',
-    },
-    footerText: {
-        marginTop: hp(3),
-        fontSize: hp(2),
-        color: '#B0B0B0',
-    },
-    signInText: {
+    FooterView:{
+        flexDirection:"row",
+        marginTop: hp(6),
+       },
+    FooterText: {
+            fontSize: hp(2),
+            color: '#B0B0B0',
+        },
+    FooterSignUpText: {
+            color: '#2F3D7E',
+            fontWeight: 'bold',
+            fontSize: hp(2),
+            textDecorationLine: 'underline',
+            textDecorationColor:"#2F3D7E"
+        },
+    forgotPassword: {
+        marginTop: hp(6),
         color: '#2F3D7E',
         fontWeight: 'bold',
-        textDecorationLine:'underline'
+        fontSize: hp(2),
+        textDecorationLine: 'underline',
+        textDecorationColor:"#2F3D7E"
     },
+    error:{
+        color:"red",
+        marginTop:hp(2),
+        fontSize:hp(2)
+    }
 });
