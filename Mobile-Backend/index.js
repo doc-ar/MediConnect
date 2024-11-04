@@ -50,6 +50,29 @@ app.post("/mobile/create-patient-profile", authMiddleware, async (req, res) => {
   }
 });
 
+app.post("/mobile/create-appointment", authMiddleware, async (req, res) => {
+  try {
+    const appointments = await sql`
+      SELECT * FROM appointments
+      WHERE doctor_id = ${req.body.doctor_id}
+      AND patient_id = ${req.body.patient_id}
+      AND slot_id = ${req.body.slot_id}
+    `;
+    if (appointments.length > 0 && appointments[0].appointment_id) {
+      return res.status(409).json({ error: "The appointment already exists" });
+    }
+
+    const appointment = await sql`
+      INSERT INTO appointments (doctor_id,patient_id,slot_id,status)
+      VALUES (${req.body.doctor_id}, ${req.body.patient_id}, ${req.body.slot_id}, 'scheduled')
+      RETURNING *
+    `;
+    res.status(200).json(appointment[0]);
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
+
 // GET Request endpoints
 app.get("/mobile/patient-data", authMiddleware, async (req, res) => {
   try {
@@ -82,15 +105,15 @@ app.get("/mobile/upcoming-appointments", authMiddleware, async (req, res) => {
     const token = authHeader && authHeader.split(" ")[1];
     const tokenData = jwt.decode(token);
 
-    const patientData = await sql`
-      SELECT * FROM patients
-      WHERE user_id = ${tokenData.user_id};
-    `;
-
     const result = await sql`
-      SELECT * FROM appointments
-      WHERE patient_id = ${patientData[0].patient_id}
+      SELECT a.* FROM appointments a
+      JOIN time_slots ts ON ts.slot_id = a.slot_id
+      JOIN patients p ON p.patient_id = a.patient_id
+      JOIN users u ON u.user_id = p.user_id
+      WHERE u.user_id = ${tokenData.user_id}
       AND status = 'scheduled'
+      ORDER BY ts.date DESC
+      LIMIT 1
     `;
 
     res.status(200).json(result);
@@ -105,14 +128,11 @@ app.get("/mobile/all-appointments", authMiddleware, async (req, res) => {
     const token = authHeader && authHeader.split(" ")[1];
     const tokenData = jwt.decode(token);
 
-    const patientData = await sql`
-      SELECT * FROM patients
-      WHERE user_id = ${tokenData.user_id};
-    `;
-
     const result = await sql`
-      SELECT * FROM appointments
-      WHERE patient_id = ${patientData[0].patient_id}
+      SELECT a.* FROM appointments a
+      JOIN patients p ON p.patient_id = a.patient_id
+      JOIN users u ON u.user_id = p.user_id
+      WHERE u.user_id = ${tokenData.user_id}
     `;
 
     res.status(200).json(result);
@@ -187,6 +207,43 @@ app.get("/mobile/get-doctors", authMiddleware, async (req, res) => {
 });
 
 // PATCH Request endpoints
+app.patch("/mobile/update-patient", authMiddleware, async (req, res) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const tokenData = jwt.decode(token);
+    const patientData = await sql`
+      SELECT * FROM patients
+      WHERE user_id = ${tokenData.user_id};
+    `;
+
+    if (patientData.length === 0) {
+      return res.status(404).json({ error: "The user does not exist" });
+    }
+
+    const result = await sql`
+      UPDATE patients
+      SET name            = ${req.body.name},
+          gender          = ${req.body.gender},
+          address         = ${req.body.address},
+          weight          = ${req.body.weight},
+          blood_pressure  = ${req.body.blood_pressure},
+          image           = ${req.body.image},
+          age             = ${req.body.age},
+          blood_glucose   = ${req.body.blood_glucose},
+          contact         = ${req.body.contact},
+          bloodtype       = ${req.body.bloodtype},
+          allergies       = ${req.body.allergies},
+          height          = ${req.body.height}
+      WHERE user_id = ${tokenData.user_id}
+      RETURNING *
+    `;
+
+    return res.status(200).json(result[0]);
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Mobile Backend is running on port ${PORT}`);
