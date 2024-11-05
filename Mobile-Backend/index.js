@@ -106,12 +106,16 @@ app.get("/mobile/upcoming-appointments", authMiddleware, async (req, res) => {
     const tokenData = jwt.decode(token);
 
     const result = await sql`
-      SELECT a.* FROM appointments a
+      SELECT  a.appointment_id, a.status,
+              d.name, d.designation, d.qualification, d.image, d.roomno, d.contact, u.email,
+              ts.date, ts.start_time, ts.end_time
+      FROM appointments a
       JOIN time_slots ts ON ts.slot_id = a.slot_id
+      JOIN doctors d ON d.doctor_id = a.doctor_id
       JOIN patients p ON p.patient_id = a.patient_id
-      JOIN users u ON u.user_id = p.user_id
-      WHERE u.user_id = ${tokenData.user_id}
-      AND status = 'scheduled'
+      JOIN users u ON u.user_id = d.user_id
+      WHERE p.user_id = ${tokenData.user_id}
+      AND a.status = 'scheduled'
       ORDER BY ts.date DESC
       LIMIT 1
     `;
@@ -129,10 +133,15 @@ app.get("/mobile/all-appointments", authMiddleware, async (req, res) => {
     const tokenData = jwt.decode(token);
 
     const result = await sql`
-      SELECT a.* FROM appointments a
+      SELECT  a.appointment_id, a.status,
+              d.name, d.designation, d.qualification, d.image, d.roomno, d.contact, u.email AS doctor_email,
+              ts.date, ts.start_time, ts.end_time
+      FROM appointments a
+      JOIN time_slots ts ON ts.slot_id = a.slot_id
+      JOIN doctors d ON d.doctor_id = a.doctor_id
       JOIN patients p ON p.patient_id = a.patient_id
-      JOIN users u ON u.user_id = p.user_id
-      WHERE u.user_id = ${tokenData.user_id}
+      JOIN users u ON u.user_id = d.user_id  -- Join to get the doctor's email
+      WHERE p.user_id = ${tokenData.user_id}
     `;
 
     res.status(200).json(result);
