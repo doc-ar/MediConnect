@@ -19,23 +19,22 @@ app.use(json());
 // Post Requests
 app.post("/mobile/create-patient-profile", authMiddleware, async (req, res) => {
   try {
+    // Check that the user role is patient
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "patient")) {
+      return res.status(403).json({ error: "The user is not a patient" });
+    }
+
+    // Check if the patient already exists
     const patientData = await sql`
       SELECT * FROM patients
       WHERE user_id = ${tokenData.user_id};
     `;
-    const userData = await sql`
-      SELECT * FROM users
-      WHERE user_id = ${tokenData.user_id}
-    `;
-
     if (patientData.length > 0 && patientData[0].patient_id) {
       return res.status(409).json({ error: "The user already exists" });
     }
-    if (!(userData[0].role === "patient"))
-      return res.status(403).json({ error: "The user is not a patient" });
 
     const result = await sql`
       INSERT INTO patients (user_id,name,gender,address,weight,blood_pressure,image,age,blood_glucose,contact,bloodtype,allergies,height)
@@ -52,6 +51,15 @@ app.post("/mobile/create-patient-profile", authMiddleware, async (req, res) => {
 
 app.post("/mobile/create-appointment", authMiddleware, async (req, res) => {
   try {
+    // Check that the user role is patient
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "patient")) {
+      return res.status(403).json({ error: "The user is not a patient" });
+    }
+
+    // Check if appointment exists
     const appointments = await sql`
       SELECT * FROM appointments
       WHERE doctor_id = ${req.body.doctor_id}
@@ -62,6 +70,7 @@ app.post("/mobile/create-appointment", authMiddleware, async (req, res) => {
       return res.status(409).json({ error: "The appointment already exists" });
     }
 
+    // Execute Query
     const appointment = await sql`
       INSERT INTO appointments (doctor_id,patient_id,slot_id,status)
       VALUES (${req.body.doctor_id}, ${req.body.patient_id}, ${req.body.slot_id}, 'scheduled')
@@ -274,6 +283,32 @@ app.patch("/mobile/update-patient", authMiddleware, async (req, res) => {
     return res.status(200).json(result[0]);
   } catch (error) {
     res.json({ error: error.message });
+  }
+});
+
+app.patch("/web/update-appointment", authMiddleware, async (req, res) => {
+  try {
+    // Check if appointment exists
+    const object_exists = await sql`
+      SELECT appointment_id FROM appointments
+      WHERE appointment_id = ${req.body.appointment_id};
+    `;
+    if (object_exists.length === 0) {
+      return res.status(404).json({ error: "The appointment does not exist" });
+    }
+
+    // execute query
+    const result = await sql`
+      UPDATE appointments
+      SET slot_id       = ${req.body.slot_id},
+          status        = ${req.body.status}
+      WHERE appointment_id = ${req.body.appointment_id}
+      RETURNING *
+    `;
+
+    return res.json(result[0]);
+  } catch (error) {
+    return res.json({ error: error.message });
   }
 });
 
