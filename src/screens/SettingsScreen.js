@@ -8,9 +8,13 @@ import { Ionicons } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import { Fontisto } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { useMediConnectStore } from "../Store/Store";
+
 export default function SettingsScreen() {
 
     const navigation = useNavigation();
+    const PatientData = useMediConnectStore(state=>state.PatientData);
+
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="white"/>
@@ -22,8 +26,8 @@ export default function SettingsScreen() {
                         <Image source={{ uri: "https://img.freepik.com/premium-photo/portrait-lovely-pretty-positive-woman-toothy-beaming-smile-blue-background_525549-5283.jpg?w=360" }} style={styles.PatientImage} />
                         <MaterialCommunityIcons name="pencil-circle" size={hp(5)} color="#2F3D7E" style={styles.pencilicon} onPress={()=>navigation.navigate("SetImage")}/>
                     </View>
-                    <Text style={styles.PatientName}>Sarah</Text>
-                    <Text style={styles.PatientEmail}>sarah.chris@gmail.com</Text>
+                    <Text style={styles.PatientName}>{PatientData.name}</Text>
+                    <Text style={styles.PatientEmail}>{PatientData.email}</Text>
                     <View style={styles.buttons}>
                         <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate("EditProfile")}>
                             <View style={styles.buttonstartView}>

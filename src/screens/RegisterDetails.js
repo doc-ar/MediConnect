@@ -8,41 +8,34 @@ import { useMediConnectStore } from '../Store/Store';
 
 export default function RegisterDetails() {
     const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
-    const setRegistrationDetails = useMediConnectStore(state=>state.setRegistrationDetails)
-    const [Name, setName] = useState('');
-    const [Contact, setContact] = useState('');
-    const [Address, setAddress] = useState('');
-    const [DOB, setDOB] = useState('');
-    const [Weight, setWeight] = useState('');
-    const [Gender, setGender] = useState('');
-    const [Height, setHeight] = useState('');
-    const [Allergy, setAllergy] = useState('');
-    const [BloodType, setBloodType] = useState('');
-    const [BloodGlucose, setBloodGlucose] = useState('');
-    const [BloodPressure, setBloodPressure] = useState('');
+    const setIsRegistered = useMediConnectStore(state=>state.setIsRegistered)
+    const [Name, setName] = useState(null);
+    const [Contact, setContact] = useState(null);
+    const [Address, setAddress] = useState(null);
+    const [Age, setAge] = useState(null);
+    const [Weight, setWeight] = useState(null);
+    const [Gender, setGender] = useState(null);
+    const [Height, setHeight] = useState(null);
+    const [Allergy, setAllergy] = useState(null);
+    const [BloodType, setBloodType] = useState(null);
+    const [BloodGlucose, setBloodGlucose] = useState(null);
+    const [BloodPressure, setBloodPressure] = useState(null);
     const [EmptyReqFields, setEmptyReqFields] = useState(false);
-    const [IsInvalidDate, setIsInvalidDate] = useState(false);
     
     const validateAndSubmit = async () => {
-        const dobPattern = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
-        const isDateValid = dobPattern.test(DOB);
         
-        if (Name && Contact && Address && DOB && Gender && isDateValid) {
+        if (Name && Contact && Address && Age && Gender) {
             setEmptyReqFields(false);
-            if (!isDateValid) {
-                setIsInvalidDate(true);
-                return;
-            } 
-            console.log({ Name, Contact, Address, DOB, Weight, Gender, BloodGlucose, BloodPressure });
-            setRegistrationDetails(true);
-            {/*const response = await FetchRequest("https://www.mediconnect.live/mobile/create-patient-profile","post",
-                {   user_id:"ba750072-6f30-4089-b2a9-5bdd136dd72c",
+
+            console.log({ Name, Contact, Address, Age, Weight, Gender, BloodGlucose, BloodPressure });
+            const response = await FetchRequest("https://www.mediconnect.live/mobile/create-patient-profile","post",
+                {  // user_id:"ba750072-6f30-4089-b2a9-5bdd136dd72c",
                     name: Name,
                     gender: Gender,
                     address: Address,
                     weight: Weight,
                     blood_pressure: BloodPressure,
-                    age: "22",
+                    age: Age,
                     blood_glucose: BloodGlucose,
                     contact: Contact,
                     height: Height,
@@ -50,13 +43,13 @@ export default function RegisterDetails() {
                     allergies:Allergy   
                   }
             );
-            if (response.status === 200) {
-                setRegistrationDetails(true);
-                console.log("Success: ",response.data);
+            if (response.status === 200) { 
+                console.log("Back to register Screen Success: ",response.data);
+                setIsRegistered(true);
                 return;
             }
             console.log("Error: ",response.data);
-            */}
+            
         } else {
             setEmptyReqFields(true);
             return;
@@ -66,7 +59,7 @@ export default function RegisterDetails() {
 
     return (
         <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="light-content" backgroundColor="#2F3D7E" />
+            <StatusBar barStyle="dark-content" backgroundColor="white" />
                 <Text style={styles.MediConnectText}>MediConnect</Text>
                 <ScrollView contentContainerStyle={styles.inputContainer}>
                     <Text style={styles.required}>*Required Fields</Text>
@@ -109,18 +102,17 @@ export default function RegisterDetails() {
                     </View>
 
                     {/* DOB */}
-                    <Text style={styles.label}>Date of Birth (DD/MM/YYYY)<Text style={styles.required}>*</Text></Text>
+                    <Text style={styles.label}>Age<Text style={styles.required}>*</Text></Text>
                     <View style={styles.inputWrapper}>
                         <TextInput
                             style={styles.input}
-                            placeholder="DD/MM/YYYY"
+                            placeholder="Age in Years"
                             placeholderTextColor="#B0B0B0"
-                            value={DOB}
-                            onChangeText={setDOB}
+                            value={Age}
+                            onChangeText={setAge}
                             keyboardType="numeric"
                         />
                     </View>
-                    {IsInvalidDate && <Text style={styles.required}>Date Pattern is Invalid use: DD/MM/YYYY</Text>}
 
                     {/* Gender */}
                     <Text style={styles.label}>Gender<Text style={styles.required}>*</Text></Text>

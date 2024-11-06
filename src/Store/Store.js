@@ -12,8 +12,8 @@ export const useMediConnectStore = create((set) => {
   checkRefreshToken();
   
   const fetchWithRetry = async (url, method, data = undefined) => {
-    try {
-      console.log("1");
+    
+      console.log("In fetch function");
       // Retrieve access token
       const accessToken = await SecureStore.getItemAsync('accessToken');
       console.log("access: ",accessToken);
@@ -23,61 +23,70 @@ export const useMediConnectStore = create((set) => {
         'Accept': 'application/json',
       };
 
-      // Make the initial request with Axios
-      console.log("2");
+      // Make the initial request
+      console.log("Making initial request");
+    try{
       let response = await axios({
         url:url,
         method:method,
         headers:headers,
         data:data
       });
-      console.log("3");
-      // If the response status is not 200, attempt to refresh the token
-      if (response.status === 403 || response.status !== 200) {
-        const refreshToken = await SecureStore.getItemAsync('refreshToken');
-        console.log("4");
+      console.log("initial req successful");
+      return response;
+    }
+    catch(error){
+      console.log("initial request failed, error: ",error);
+      console.log("Fetching secure refresh token");
+
+      const refreshToken = await SecureStore.getItemAsync('refreshToken');
         if (!refreshToken) {
           // Log the user out if there's no refresh token
+          console.log("No refresh token in secure storage, logging user out");
           await clearTokens();
           return null;
         }
-        console.log("5");
         // Attempt to refresh the access token
-        const refreshResponse = await axios.get(
-          'https://www.mediconnect.live/auth/refresh-token',
-          { refresh_token: refreshToken },
-          { headers: { 'Content-Type': 'application/json' } }
+        try{
+          console.log("Got refresh token, Making request for auth token");
+          const refreshResponse = await axios.get(
+            'https://www.mediconnect.live/auth/refresh-token',
+            { refresh_token: refreshToken },
+            { headers: { 'Content-Type': 'application/json' } }
         );
-
-        if (refreshResponse.status === 200) {
+        
           const { accessToken: newAccessToken, refreshToken: newRefreshToken } = refreshResponse.data;
           await setTokens(newAccessToken, newRefreshToken);
-          console.log("6");
+          console.log("Got new refresh and auth token");
           // Retry the original request with the new access token
-          response = await axios({
-            url:url,
-            method:method,
-            headers: { ...headers, Authorization: `Bearer ${newAccessToken}` },
-            data:data,
-          });
-          console.log("7");
-        } else {
+          try{
+            console.log("Retrying request with new access token");
+            response = await axios({
+              url:url,
+              method:method,
+              headers: { ...headers, Authorization: `Bearer ${newAccessToken}` },
+              data:data,
+            });
+            console.log("Request again successful. data: ",response.data);
+            return response;
+          }
+          catch(error){
+            console.log("error fetching data again with new access token: ", error);
+            return null;
+          }
+        } catch(error) {
+          console.log("Logging out. error fetching new auth token: ",error);
           await clearTokens();
           return null;
         }
-      }
-
-      return response;
-    } catch (error) {
-      console.error('Network request failed:', error);
-      return null;
     }
+    
   };
 
   const clearTokens = async () => {
     await SecureStore.deleteItemAsync('accessToken');
     await SecureStore.deleteItemAsync('refreshToken');
-    set({ isAuthenticated: false });
+    checkRefreshToken();
   };
 
   const setTokens = async (accessToken, refreshToken) => {
@@ -85,14 +94,17 @@ export const useMediConnectStore = create((set) => {
     await SecureStore.setItemAsync('refreshToken', refreshToken);
     checkRefreshToken();
   };
-
+  
   
   return {
     selectedAppointmentMonth: "",  
     setSelectedAppointmentMonth: (Month) => set({ selectedAppointmentMonth: Month }),
     
-    RegistrationDetails: false,
-    setRegistrationDetails: (bool) => set({ RegistrationDetails: bool }),
+    isRegistered: false,
+    setIsRegistered: (bool) => set({ isRegistered: bool }),
+
+    PatientData: {},
+    setPatientData: (data) => set({ PatientData: data }),
 
     isAuthenticated: false,
     setTokens,

@@ -24,7 +24,7 @@ import { useMediConnectStore } from './src/Store/Store';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const IsRegisterationComplete = useMediConnectStore(state=>state.RegistrationDetails);
+  const isRegistered = useMediConnectStore(state=>state.isRegistered);
   const IsAuthenticated = useMediConnectStore(state=>state.isAuthenticated);
   
   return (
@@ -39,8 +39,8 @@ export default function App() {
       </>
 }
       {IsAuthenticated && <>
-        {!IsRegisterationComplete && <Stack.Screen name="RegisterDetails" component={RegisterDetails} /> }
-        {IsRegisterationComplete && <>
+        {!isRegistered && <Stack.Screen name="RegisterDetails" component={RegisterDetails} /> }
+        {isRegistered && <>
         <Stack.Screen name="HomeStack" component={HomeStack} />
         <Stack.Screen name="PrescriptionDetail" component={PrescriptionDetail} />
         <Stack.Screen name="AppointmentDetails" component={AppointmentDetails} />

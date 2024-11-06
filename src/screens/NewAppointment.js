@@ -8,10 +8,11 @@ import Calendar from "react-native-calendars/src/calendar";
 import { SelectList } from "react-native-dropdown-select-list";
 import {RadioButton } from 'react-native-paper';
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useMediConnectStore } from "../Store/Store";
 
 export default function NewAppointment() {
     const navigation = useNavigation();
-
+    const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
     const [DoctorsList, setDoctorsList] = useState([]);
     const [DoctorsNameList, setDoctorsNameList] = useState([]);
     const [DoctorsName, setDoctorsName] = useState([]);
@@ -83,6 +84,7 @@ export default function NewAppointment() {
             const response = await fetch('https://my-json-server.typicode.com/EmamaBilalKhan/MediConnect-API-3/Doctors');
             const data = await response.json();
             setDoctorsList(data);
+            
             const designations = data.map(doctor => ({
                 key: doctor.designation,
                 value: doctor.designation
@@ -93,6 +95,14 @@ export default function NewAppointment() {
         } catch (error) {
             console.error('Error fetching Doctors:', error);
         }
+        const response = await FetchRequest("https://www.mediconnect.live/mobile/get-doctors","get"
+        );
+        if (response.status === 200) {
+            console.log("Doctors Data , Back to Schedule screen Success: ",response.data);
+        }
+        else{
+        console.log("Error Fetching Latest Prescription Data on Prescription Screen: ",response.data);
+    }
     };
 
     const setMinMaxDate = () => {

@@ -5,44 +5,51 @@ import { StatusBar } from "expo-status-bar";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
+import { useMediConnectStore } from "../Store/Store";
 
 export default function EditProfile(){
+    const setPatientData = useMediConnectStore(state=>state.setPatientData);
+    const PatientData = useMediConnectStore(state=>state.PatientData);
+    const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
     const navigation = useNavigation();
-    const [Name, setName] = useState('John Doe');
-    const [Contact, setContact] = useState('1234567890');
-    const [Address, setAddress] = useState('123 Main St');
-    const [DOB, setDOB] = useState('01/01/1990');
-    const [Weight, setWeight] = useState('70');
-    const [Gender, setGender] = useState('Male');
-    const [Height, setHeight] = useState('170');
-    const [Allergy, setAllergy] = useState('None');
-    const [BloodType, setBloodType] = useState('O+');
-    const [BloodGlucose, setBloodGlucose] = useState('90');
-    const [BloodPressure, setBloodPressure] = useState('120/80');
+    const [Name, setName] = useState(PatientData.name);
+    const [Contact, setContact] = useState(PatientData.contact);
+    const [Address, setAddress] = useState(PatientData.address);
+    const [Age, setAge] = useState(PatientData.age);
+    const [Weight, setWeight] = useState(PatientData.weight);
+    const [Gender, setGender] = useState(PatientData.gender);
+    const [Height, setHeight] = useState(PatientData.height);
+    const [Allergy, setAllergy] = useState(PatientData.allergies);
+    const [BloodType, setBloodType] = useState(PatientData.bloodtype);
+    const [BloodGlucose, setBloodGlucose] = useState(PatientData.blood_glucose);
+    const [BloodPressure, setBloodPressure] = useState(PatientData.blood_pressure);
     const [EmptyReqFields, setEmptyReqFields] = useState(false);
-    const [IsInvalidDate, setIsInvalidDate] = useState(false);
 
     const validateAndSubmit = () => {
-        const dobPattern = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
-        const isDateValid = dobPattern.test(DOB);
-        
-        if (!isDateValid) {
-            setIsInvalidDate(true);
-        } else {
-            setIsInvalidDate(false);
-        }
-    
         // Check if all required fields are filled and the date is valid
-        if (Name && Contact && Address && DOB && Gender && isDateValid) {
+        if (Name && Contact && Address && Age && Gender) {
             setEmptyReqFields(false);
-            console.log("info changed");     
-            navigation.goBack();
+                 
+            UpdatePatientData();
       
             // Submit logic here
         } else {
             setEmptyReqFields(true);
         }
     };
+
+    const UpdatePatientData= async() =>{
+        const response = await FetchRequest("https://www.mediconnect.live/mobile/update-patient","patch", {name:Name, gender:Gender, address:Address, weight:Weight, blood_pressure:BloodPressure, image:null, age:Age, blood_glucose:BloodGlucose, contact:Contact, bloodtype:BloodType, allergies:Allergy, height:Height}
+        );
+        if (response.status === 200) {
+            console.log("Patient Data Updated , Back to Edit Screen Success: ",response.data);
+            setPatientData(response.data);
+            navigation.goBack();
+        }
+        else{
+        console.log("Error setting Patient Data on Edit Screen: ",response.data);
+    }
+    } 
 
     return (
         <SafeAreaView style={styles.container}>
@@ -86,17 +93,16 @@ export default function EditProfile(){
                     />
                 </View>
 
-                {/* DOB */}
-                <Text style={styles.label}>Date of Birth (DD/MM/YYYY)<Text style={styles.required}>*</Text></Text>
+                {/* Age */}
+                <Text style={styles.label}>Age<Text style={styles.required}>*</Text></Text>
                 <View style={styles.inputWrapper}>
                     <TextInput
                         style={styles.input}
-                        value={DOB}
-                        onChangeText={setDOB}
+                        value={Age}
+                        onChangeText={setAge}
                         keyboardType="numeric"
                     />
                 </View>
-                {IsInvalidDate && <Text style={styles.required}>Invalid Date Pattern. Use: DD/MM/YYYY</Text>}
 
                 {/* Gender */}
                 <Text style={styles.label}>Gender<Text style={styles.required}>*</Text></Text>

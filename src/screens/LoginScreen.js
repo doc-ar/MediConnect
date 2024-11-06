@@ -12,7 +12,7 @@ export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [error,setError] = useState('');
     const setTokens = useMediConnectStore((state) => state.setTokens);
-
+    const setIsRegistered = useMediConnectStore((state) => state.setIsRegistered);
     const handleLogin = async () => {
         setError('');
 
@@ -21,11 +21,11 @@ export default function LoginScreen({ navigation }) {
             return;
         }
 
-        const emailPattern = /^[a-zA-Z0-9._-]+@gmail\.com$/;
-        if (!emailPattern.test(email)) {
-            setError("Email format is not valid");
-            return;
-        }
+        //const emailPattern = /^[a-zA-Z0-9._-]+@gmail\.com$/;
+        //if (!emailPattern.test(email)) {
+        //    setError("Email format is not valid");
+        //    return;
+        //}
 
         try {
             const response = await axios.post("https://www.mediconnect.live/auth/login", {
@@ -40,9 +40,11 @@ export default function LoginScreen({ navigation }) {
             if (response.status === 200 && response.data) {
                 console.log("Success", response.data);
                 setTokens(response.data.accessToken,response.data.refreshToken);
+                setIsRegistered(response.data.hasPatientProfile);
                 
             } else {
                 setError("Login Failed. Try again.");
+                setIsRegistered(false);
             }
         } catch (error) {
             console.error("Error:", error);

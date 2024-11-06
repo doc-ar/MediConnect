@@ -1,13 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MedicationTable from '../components/MedicationTable';
 import PrescriptionTable from '../components/PrescriptionTable';
+import { useMediConnectStore } from '../Store/Store';
 
 export default function PrescriptionScreen({navigation}){
 
+      const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
+      const [Loading, setLoading] = useState(true);
       const [Prescriptions, setPrescriptions]=useState([{
         Doctor:"Dr. John Doe",
         Date:"2024-09-01",
@@ -282,6 +285,23 @@ export default function PrescriptionScreen({navigation}){
 
     
     ]);
+    const [LatestPrescription, setLatestPrescription] = useState({})
+
+    useEffect(()=>{
+      const fetchLatestPrescription=async()=>{
+        const response = await FetchRequest("https://www.mediconnect.live/mobile/latest-prescription","get"
+        );
+        if (response.status === 200) {
+            console.log("Latest prescription Data , Back to Prescription screen Success: ",response.data);
+            setLatestPrescription(response.data);
+            setLoading(false);
+        }
+        else{
+        console.log("Error Fetching Latest Prescription Data on Prescription Screen: ",response.data);
+        setLoading(true);
+    }}
+    fetchLatestPrescription();
+    },[])
 
     return(
         <SafeAreaView style={styles.container}>
@@ -290,9 +310,10 @@ export default function PrescriptionScreen({navigation}){
                 <Text style={styles.PrescriptionText}>My Prescriptions</Text>
                 </View>
             <ScrollView contentContainerStyle={styles.scrollView}>
-
-                <Text style={styles.LatestPrescriptionText}>Latest Prescription</Text>
-                <MedicationTable Medication={Prescriptions[1].Medication}/>
+            <Text style={styles.LatestPrescriptionText}>Latest Prescription</Text>
+            {Loading? <Text style={styles.LoadingText}>Loading...</Text>:
+                (<>
+                <MedicationTable Medication={Prescriptions[1].Medication}/></>)}
                 <Text style={styles.PastPrescriptionText}>Past Prescriptions</Text>
                 <PrescriptionTable Prescription={Prescriptions} Navigation={navigation}/>
             </ScrollView>
@@ -335,6 +356,12 @@ const styles = StyleSheet.create({
         fontSize:hp(2.5),
         fontWeight:"bold",
         alignSelf:"flex-start"
-    }
+    },
+    LoadingText:{
+      fontSize: hp(2.3),
+      fontWeight: "bold",
+      marginVertical: hp(4),
+      alignSelf:"center",
+  }
     
 })

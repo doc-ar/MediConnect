@@ -7,30 +7,95 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import {MaterialIcons} from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useMediConnectStore } from '../Store/Store';
+import { FlatList } from 'react-native';
+
 export default function HomeScreen({navigation}) {
 
-    const [Info, setInfo] = useState({
-        BloodType: "O+",
-        Weight: "70 kg",
-        Height: "170 cm",
-        Allergies: "None",
-        BloodGlucose: "120 mg/dL",
-        BloodPressure: "120/80 mmHg",
-        Age:"25"
-    });
-    const [LatestAppointmentData, setLatestAppointmentData] = useState({appointmentId: "006",
-        doctorName: "Dr. David Lee",
-        designation: "Orthopedic Surgeon",
-        qualification: "MD, FAAOS",
-        date: "20",
-        month:"Sept 2024",
-        day: "Tue",
-        startTime: "4:00 PM",
-        endTime: "5:00 PM",
-        status: "Scheduled",
-        image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtJ43pA5ohSHvxkSP_0VAxPy8GZAUgDydGQ8kyYZewhxXpYtRoL8SSHfQtpruehLB29Ls&usqp=CAU"
-        ,key:"01"
-    });
+    const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
+    const [LatestAppointmentData, setLatestAppointmentData] = useState([]);
+    const [Loading, setLoading] = useState(true);
+    const setPatientData = useMediConnectStore(state=>state.setPatientData);
+    const Info = useMediConnectStore(state=>state.PatientData);
+
+    useEffect(()=>{
+    const fetchPatientData=async()=>{
+        const response = await FetchRequest("https://www.mediconnect.live/mobile/patient-data","get"
+        );
+        if (response.status === 200) {
+            console.log("Patient Data , Back to Home Screen Success: ",response.data);
+            setLoading(false);
+            setPatientData(response.data);
+        }
+        else{
+        console.log("Error Fetching Patient Data on Home Screen: ",response.data);
+        setLoading(true);
+    }}
+
+    const fetchUpcomingAppointments = async () => {
+        const response = await FetchRequest("https://www.mediconnect.live/mobile/upcoming-appointments", "get");
+        
+        if (response.status === 200) {
+            console.log("Upcoming App Data, Back to Home Screen Success: ", response.data);
+            
+            // Format each appointment's date
+            const formattedAppointments = response.data.map((appointment) => {
+                const { yearMonth, date } = formatDate(appointment.date);
+                
+                // Add formatted yearMonth and date properties to each appointment object
+                return {
+                    ...appointment,
+                    month: yearMonth,
+                    date: date,
+                };
+            });
+    
+            setLatestAppointmentData(formattedAppointments);
+        } else {
+            console.log("Error Fetching Upcoming App Data on Home Screen: ", response.data);
+        }
+    };
+    
+
+    fetchPatientData();
+    fetchUpcomingAppointments();
+    },
+    []
+);
+    
+
+    const formatDate=(dateString)=> {
+        const date = new Date(dateString);
+    
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+    
+        const year = date.getFullYear();
+        const month = monthNames[date.getMonth()]; // getMonth() returns month index (0-11)
+        const day = date.getDate(); // getDate() returns the day of the month (1-31)
+    
+        const formattedYearMonth = `${month} ${year}`;
+        const formattedDate = day.toString();
+    
+        return { yearMonth: formattedYearMonth, date: formattedDate };
+    }
+
+    const renderAppointmentItem=({item})=>{
+        return(
+        <TouchableOpacity style={styles.LatestAppView} onPress={()=>navigation.navigate("AppointmentDetails", {AppointmentDetail: item})}>
+                <View style={styles.DateView}>
+                    <Text style={styles.dateText}>{item.date}</Text>
+                    <Text style={styles.MonthDayText}>{item.month}</Text>
+                </View>
+                <View style={styles.AppointmentDetailsView}>
+                    <View style={styles.AppointmentDetailsView2}>
+                        <Text style={styles.DoctorName}>{item.name}</Text>
+                        <Text style={styles.AppointmentDetailsText}>{item.designation}</Text>
+                        <Text style={styles.AppointmentDetailsText}>{item.start_time} - {item.end_time}</Text>
+                    </View>
+                    <MaterialIcons name="navigate-next" size={hp(5)} color="#2F3D7E" />
+                </View>
+        </TouchableOpacity>);
+    }
 
 
     return (
@@ -40,11 +105,13 @@ export default function HomeScreen({navigation}) {
                     <Text style={styles.LogoText}>MediConnect</Text>
                     <Ionicons style={styles.NotificationIcon} name="notifications-outline" size={hp(4)} color="black" onPress={()=>navigation.navigate("NotificationScreen")} />
                 </View>
+                {Loading && <Text style={styles.LoadingText}>Loading...</Text>}
+                {!Loading&&<>
                 <View style={styles.PatientView}>
                     <Image source={{ uri: "https://img.freepik.com/premium-photo/portrait-lovely-pretty-positive-woman-toothy-beaming-smile-blue-background_525549-5283.jpg?w=360" }} style={styles.PatientImage} />
                     <View style={styles.PatientView2}>
-                        <Text style={styles.PatientName}>Sarah Thompson</Text>
-                        <Text style={styles.PatientAgeGender}>25, Female</Text>
+                        <Text style={styles.PatientName}>{Info.name}</Text>
+                        <Text style={styles.PatientAgeGender}>{Info.age}, {Info.gender}</Text>
                     </View>
                 </View>
 
@@ -54,52 +121,50 @@ export default function HomeScreen({navigation}) {
                 </View>
                 <View style={styles.BioView2}>
                     <View style={styles.row}>
-                        <Text style={styles.data}>Blood Type: {Info.BloodType}</Text>
-                        <Text style={styles.data}>Weight: {Info.Weight}</Text>
+                        <Text style={styles.data}>Blood Type: {Info.bloodtype?Info.bloodtype:"NA"}</Text>
+                        <Text style={styles.data}>Weight: {Info.weight?Info.weight:"NA"}</Text>
                     </View>
                     <View style={styles.row}>
-                        <Text style={styles.data}>Blood Glucose: {Info.BloodGlucose}</Text>
-                        <Text style={styles.data}>Height: {Info.Height}</Text>
+                        <Text style={styles.data}>Blood Glucose: {Info.blood_glucose?Info.blood_glucose:"NA"}</Text>
+                        <Text style={styles.data}>Height: {Info.height?Info.height:"NA"}</Text>
                     </View>
                     <View style={styles.row}>
-                        <Text style={styles.data}>Blood Pressure: {Info.BloodPressure}</Text>
-                        <Text style={styles.data}>Age: {Info.Age}</Text>
+                        <Text style={styles.data}>Blood Pressure: {Info.blood_pressure?Info.blood_pressure:"NA"}</Text>
+                        <Text style={styles.data}>Age: {Info.age?Info.age:"NA"}</Text>
                     </View>
                     <View style={styles.row}>
-                        <Text style={styles.data}>Allergies: {Info.Allergies}</Text>
+                        <Text style={styles.data}>Allergies: {Info.allergies?Info.allergies:"NA"}</Text>
                     </View>
-                </View>
+                </View></>}
 
                 {Object.keys(LatestAppointmentData).length === 0 &&
-                <>
-                    <Text style={styles.AppointmentText}>No Upcoming Appointments</Text>
+                <>  
+                    <View style={styles.AppointmentSectionHeading}>
+                        <MaterialIcons name="sticky-note-2" size={hp(3)} color="gray"/>
+                        <Text style={styles.AppointmentText}> Appointments</Text>
+                    </View>
                     <View style={styles.NewAppointmentView}>
                         <View style={styles.NewApointmentLogoView}>
                             <Entypo name="plus" size={hp(2)} color="white" style={styles.plusIcon} onPress={()=>navigation.navigate("NewAppointment")} />
                         </View>
                         <Text style={styles.NewAppointmentText}>Schedule a New Appointment</Text>
-
                     </View>
                 </>
                 }
                 {Object.keys(LatestAppointmentData).length !== 0 &&
                     <>
-                        <Text style={styles.AppointmentText}>Upcoming Appointment:</Text>
-                        <TouchableOpacity style={styles.LatestAppView} onPress={()=>navigation.navigate("AppointmentDetails", {AppointmentDetail: LatestAppointmentData})}>
-                            <View style={styles.DateView}>
-                                <Text style={styles.dateText}>{LatestAppointmentData.date}</Text>
-                                <Text style={styles.MonthDayText}>{LatestAppointmentData.month}</Text>
-                            </View>
-
-                            <View style={styles.AppointmentDetailsView}>
-                                <View style={styles.AppointmentDetailsView2}>
-                                    <Text style={styles.DoctorName}>{LatestAppointmentData.doctorName}</Text>
-                                    <Text style={styles.AppointmentDetailsText}>{LatestAppointmentData.designation}</Text>
-                                    <Text style={styles.AppointmentDetailsText}>{LatestAppointmentData.startTime} - {LatestAppointmentData.endTime}</Text>
-                                </View>
-                                <MaterialIcons name="navigate-next" size={hp(5)} color="#2F3D7E" />
-                            </View>
-                        </TouchableOpacity>
+                    <View style={styles.AppointmentSectionHeading}>
+                            <MaterialIcons name="sticky-note-2" size={hp(2.5)} color="gray" style={{paddingTop:hp(0.4)}}/>
+                            <Text style={styles.AppointmentText}> Upcoming Appointments</Text>
+                    </View>
+                        <FlatList
+                            data={LatestAppointmentData}
+                            renderItem={renderAppointmentItem}
+                            keyExtractor={(item) => item.appointment_id}
+                            contentContainerStyle={styles.AppointmentList}
+                        />
+                        
+                        
                     </>
                 }
         </SafeAreaView>
@@ -116,6 +181,12 @@ const styles = StyleSheet.create({
     TopView: {
         flexDirection: "row", justifyContent: "space-between", width: wp(98),
         height: hp(4)
+    },
+    LoadingText:{
+        fontSize: hp(2.3),
+        fontWeight: "bold",
+        marginVertical: hp(4),
+        alignSelf:"center",
     },
     BioView: {
         flexDirection: "row", justifyContent: "space-between", width: wp(96)
@@ -135,9 +206,10 @@ const styles = StyleSheet.create({
         marginRight: wp(1)
     },
     BioDataText: {
-        fontSize: hp(2.3),
+        fontSize: hp(2.6),
         fontWeight: "bold",
-        marginVertical: hp(0.5)
+        marginTop: hp(0.5),
+        
     },
     PatientView: {
         marginTop: hp(4),
@@ -165,10 +237,10 @@ const styles = StyleSheet.create({
         fontWeight: "bold"
     },
     AppointmentText:{
-        fontSize: hp(2.3), fontWeight: "bold", marginTop: hp(2), marginBottom: hp(2)
+        fontSize: hp(2.3), fontWeight: "bold", 
     },
     NewAppointmentView:{
-        flexDirection: "row", paddingVertical: hp(1.5)
+        flexDirection: "row", paddingVertical: hp(1)
     },
     NewAppointmentText:{
         fontSize: hp(2), fontWeight:"bold", marginLeft: wp(2),
@@ -179,12 +251,10 @@ const styles = StyleSheet.create({
     NewApointmentLogoView: {
         alignItems: "center",
         backgroundColor:"#2F3D7E",
-        borderRadius:23,
+        borderRadius:25,
         width:wp(6),
-        height:hp(2.6),
+        height:hp(2.75),
         justifyContent:"center",
-        marginTop:hp(0.2)
-
       },
       BioView2:{
         marginVertical:hp(1)
@@ -207,13 +277,14 @@ const styles = StyleSheet.create({
         alignSelf:"center",
         borderRadius: 10,
         flexDirection:"row", 
-        height: hp(12) 
+        height: hp(12),
+        marginBottom:hp(2)
       },
     DateView:{
         flexDirection:"column",
         backgroundColor:"#2F3D7E",
         color:"white",
-        paddingVertical: hp(1),
+        paddingVertical: hp(1.8),
         paddingHorizontal:wp(3)
     },
     dateText:{
@@ -234,7 +305,6 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         justifyContent:"space-between",
         alignItems:"center",
-        paddingVertical:hp(1),
         backgroundColor:"#EBEDF3",
         width: wp(73),
         paddingLeft: wp(3),
@@ -252,6 +322,12 @@ const styles = StyleSheet.create({
     AppointmentDetailsText:{
         fontSize:hp(2),
         color:"#41474D"
+    },
+    AppointmentSectionHeading:{
+        flexDirection:"row",
+        marginTop: hp(1), marginBottom: hp(1.5)
+    },
+    AppointmentList:{
+        
     }
-
 });
