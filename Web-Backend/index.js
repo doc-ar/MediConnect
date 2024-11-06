@@ -191,6 +191,7 @@ app.get("/web/get-patients", authMiddleware, async (req, res) => {
                   'medication', prescriptions.medication 
                 )
               ) AS prescriptions,
+              soap_notes.soap_note_id,
               soap_notes.soap_note_data AS soap_notes
       FROM  patients p
       JOIN  users u ON p.user_id = u.user_id
@@ -206,11 +207,11 @@ app.get("/web/get-patients", authMiddleware, async (req, res) => {
         JOIN users u ON u.user_id = pa.user_id
       ) AS prescriptions ON prescriptions.patient_id = p.patient_id
       LEFT JOIN (
-        SELECT p.patient_id, sn.soap_note_data
+        SELECT p.patient_id, sn.soap_note_id, sn.soap_note_data
         FROM soap_notes sn
         JOIN patients p ON p.patient_id = sn.patient_id
       ) AS soap_notes ON soap_notes.patient_id = p.patient_id
-      GROUP BY p.patient_id, u.email, soap_notes.soap_note_data
+      GROUP BY p.patient_id, u.email, soap_notes.soap_note_data, soap_notes.soap_note_id
     `;
     return res.json(result);
   } catch (error) {
@@ -245,7 +246,7 @@ app.get("/web/get-patients/:id", authMiddleware, async (req, res) => {
         JOIN users u ON u.user_id = pa.user_id
       ) AS prescriptions ON prescriptions.patient_id = p.patient_id
       LEFT JOIN (
-        SELECT p.patient_id, sn.soap_note_data
+        SELECT p.patient_id, sn.soap_note_id, sn.soap_note_data
         FROM soap_notes sn
         JOIN patients p ON p.patient_id = sn.patient_id
       ) AS soap_notes ON soap_notes.patient_id = p.patient_id
@@ -311,41 +312,58 @@ app.patch("/web/update-doctor", authMiddleware, async (req, res) => {
       RETURNING *
     `;
 
-    return res.status(200).json(result[0]);
+    return res.json(result[0]);
   } catch (error) {
     res.json({ error: error.message });
   }
 });
 
-app.patch("/web/update-doctor", authMiddleware, async (req, res) => {
+app.patch("/web/update-appointment", authMiddleware, async (req, res) => {
   try {
-    const authHeader = req.headers["authorization"];
-    const token = authHeader && authHeader.split(" ")[1];
-    const tokenData = jwt.decode(token);
-    const doctorData = await sql`
-      SELECT * FROM doctors
-      WHERE user_id = ${tokenData.user_id};
+    // Check if appointment exists
+    const object_exists = await sql`
+      SELECT appointment_id FROM appointments
+      WHERE appointment_id = ${req.body.appointment_id};
     `;
-
-    if (doctorData.length === 0) {
-      return res.status(404).json({ error: "The user does not exist" });
+    if (object_exists.length === 0) {
+      return res.status(404).json({ error: "The appointment does not exist" });
     }
 
+    // execute query
     const result = await sql`
-      UPDATE doctors
-      SET name          = ${req.body.name},
-          roomno        = ${req.body.roomno},
-          qualification = ${req.body.qualification},
-          image         = ${req.body.image},
-          designation   = ${req.body.designation},
-          contact       = ${req.body.contact}
-      WHERE user_id = ${tokenData.user_id}
+      UPDATE appointments
+      SET slot_id       = ${req.body.slot_id},
+          status        = ${req.body.status}
+      WHERE appointment_id = ${req.body.appointment_id}
       RETURNING *
     `;
 
-    return res.status(200).json(result[0]);
+    return res.json(result[0]);
   } catch (error) {
-    res.json({ error: error.message });
+    return res.json({ error: error.message });
+  }
+});
+
+app.patch("/web/update-soapnote", authMiddleware, async (req, res) => {
+  try {
+    // Check if appointment exists
+    const object_exists = await sql`
+      SELECT soap_note_id FROM soap_notes
+      WHERE soap_note_id = ${req.body.soap_note_id};
+    `;
+    if (object_exists.length === 0) {
+      return res.status(404).json({ error: "The soap note does not exist" });
+    }
+
+    // execute query
+    const result = await sql`
+      UPDATE soap_notes
+      SET soap_note_data = ${JSON.stringify(req.body.soap_note_data)}
+      WHERE soap_note_id = ${req.body.soap_note_id}
+    `;
+    return res.json(result[0]);
+  } catch (error) {
+    return res.json({ error: error.message });
   }
 });
 
