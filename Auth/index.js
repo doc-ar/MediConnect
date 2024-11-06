@@ -1,4 +1,5 @@
 import express, { json } from "express";
+//import useragent from "express-useragent";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
@@ -38,7 +39,9 @@ app.get("/auth/refresh-token", (req, res) => {
         res.json(tokens);
       },
     );
-  } catch (error) {}
+  } catch (error) {
+    res.json({ error: error.message });
+  }
 });
 
 app.delete("/auth/refresh-token", (req, res) => {

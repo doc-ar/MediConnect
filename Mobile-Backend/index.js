@@ -95,6 +95,32 @@ app.get("/mobile/patient-data", authMiddleware, async (req, res) => {
   }
 });
 
+app.get("/mobile/all-appointments", authMiddleware, async (req, res) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const tokenData = jwt.decode(token);
+
+    const result = await sql`
+      SELECT  a.appointment_id, a.status,
+              d.name, u.email AS doctor_email, d.designation, d.qualification, d.image, d.roomno, d.contact,
+              ts.date, ts.start_time, ts.end_time, ts.day,
+              prescription_data AS prescription
+      FROM appointments a
+      JOIN time_slots ts ON ts.slot_id = a.slot_id
+      JOIN doctors d ON d.doctor_id = a.doctor_id
+      JOIN patients p ON p.patient_id = a.patient_id
+      LEFT JOIN prescriptions ps ON ps.appointment_id = a.appointment_id
+      JOIN users u ON u.user_id = d.user_id
+      WHERE p.user_id = ${tokenData.user_id}
+    `;
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
+
 app.get("/mobile/upcoming-appointments", authMiddleware, async (req, res) => {
   try {
     const authHeader = req.headers["authorization"];
@@ -122,29 +148,28 @@ app.get("/mobile/upcoming-appointments", authMiddleware, async (req, res) => {
   }
 });
 
-app.get("/mobile/all-appointments", authMiddleware, async (req, res) => {
+app.get("/mobile/all-prescriptions", authMiddleware, async (req, res) => {
   try {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     const tokenData = jwt.decode(token);
 
     const result = await sql`
-      SELECT  a.appointment_id, a.status,
-              d.name, u.email AS doctor_email, d.designation, d.qualification, d.image, d.roomno, d.contact,
-              ts.date, ts.start_time, ts.end_time, ts.day,
-              prescription_data AS prescription
-      FROM appointments a
+      SELECT  d.name AS "doctor",
+              TO_CHAR(ts.date, 'YYYY-Mon-DD') AS "date",
+              p.prescription_data AS "medication"
+      FROM prescriptions p
+      JOIN appointments a ON a.appointment_id = p.appointment_id
       JOIN time_slots ts ON ts.slot_id = a.slot_id
       JOIN doctors d ON d.doctor_id = a.doctor_id
-      JOIN patients p ON p.patient_id = a.patient_id
-      LEFT JOIN prescriptions ps ON ps.appointment_id = a.appointment_id
-      JOIN users u ON u.user_id = d.user_id
-      WHERE p.user_id = ${tokenData.user_id}
+      JOIN patients pa ON pa.patient_id = a.patient_id
+      JOIN users u ON u.user_id = pa.user_id
+      WHERE u.user_id = ${tokenData.user_id}
     `;
 
     res.status(200).json(result);
   } catch (error) {
-    res.json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 });
 
