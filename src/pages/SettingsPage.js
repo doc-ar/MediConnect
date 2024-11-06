@@ -11,6 +11,7 @@ const SettingsPage = () => {
     contact: '',
     room: '',
     designation: '',
+
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -27,7 +28,8 @@ const SettingsPage = () => {
           password: user.password,
           contact: user.contact,
           roomNo: user.roomno,
-          designation: user.designation
+          designation: user.designation,
+        
         });
       })
       .catch(error => console.error('Error fetching data:', error));
@@ -41,9 +43,8 @@ const SettingsPage = () => {
   };
 
   const handleSaveChanges = () => {
-    setIsSaving(true); // Set saving state
+    setIsSaving(true);
 
-    // Update the user data with a PUT request
     fetch(`https://my-json-server.typicode.com/EmamaBilalKhan/MediConnect-API-3/Doctors/${doctorData.id}`, {
       method: 'PUT',
       headers: {
@@ -51,23 +52,13 @@ const SettingsPage = () => {
       },
       body: JSON.stringify(formData)
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Failed to update data');
-      }
-      return response.json();
-    })
+    .then(response => response.json())
     .then(updatedData => {
       setDoctorData(updatedData);
       alert('Changes saved successfully!');
     })
-    .catch(error => {
-      console.error('Error updating data:', error);
-      alert('Failed to save changes.');
-    })
-    .finally(() => {
-      setIsSaving(false); // Reset saving state
-    });
+    .catch(error => console.error('Error updating data:', error))
+    .finally(() => setIsSaving(false));
   };
 
   return (
@@ -80,68 +71,37 @@ const SettingsPage = () => {
 
           <div className="settings-field">
             <label>Name:</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.Name}
-              onChange={handleChange} />
+            <input type="text" name="Name" value={formData.Name} onChange={handleChange} />
           </div>
 
           <div className="settings-field">
-            <label>Designation:</label>
-            <input
-              type="text"
-              name="designation"
-              value={formData.designation}
-              onChange={handleChange} />
+            <label>Specialization:</label>
+            <input type="text" name="designation" value={formData.designation} onChange={handleChange} />
           </div>
 
           <div className="settings-field">
             <label>Email:</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange} />
+            <input type="email" name="email" value={formData.email} onChange={handleChange} />
           </div>
 
           <div className="settings-field">
             <label>Current Password:</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange} />
+            <input type="password" name="password" value={formData.password} onChange={handleChange} />
           </div>
 
           <div className="settings-field">
             <label>Contact #:</label>
-            <input
-              type="text"
-              name="contact"
-              value={formData.contact}
-              onChange={handleChange} />
+            <input type="text" name="contact" value={formData.contact} onChange={handleChange} />
           </div>
 
           <div className="settings-field">
             <label>Room #:</label>
-            <input
-              type="text"
-              name="room"
-              value={formData.roomNo}
-              onChange={handleChange} />
+            <input type="text" name="room" value={formData.roomNo} onChange={handleChange} />
           </div>
-          <div className="setting-btns">
-            <button
-              className="save-changes-btn"
-              onClick={handleSaveChanges}
-              disabled={isSaving}
-            >
-              {isSaving ? 'Saving...' : 'Save Changes'}
-            </button>
 
-            <button className="delete-account-btn">
-              Delete Account
+          <div className="setting-btns">
+            <button onClick={handleSaveChanges} disabled={isSaving}>
+              {isSaving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>

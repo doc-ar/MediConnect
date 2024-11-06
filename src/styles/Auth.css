@@ -3,8 +3,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 120vh;
     background-color: #f7f9fc;
+  }
+  #login-container{
+    height: 100vh !important;
   }
   
   .auth-box {

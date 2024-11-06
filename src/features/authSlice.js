@@ -2,33 +2,32 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  isAuthenticated: false, // Initially, the user is not authenticated
-  user: null, // Holds user info after login
+  user: null, 
+  accessToken: null,
+  refreshToken: null
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    login: (state, action) => {
-      state.isAuthenticated = true;
-      state.user = action.payload; // Store user info (e.g., token, username)
-      localStorage.setItem('authToken', action.payload.token); // Save token to localStorage
+    setCredentials: (state, action) => {
+      const {user, accessToken, refreshToken} = action.payload
+      state.user = user
+      state.accessToken = accessToken;
+      state.refreshToken = refreshToken;
+      
     },
     logout: (state) => {
-      state.isAuthenticated = false;
-      state.user = null;
-      localStorage.removeItem('authToken'); // Clear token from localStorage
-    },
-    loadUserFromStorage: (state) => {
-      const token = localStorage.getItem('authToken');
-      if (token) {
-        state.isAuthenticated = true;
-        state.user = { token }; // Optionally, store more user info
-      }
+      state.user = null
+      state.accessToken = null;
+      state.refreshToken = null;
     },
   },
 });
 
-export const { login, logout, loadUserFromStorage } = authSlice.actions;
+export const { setCredentials, logout } = authSlice.actions;
 export default authSlice.reducer;
+export const selectCurrentUser = (state) => state.auth.user;
+export const selectCurrentAccessToken = (state) => state.auth.accessToken;
+export const selectCurrentRefreshToken = (state) => state.auth.refreshToken;
