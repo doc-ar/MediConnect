@@ -81,16 +81,12 @@ app.get("/mobile/patient-data", authMiddleware, async (req, res) => {
     const tokenData = jwt.decode(token);
 
     const patientData = await sql`
-      SELECT 
-          u.user_id,p.patient_id,          
-      u.email,p.name,p.gender,p.address,p.weight,p.blood_pressure,p.image,
-          p.age,p.blood_glucose,p.contact,p.bloodtype,p.allergies,p.height
-      FROM 
-          users u
-      JOIN 
-          patients p ON p.user_id = u.user_id
-      WHERE 
-          u.user_id = ${tokenData.user_id};
+      SELECT  u.user_id,p.patient_id,          
+              u.email,p.name,p.gender,p.address,p.weight,p.blood_pressure,p.image,
+              p.age,p.blood_glucose,p.contact,p.bloodtype,p.allergies,p.height
+      FROM  users u
+      JOIN  patients p ON p.user_id = u.user_id
+      WHERE u.user_id = ${tokenData.user_id};
     `;
 
     res.status(200).json(patientData[0]);
@@ -134,13 +130,15 @@ app.get("/mobile/all-appointments", authMiddleware, async (req, res) => {
 
     const result = await sql`
       SELECT  a.appointment_id, a.status,
-              d.name, d.designation, d.qualification, d.image, d.roomno, d.contact, u.email AS doctor_email,
-              ts.date, ts.start_time, ts.end_time, ts.day
+              d.name, u.email AS doctor_email, d.designation, d.qualification, d.image, d.roomno, d.contact,
+              ts.date, ts.start_time, ts.end_time, ts.day,
+              prescription_data AS prescription
       FROM appointments a
       JOIN time_slots ts ON ts.slot_id = a.slot_id
       JOIN doctors d ON d.doctor_id = a.doctor_id
       JOIN patients p ON p.patient_id = a.patient_id
-      JOIN users u ON u.user_id = d.user_id  -- Join to get the doctor's email
+      LEFT JOIN prescriptions ps ON ps.appointment_id = a.appointment_id
+      JOIN users u ON u.user_id = d.user_id
       WHERE p.user_id = ${tokenData.user_id}
     `;
 
