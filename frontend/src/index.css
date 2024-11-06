@@ -1,0 +1,28 @@
+html, body {
+  margin: 0 !important;
+  padding: 0;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  font-family: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0 !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+.content-wrapper {
+
+  padding: 0px 20px; /* Adjust padding if needed */
+}
