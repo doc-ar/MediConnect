@@ -218,6 +218,46 @@ app.get("/web/get-patients", authMiddleware, async (req, res) => {
   }
 });
 
+app.get("/web/get-patients/:id", authMiddleware, async (req, res) => {
+  try {
+    const result = await sql`
+      SELECT  p.patient_id, p.name, u.email, p.address, p.weight, p.blood_pressure,
+              p.contact, p.blood_glucose, p.image, p.gender, p.age,
+              json_agg(
+                json_build_object(
+                  'doctor', prescriptions.doctor,
+                  'date', prescriptions.date,
+                  'medication', prescriptions.medication 
+                )
+              ) AS prescriptions,
+              soap_notes.soap_note_data AS soap_notes
+      FROM  patients p
+      JOIN  users u ON p.user_id = u.user_id
+      LEFT JOIN (
+        SELECT  pa.patient_id, d.name AS "doctor",
+                TO_CHAR(ts.date, 'YYYY-Mon-DD') AS "date",
+                p.prescription_data AS "medication"
+        FROM prescriptions p
+        JOIN appointments a ON a.appointment_id = p.appointment_id
+        JOIN time_slots ts ON ts.slot_id = a.slot_id
+        JOIN doctors d ON d.doctor_id = a.doctor_id
+        JOIN patients pa ON pa.patient_id = a.patient_id
+        JOIN users u ON u.user_id = pa.user_id
+      ) AS prescriptions ON prescriptions.patient_id = p.patient_id
+      LEFT JOIN (
+        SELECT p.patient_id, sn.soap_note_data
+        FROM soap_notes sn
+        JOIN patients p ON p.patient_id = sn.patient_id
+      ) AS soap_notes ON soap_notes.patient_id = p.patient_id
+      WHERE p.patient_id = ${req.params.id}
+      GROUP BY p.patient_id, u.email, soap_notes.soap_note_data
+    `;
+    return res.json(result);
+  } catch (error) {
+    return res.json({ error: error.message });
+  }
+});
+
 app.get("/web/get-appointments", authMiddleware, async (req, res) => {
   try {
     const authHeader = req.headers["authorization"];
