@@ -108,7 +108,7 @@ app.get("/mobile/upcoming-appointments", authMiddleware, async (req, res) => {
     const result = await sql`
       SELECT  a.appointment_id, a.status,
               d.name, d.designation, d.qualification, d.image, d.roomno, d.contact, u.email,
-              ts.date, ts.start_time, ts.end_time
+              ts.date, ts.start_time, ts.end_time, ts.day
       FROM appointments a
       JOIN time_slots ts ON ts.slot_id = a.slot_id
       JOIN doctors d ON d.doctor_id = a.doctor_id
@@ -135,7 +135,7 @@ app.get("/mobile/all-appointments", authMiddleware, async (req, res) => {
     const result = await sql`
       SELECT  a.appointment_id, a.status,
               d.name, d.designation, d.qualification, d.image, d.roomno, d.contact, u.email AS doctor_email,
-              ts.date, ts.start_time, ts.end_time
+              ts.date, ts.start_time, ts.end_time, ts.day
       FROM appointments a
       JOIN time_slots ts ON ts.slot_id = a.slot_id
       JOIN doctors d ON d.doctor_id = a.doctor_id
