@@ -64,6 +64,8 @@ app.post("/auth/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     const users = await sql`SELECT * FROM users WHERE email = ${email}`;
+    var hasPatientProfile = false;
+    var hasDoctorProfile = false;
 
     // Email Check
     if (users.length === 0)
@@ -74,7 +76,25 @@ app.post("/auth/login", async (req, res) => {
     if (!validPassword)
       return res.status(401).json({ error: "Password is incorrect" });
 
+    const patient = await sql`
+      SELECT * FROM patients
+      WHERE user_id = ${users[0].user_id}
+    `;
+    const doctor = await sql`
+      SELECT * FROM doctors
+      WHERE user_id = ${users[0].user_id}
+    `;
+
+    if (patient.length > 0) {
+      hasPatientProfile = true;
+    }
+    if (doctor.length > 0) {
+      hasDoctorProfile = true;
+    }
+
     let tokens = jwtTokens(users[0]);
+    tokens.hasPatientProfile = hasPatientProfile;
+    tokens.hasDoctorProfile = hasDoctorProfile;
     res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
     res.json(tokens);
   } catch (error) {
