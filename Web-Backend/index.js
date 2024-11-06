@@ -182,8 +182,8 @@ app.get("/web/doctor-data", authMiddleware, async (req, res) => {
 app.get("/web/get-patients", authMiddleware, async (req, res) => {
   try {
     const result = await sql`
-      SELECT  p.patient_id, p.name, u.email, p.address, p.weight, p.blood_pressure,
-              p.contact, p.blood_glucose, p.image, p.gender, p.age,
+      SELECT  p.patient_id AS patientid, p.name, u.email, p.address, p.weight, p.blood_pressure AS bloodpressure,
+              p.contact, p.blood_glucose AS bloodglucose, p.image, p.gender, p.age,
               json_agg(
                 json_build_object(
                   'doctor', prescriptions.doctor,
@@ -221,8 +221,8 @@ app.get("/web/get-patients", authMiddleware, async (req, res) => {
 app.get("/web/get-patients/:id", authMiddleware, async (req, res) => {
   try {
     const result = await sql`
-      SELECT  p.patient_id, p.name, u.email, p.address, p.weight, p.blood_pressure,
-              p.contact, p.blood_glucose, p.image, p.gender, p.age,
+      SELECT  p.patient_id AS patientid, p.name, u.email, p.address, p.weight, p.blood_pressure AS bloodpressure,
+              p.contact, p.blood_glucose AS bloodglucose, p.image, p.gender, p.age,
               json_agg(
                 json_build_object(
                   'doctor', prescriptions.doctor,
@@ -285,6 +285,38 @@ app.get("/web/get-appointments", authMiddleware, async (req, res) => {
 });
 
 // PATCH request endpoints
+app.patch("/web/update-doctor", authMiddleware, async (req, res) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const tokenData = jwt.decode(token);
+    const doctorData = await sql`
+      SELECT * FROM doctors
+      WHERE user_id = ${tokenData.user_id};
+    `;
+
+    if (doctorData.length === 0) {
+      return res.status(404).json({ error: "The user does not exist" });
+    }
+
+    const result = await sql`
+      UPDATE doctors
+      SET name          = ${req.body.name},
+          roomno        = ${req.body.roomno},
+          qualification = ${req.body.qualification},
+          image         = ${req.body.image},
+          designation   = ${req.body.designation},
+          contact       = ${req.body.contact}
+      WHERE user_id = ${tokenData.user_id}
+      RETURNING *
+    `;
+
+    return res.status(200).json(result[0]);
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
+
 app.patch("/web/update-doctor", authMiddleware, async (req, res) => {
   try {
     const authHeader = req.headers["authorization"];
