@@ -49,6 +49,73 @@ app.post("/web/create-doctor-profile", authMiddleware, async (req, res) => {
   }
 });
 
+app.post("/web/new-soapnote", authMiddleware, async (req, res) => {
+  try {
+    const object_exists = await sql`
+      SELECT soap_note_id FROM soap_notes
+      WHERE patient_id = ${req.body.patient_id}
+    `;
+
+    if (object_exists.length > 0) {
+      return res.status(409).json({ error: "The soap note already exists" });
+    }
+
+    const result = await sql`
+      INSERT INTO soap_notes (patient_id, soap_note_data)
+      VALUES (${req.body.patient_id}, ${JSON.stringify(req.body.soap_note_data)})
+      RETURNING *
+    `;
+
+    res.json(result[0]);
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
+
+app.post("/web/new-transcription", authMiddleware, async (req, res) => {
+  try {
+    const object_exists = await sql`
+      SELECT transcription_id FROM transcriptions
+      WHERE appointment_id = ${req.body.appointment_id}
+    `;
+
+    if (object_exists.length > 0) {
+      return res.status(409).json({ error: "The transcript already exists" });
+    }
+    const transcription = await sql`
+      INSERT INTO transcriptions (appointment_id, data)
+      VALUES (${req.body.appointment_id}, ${req.body.data})
+      RETURNING *
+    `;
+
+    res.json(transcription[0]);
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
+
+app.post("/web/new-prescription", authMiddleware, async (req, res) => {
+  try {
+    const object_exists = await sql`
+      SELECT prescription_id FROM prescriptions
+      WHERE appointment_id = ${req.body.appointment_id}
+    `;
+
+    if (object_exists.length > 0) {
+      return res.status(409).json({ error: "The prescription already exists" });
+    }
+
+    const prescription = await sql`
+      INSERT INTO prescriptions (appointment_id, prescription_data)
+      VALUES (${req.body.appointment_id}, ${JSON.stringify(req.body.prescription_data)})
+      RETURNING *
+    `;
+    res.json(prescription[0]);
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
+
 // GET request endpoints
 app.get("/web/doctor-data", authMiddleware, async (req, res) => {
   try {
