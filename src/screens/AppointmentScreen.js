@@ -15,10 +15,11 @@ export default function AppointmentScreen() {
   const [Loading, setLoading] = useState(true);
   const selectedAppointmentMonth = useMediConnectStore((state) => state.selectedAppointmentMonth);
   const setSelectedAppointmentMonth = useMediConnectStore((state) => state.setSelectedAppointmentMonth);
-
+  const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
+  const ReloadAppointments = useMediConnectStore(state=>state.ReloadAppointments);
   useEffect(() => {
     fetchAppointments();
-  }, []);
+  }, [ReloadAppointments]);
 
   useEffect(() => {
     if (MonthData.length > 0) {
@@ -27,37 +28,80 @@ export default function AppointmentScreen() {
   }, [MonthData]);
 
   const fetchAppointments = async () => {
-    try {
-      const response = await fetch('https://my-json-server.typicode.com/EmamaBilalKhan/MediConnect-API/Appointments');
-      const data = await response.json();
-      groupAppointmentsByMonthYear(data);
-    } catch (error) {
-      console.error('Error fetching appointments:', error);
+    const response = await FetchRequest("https://www.mediconnect.live/mobile/all-appointments","get");
+    if (response.status === 200) { 
+      console.log("Back to Appointment Screen Success: ",response.data);
+      groupAppointmentsByMonthYear(response.data);
+      return;
     }
+    console.log("Error: ",response.data);
   };
 
+  const formatTimeTo12Hour = (time) => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours, 10);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const formattedHour = hour % 12 || 12; // Convert to 12-hour format, with 0 as 12
   
+    return `${formattedHour} ${period}`;
+  };
+
   function groupAppointmentsByMonthYear(data) {
     const groupedData = {};
+    const uniqueMonthData = new Set(); // Track unique month-year combinations
 
     data.forEach((appointment) => {
-      const [year, month, day] = appointment.date.split('-');
-      const key = `${month} ${year}`;
+        // Format the date and update the appointment's date attribute
+        const formattedDate = formatDate(appointment.date);
+        appointment.date = formattedDate;
 
-      if (!groupedData[key]) {
-        groupedData[key] = {};
-        setMonthData((prev) => [...prev, key]);
-      }
+        // Convert start and end time to 12-hour format
+        appointment.start_time = formatTimeTo12Hour(appointment.start_time);
+        appointment.end_time = formatTimeTo12Hour(appointment.end_time);
 
-      if (!groupedData[key][day]) {
-        groupedData[key][day] = [];
-      }
+        // Extract year, month, and day from the formatted date
+        const [year, month, day] = formattedDate.split('-');
+        const key = `${month} ${year}`;
 
-      groupedData[key][day].push(appointment);
+        // Add month-year to the set to ensure uniqueness
+        uniqueMonthData.add(key);
+
+        if (!groupedData[key]) {
+            groupedData[key] = {};
+        }
+
+        if (!groupedData[key][day]) {
+            groupedData[key][day] = [];
+        }
+
+        groupedData[key][day].push(appointment);
     });
+
+    // Convert the set to an array and update MonthData with unique values
+    setMonthData(Array.from(uniqueMonthData));
     setAppointments(groupedData);
     setLoading(false); 
+    console.log(Array.from(uniqueMonthData)); // Optional: Log unique month data for debugging
+  
+
+    // Convert the set to an array and update MonthData with unique values
+    setMonthData(Array.from(uniqueMonthData));
+    setAppointments(groupedData);
+    setLoading(false); 
+    console.log(Array.from(uniqueMonthData)); // Optional: Log unique month data for debugging
+}
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec"];
+    
+    const year = date.getFullYear();
+    const month = months[date.getMonth()];
+    const day = date.getDate();
+  
+    return `${year}-${month}-${day}`;
   }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -112,8 +156,8 @@ const styles = StyleSheet.create({
     zIndex:1,
     backgroundColor:"#2F3D7E",
     borderRadius:28,
-    width:wp(12),
-    height:hp(5.5),
+    width:wp(),
+    height:hp(10),
     justifyContent:"center"
   },
   plusIcon: {

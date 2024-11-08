@@ -1,10 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
 import { ScrollView,StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMediConnectStore } from '../Store/Store';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 export default function RegisterDetails() {
     const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
@@ -21,7 +22,16 @@ export default function RegisterDetails() {
     const [BloodGlucose, setBloodGlucose] = useState(null);
     const [BloodPressure, setBloodPressure] = useState(null);
     const [EmptyReqFields, setEmptyReqFields] = useState(false);
-    
+    const getIsRegistered = useMediConnectStore(state=>state.getIsRegistered);
+
+    useEffect(()=>{
+        const IsRegistered = getIsRegistered();
+        if(IsRegistered==="true"){
+            setIsRegistered(true);
+            return;
+        }
+    },[])
+
     const validateAndSubmit = async () => {
         
         if (Name && Contact && Address && Age && Gender) {
@@ -40,7 +50,8 @@ export default function RegisterDetails() {
                     contact: Contact,
                     height: Height,
                     bloodtype:BloodType,
-                    allergies:Allergy   
+                    allergies:Allergy,
+                    image: "https://cdn.openart.ai/published/6QLTkchH5F6bKgAmbRfc/aofdob56_vO8y_512.webp" 
                   }
             );
             if (response.status === 200) { 

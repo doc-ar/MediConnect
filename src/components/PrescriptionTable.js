@@ -13,10 +13,12 @@ return (
 		<DataTable.Title></DataTable.Title>
       
 	</DataTable.Header> 
+  {console.log("in pres table")}
   {Prescription.map((prescription, index) => (
   <DataTable.Row key={index}>
-    <DataTable.Cell>{prescription.Doctor}</DataTable.Cell>
-    <DataTable.Cell>{prescription.Date}</DataTable.Cell>
+    <DataTable.Cell>{prescription.doctor}</DataTable.Cell>
+    <DataTable.Cell>{prescription.date}</DataTable.Cell>
+    {console.log("in pres table 2")}
     <DataTable.Cell>
       <AntDesign
         name="arrowright"

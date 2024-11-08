@@ -31,6 +31,7 @@ export default function LoginScreen({ navigation }) {
             const response = await axios.post("https://www.mediconnect.live/auth/login", {
                 email: email,
                 password: password,
+                role:"patient"
             }, {
                 headers: {
                     'Content-Type': 'application/json',

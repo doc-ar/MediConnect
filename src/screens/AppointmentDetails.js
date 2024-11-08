@@ -27,7 +27,7 @@ export default function AppointmentDetails() {
             <View style={styles.DoctorView}>
                 <Image source={{ uri: AppointmentDetail.image }} style={styles.doctorImage} />
                 <View style={styles.DoctorView2}>
-                    <Text style={styles.doctorName}>{AppointmentDetail.doctorName} <Text style={styles.doctorqual}> ({AppointmentDetail.qualification})</Text>
+                    <Text style={styles.doctorName}>{AppointmentDetail.name} <Text style={styles.doctorqual}> ({AppointmentDetail.qualification})</Text>
                     </Text>
                     <Text style={styles.Doctordesignation}>{AppointmentDetail.designation}</Text>
                 </View>
@@ -46,10 +46,10 @@ export default function AppointmentDetails() {
             </View>
             <View style={styles.DetailView}>
                 <Text style={styles.details}>Date: {AppointmentDetail.date} ({AppointmentDetail.day})</Text>
-                <Text style={styles.details}>Time: {AppointmentDetail.startTime} - {AppointmentDetail.endTime}</Text>
-                <Text style={styles.details}>Room Number: {AppointmentDetail.doctorRoom}</Text>
+                <Text style={styles.details}>Time: {AppointmentDetail.start_time} - {AppointmentDetail.end_time}</Text>
+                <Text style={styles.details}>Room Number: {AppointmentDetail.roomno}</Text>
                 <Text style={styles.details}>Contact: {AppointmentDetail.contact}</Text>
-                <Text style={styles.details}>Email: {AppointmentDetail.email}</Text>
+                <Text style={styles.details}>Email: {AppointmentDetail.doctor_email}</Text>
             </View>
             {AppointmentDetail.status === 'completed' &&
             <>

@@ -20,13 +20,14 @@ import NotificationScreen from './src/screens/NotificationScreen';
 import RescheduleScreen from './src/screens/RescheduleScreen';
 import SetImage from './src/screens/SetImage';
 import { useMediConnectStore } from './src/Store/Store';
-
+import { useState, useEffect } from 'react';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
-  const isRegistered = useMediConnectStore(state=>state.isRegistered);
-  const IsAuthenticated = useMediConnectStore(state=>state.isAuthenticated);
-  
+  const getIsRegistered = useMediConnectStore(state => state.getIsRegistered);
+  const IsAuthenticated = useMediConnectStore(state => state.isAuthenticated);
+  const [isRegistered, setIsRegistered] = useState(false);
+
   return (
     <NavigationContainer>
       <SafeAreaProvider>
@@ -38,9 +39,8 @@ export default function App() {
         <Stack.Screen name="SignUp" component={SignUpScreen}/>
       </>
 }
-      {IsAuthenticated && <>
-        {!isRegistered && <Stack.Screen name="RegisterDetails" component={RegisterDetails} /> }
-        {isRegistered && <>
+      {IsAuthenticated && 
+        <>
         <Stack.Screen name="HomeStack" component={HomeStack} />
         <Stack.Screen name="PrescriptionDetail" component={PrescriptionDetail} />
         <Stack.Screen name="AppointmentDetails" component={AppointmentDetails} />
@@ -55,8 +55,8 @@ export default function App() {
         <Stack.Screen name="NotificationScreen" component={NotificationScreen} />
         <Stack.Screen name="RescheduleScreen" component={RescheduleScreen} />
         <Stack.Screen name="SetImage" component={SetImage}/>
-        </>}
         </>
+        
       }
       </Stack.Navigator>
       </SafeAreaProvider>

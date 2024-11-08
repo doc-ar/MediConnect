@@ -14,7 +14,7 @@ const AppointmentItem = ({ appointment }) => {
         <Image source={{ uri: appointment.image }} style={styles.doctorImage} />
         <View style={styles.appointmentInfo}>
           <View style={styles.NameDetailsView}>
-            <Text style={styles.doctorName}>{appointment.doctorName}</Text>
+            <Text style={styles.doctorName}>{appointment.name}</Text>
             <TouchableOpacity
               style={styles.Details}
               onPress={() =>
@@ -28,7 +28,7 @@ const AppointmentItem = ({ appointment }) => {
           </View>
           <Text style={styles.designation}>{appointment.designation}</Text>
           <Text style={styles.dateTime}>
-            {appointment.startTime} - {appointment.endTime}
+            {appointment.start_time} - {appointment.end_time}
           </Text>
         </View>
       </View>
@@ -92,7 +92,7 @@ useEffect(() => {
   <View style={styles.container}>  
     <FlatList
       data={Object.keys(Appointments)}
-      keyExtractor={(item) => item.toString()}
+      keyExtractor={(item) => `${item?.appointment_id}`}
       renderItem={({ item: date }) => {
         const appointmentsForDate = Appointments[date];
         const firstAppointment = appointmentsForDate[0];
@@ -109,10 +109,11 @@ useEffect(() => {
           
             <FlatList
               data={appointmentsForDate}
-              keyExtractor={(item) => item.appointmentId}
+              keyExtractor={(item) => `${item?.appointment_id}`}
               renderItem={({ item: appointment }) => (
                 <AppointmentItem appointment={appointment} />
               )}
+              scrollEnabled={false}
             />
           </View>
           

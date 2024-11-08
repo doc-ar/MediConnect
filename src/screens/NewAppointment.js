@@ -12,7 +12,10 @@ import { useMediConnectStore } from "../Store/Store";
 
 export default function NewAppointment() {
     const navigation = useNavigation();
-    const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
+    const setReloadAppointments = useMediConnectStore((state)=>state.setReloadAppointments);
+    const ReloadAppointments = useMediConnectStore((state)=>state.ReloadAppointments)
+    const FetchRequest = useMediConnectStore((state)=>state.fetchWithRetry);
+    const PatientData = useMediConnectStore(state=>state.PatientData);
     const [DoctorsList, setDoctorsList] = useState([]);
     const [DoctorsNameList, setDoctorsNameList] = useState([]);
     const [DoctorsName, setDoctorsName] = useState([]);
@@ -27,7 +30,7 @@ export default function NewAppointment() {
     const [EnableSlots, setEnableSlots] = useState(false);
     const [EnableCalender, setEnableCalender] = useState(false);
     const [SlotsList, setSlotsList] = useState([]);
-    const [SelectedSlot, setSelectedSlot] = useState('');
+    const [SelectedSlot, setSelectedSlot] = useState(null);
     const [SubmitError, setSubmitError] = useState('');
     useEffect(() => {
         fetchDoctorData();
@@ -79,10 +82,19 @@ export default function NewAppointment() {
     }, [SelectedDoctorSchedule, selectedDate]);
     
 
-    const fetchDoctorData = async () => {
+    /*const fetchDoctorData = async () => {
         try {
             const response = await fetch('https://my-json-server.typicode.com/EmamaBilalKhan/MediConnect-API-3/Doctors');
-            const data = await response.json();
+            const data2 = await response.json();
+            console.log("data2: ", data2);
+        } catch (error) {
+            console.error('Error fetching Doctors:', error);
+        }
+        const response = await FetchRequest("https://www.mediconnect.live/mobile/get-doctors","get"
+        );
+        if (response.status === 200) {
+            console.log("Doctors Data , Back to Schedule screen Success: ",response.data);
+            const data = response.data;
             setDoctorsList(data);
             
             const designations = data.map(doctor => ({
@@ -92,18 +104,48 @@ export default function NewAppointment() {
             const uniqueDesignations = [...new Set(designations)];
             setDoctorTypesList(uniqueDesignations);
             setIsDataFetched(true);
-        } catch (error) {
-            console.error('Error fetching Doctors:', error);
-        }
-        const response = await FetchRequest("https://www.mediconnect.live/mobile/get-doctors","get"
-        );
-        if (response.status === 200) {
-            console.log("Doctors Data , Back to Schedule screen Success: ",response.data);
+
         }
         else{
         console.log("Error Fetching Latest Prescription Data on Prescription Screen: ",response.data);
     }
+    };*/
+
+    const fetchDoctorData = async () => {
+        try {
+            const response = await fetch('https://my-json-server.typicode.com/EmamaBilalKhan/MediConnect-API-3/Doctors');
+            const data2 = await response.json();
+            console.log("data2: ", data2);
+        } catch (error) {
+            console.error('Error fetching Doctors:', error);
+        }
+        
+        const response = await FetchRequest("https://www.mediconnect.live/mobile/get-doctors", "get");
+        if (response.status === 200) {
+            console.log("Doctors Data , Back to Schedule screen Success: ", response.data);
+            const data = response.data;
+    
+            // Filter doctors based on qualification, designation, and schedule's first entry date
+            const filteredDoctors = data.filter(doctor => 
+                doctor.qualification && 
+                doctor.designation && 
+                doctor.schedule?.[0]?.date
+            );
+    
+            setDoctorsList(filteredDoctors);
+    
+            const designations = filteredDoctors.map(doctor => ({
+                key: doctor.designation,
+                value: doctor.designation
+            }));
+            const uniqueDesignations = [...new Set(designations)];
+            setDoctorTypesList(uniqueDesignations);
+            setIsDataFetched(true);
+        } else {
+            console.log("Error Fetching Latest Prescription Data on Prescription Screen: ", response.data);
+        }
     };
+    
 
     const setMinMaxDate = () => {
         const today = new Date();
@@ -114,15 +156,46 @@ export default function NewAppointment() {
         setMinDate(minDateApp);
     };
 
-    const handleSubmit =()=>{
+    const handleSubmit = async()=>{
         if(!DoctorType || !DoctorsName || !selectedDate || !SelectedSlot){
             setSubmitError("All the Categories must be filled to Scehdule Appointment");
         }
         else{
-            navigation.goBack();
+            console.log("Appointment Scheduled by patient: ", DoctorType, DoctorsName, selectedDate, SelectedSlot)
+            
+            const response = await FetchRequest("https://www.mediconnect.live/mobile/create-appointment","post",{
+                status:"scheduled",
+                slot: SelectedSlot,
+                patient_id: PatientData.user_id,
+                doctor_id: '6c66e242-d106-4b81-a8f9-f46b6b1d8209',
+            }
+            );
+            if (response.status === 200) {
+                console.log("Appointment scheduled Success: ",response.data);
+                NewReloadAppointments=ReloadAppointments+1;
+                setReloadAppointments(NewReloadAppointments);
+                navigation.navigate("Home", {
+                    screen: "AppointmentScreen",
+                  }); 
+            }
+            else{
+                console.log("Error Fetching Latest Prescription Data on Prescription Screen: ", response.data);
+                navigation.navigate("Home", {
+                    screen: "AppointmentScreen",
+                  }); 
+            }
+        
         }
         }
     
+    
+        const formatSlot = (slot) => {
+        const parts = slot.split("-");
+        const startTime = parts[0];
+        const endTime = parts[1];
+        const slotId = parts.slice(2).join("-"); // Join remaining parts for slot ID
+    return { displayTime: `${startTime} - ${endTime}`, slotId };
+        };
 
     return (
         <SafeAreaView style={styles.container}>
@@ -176,17 +249,20 @@ export default function NewAppointment() {
                         SlotsList.length > 0 ? (
                             <>
                                 <Text style={styles.TimeSlotsText}>Select from Available Time Slots:</Text>
-                                {SlotsList.map((slot, index) => (
-                                    <View key={index} style={styles.RadioButton}>
-                                        <RadioButton
-                                            value={slot}
-                                            status={slot === SelectedSlot ? 'checked' : 'unchecked'}
-                                            onPress={() => setSelectedSlot(slot)}
-                                            color="#2F3D7E"
-                                        />
-                                        <Text style={styles.RadioButtonText}>{slot}</Text>
-                                    </View>
-                                ))}
+                                {SlotsList.map((slot, index) => {
+                    const { displayTime, slotId } = formatSlot(slot);
+                    return (
+                        <View key={index} style={styles.RadioButton}>
+                            <RadioButton
+                                value={slotId}
+                                status={slotId === SelectedSlot ? 'checked' : 'unchecked'}
+                                onPress={() => setSelectedSlot(slotId)}
+                                color="#2F3D7E"
+                            />
+                            <Text style={styles.RadioButtonText}>{displayTime}</Text>
+                        </View>
+                    );
+                })}
                             </>
                         ) : (
                             <Text style={styles.TimeSlotsText}>Doctor has no time slots available for this date.</Text>

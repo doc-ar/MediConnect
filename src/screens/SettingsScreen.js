@@ -14,7 +14,7 @@ export default function SettingsScreen() {
 
     const navigation = useNavigation();
     const PatientData = useMediConnectStore(state=>state.PatientData);
-
+    const clearTokens = useMediConnectStore(state=>state.clearTokens);
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="white"/>
@@ -23,7 +23,7 @@ export default function SettingsScreen() {
                 </View>
                 <View style={styles.BottomView}>
                     <View style={styles.imageContainer}>
-                        <Image source={{ uri: "https://img.freepik.com/premium-photo/portrait-lovely-pretty-positive-woman-toothy-beaming-smile-blue-background_525549-5283.jpg?w=360" }} style={styles.PatientImage} />
+                        <Image source={{ uri: PatientData.image }} style={styles.PatientImage} />
                         <MaterialCommunityIcons name="pencil-circle" size={hp(5)} color="#2F3D7E" style={styles.pencilicon} onPress={()=>navigation.navigate("SetImage")}/>
                     </View>
                     <Text style={styles.PatientName}>{PatientData.name}</Text>
@@ -62,7 +62,7 @@ export default function SettingsScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity style={styles.LogOutbutton}>
+                    <TouchableOpacity onPress={()=>clearTokens()} style={styles.LogOutbutton}>
                               <Text style={styles.LogOutText}>Log Out</Text>
                     </TouchableOpacity>
                 </View>

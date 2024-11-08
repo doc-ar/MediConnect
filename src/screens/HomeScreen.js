@@ -41,12 +41,16 @@ export default function HomeScreen({navigation}) {
             // Format each appointment's date
             const formattedAppointments = response.data.map((appointment) => {
                 const { yearMonth, date } = formatDate(appointment.date);
-                
+                const start_time = formatTimeTo12Hour(appointment.start_time);
+                const end_time = formatTimeTo12Hour(appointment.end_time);
+
                 // Add formatted yearMonth and date properties to each appointment object
                 return {
                     ...appointment,
                     month: yearMonth,
                     date: date,
+                    start_time: start_time,
+                    end_time: end_time
                 };
             });
     
@@ -63,6 +67,14 @@ export default function HomeScreen({navigation}) {
     []
 );
     
+const formatTimeTo12Hour = (time) => {
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours, 10);
+    const period = hour >= 12 ? 'PM' : 'AM';
+    const formattedHour = hour % 12 || 12; // Convert to 12-hour format, with 0 as 12
+  
+    return `${formattedHour} ${period}`;
+  };
 
     const formatDate=(dateString)=> {
         const date = new Date(dateString);
@@ -108,7 +120,7 @@ export default function HomeScreen({navigation}) {
                 {Loading && <Text style={styles.LoadingText}>Loading...</Text>}
                 {!Loading&&<>
                 <View style={styles.PatientView}>
-                    <Image source={{ uri: "https://img.freepik.com/premium-photo/portrait-lovely-pretty-positive-woman-toothy-beaming-smile-blue-background_525549-5283.jpg?w=360" }} style={styles.PatientImage} />
+                    <Image source={{ uri: Info.image }} style={styles.PatientImage} />
                     <View style={styles.PatientView2}>
                         <Text style={styles.PatientName}>{Info.name}</Text>
                         <Text style={styles.PatientAgeGender}>{Info.age}, {Info.gender}</Text>

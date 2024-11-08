@@ -2,10 +2,11 @@ import { StyleSheet,Text,View,TouchableOpacity, ScrollView, TextInput} from "rea
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Entypo } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMediConnectStore } from "../Store/Store";
+import Modal from "react-native-modal";
 
 export default function EditProfile(){
     const setPatientData = useMediConnectStore(state=>state.setPatientData);
@@ -15,7 +16,7 @@ export default function EditProfile(){
     const [Name, setName] = useState(PatientData.name);
     const [Contact, setContact] = useState(PatientData.contact);
     const [Address, setAddress] = useState(PatientData.address);
-    const [Age, setAge] = useState(PatientData.age);
+    const [Age, setAge] = useState(String(PatientData.age));
     const [Weight, setWeight] = useState(PatientData.weight);
     const [Gender, setGender] = useState(PatientData.gender);
     const [Height, setHeight] = useState(PatientData.height);
@@ -24,6 +25,19 @@ export default function EditProfile(){
     const [BloodGlucose, setBloodGlucose] = useState(PatientData.blood_glucose);
     const [BloodPressure, setBloodPressure] = useState(PatientData.blood_pressure);
     const [EmptyReqFields, setEmptyReqFields] = useState(false);
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [EditMessage, setEditMessage] = useState('');
+
+    useEffect(() => {
+        let timeout;
+        if (isModalVisible) {
+            timeout = setTimeout(() => {
+                navigation.goBack();
+            }, 5000);
+        }
+
+        return () => clearTimeout(timeout);
+    }, [isModalVisible]);
 
     const validateAndSubmit = () => {
         // Check if all required fields are filled and the date is valid
@@ -39,15 +53,18 @@ export default function EditProfile(){
     };
 
     const UpdatePatientData= async() =>{
-        const response = await FetchRequest("https://www.mediconnect.live/mobile/update-patient","patch", {name:Name, gender:Gender, address:Address, weight:Weight, blood_pressure:BloodPressure, image:null, age:Age, blood_glucose:BloodGlucose, contact:Contact, bloodtype:BloodType, allergies:Allergy, height:Height}
+        const response = await FetchRequest("https://www.mediconnect.live/mobile/update-patient","patch", {name:Name, gender:Gender, address:Address, weight:Weight, blood_pressure:BloodPressure, image:"https://cdn.openart.ai/published/6QLTkchH5F6bKgAmbRfc/aofdob56_vO8y_512.webp", age:Number(Age), blood_glucose:BloodGlucose, contact:Contact, bloodtype:BloodType, allergies:Allergy, height:Height}
         );
         if (response.status === 200) {
             console.log("Patient Data Updated , Back to Edit Screen Success: ",response.data);
             setPatientData(response.data);
-            navigation.goBack();
+            setEditMessage("Success!");
+            setModalVisible(true);
         }
         else{
         console.log("Error setting Patient Data on Edit Screen: ",response.data);
+        setEditMessage("An Error Occurred. Try Again.");
+        setModalVisible(true);
     }
     } 
 
@@ -100,7 +117,7 @@ export default function EditProfile(){
                         style={styles.input}
                         value={Age}
                         onChangeText={setAge}
-                        keyboardType="numeric"
+                        
                     />
                 </View>
 
@@ -121,7 +138,6 @@ export default function EditProfile(){
                         style={styles.input}
                         value={Weight}
                         onChangeText={setWeight}
-                        keyboardType="numeric"
                     />
                 </View>
 
@@ -131,7 +147,6 @@ export default function EditProfile(){
                         style={styles.input}
                         value={BloodGlucose}
                         onChangeText={setBloodGlucose}
-                        keyboardType="numeric"
                     />
                 </View>
 
@@ -141,7 +156,6 @@ export default function EditProfile(){
                         style={styles.input}
                         value={BloodPressure}
                         onChangeText={setBloodPressure}
-                        keyboardType="numeric"
                     />
                 </View>
 
@@ -151,7 +165,6 @@ export default function EditProfile(){
                         style={styles.input}
                         value={Height}
                         onChangeText={setHeight}
-                        keyboardType="numeric"
                     />
                 </View>
 
@@ -186,6 +199,15 @@ export default function EditProfile(){
                     </TouchableOpacity>
                 </View>
             </ScrollView>
+            <Modal isVisible={isModalVisible}>
+                <View style={styles.ModalView}>
+                    <Text style={styles.ModalText}>{EditMessage}</Text>
+                    {EditMessage === "Success!"?
+                    <AntDesign name="checkcircle" size={hp(9)} color="#2F3D7E" style={styles.Modalcheck}/>:
+                    <Entypo name="emoji-sad" size={hp(9)} color="#a1020a" style={styles.Modalcheck}/>
+                    }
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -265,4 +287,20 @@ const styles= StyleSheet.create({
         marginVertical: hp(2),
         width: wp(90),
     },
+    ModalView:{
+        backgroundColor:"white",
+        borderRadius:20,
+        height:hp(18),
+        width:wp(80),
+        alignSelf:"center"
+      },
+      ModalText:{
+        fontSize:hp(2),
+        fontWeight:"bold",
+        textAlign:"center",
+        marginVertical:hp(2)
+      },
+      Modalcheck:{
+        alignSelf:"center",
+      }
 })

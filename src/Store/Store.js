@@ -58,6 +58,7 @@ export const useMediConnectStore = create((set) => {
           const { accessToken: newAccessToken, refreshToken: newRefreshToken } = refreshResponse.data;
           await setTokens(newAccessToken, newRefreshToken);
           console.log("Got new refresh and auth token");
+          console.log("new access: ", newAccessToken);
           // Retry the original request with the new access token
           try{
             console.log("Retrying request with new access token");
@@ -86,6 +87,7 @@ export const useMediConnectStore = create((set) => {
   const clearTokens = async () => {
     await SecureStore.deleteItemAsync('accessToken');
     await SecureStore.deleteItemAsync('refreshToken');
+    await SecureStore.deleteItemAsync('isRegistered');
     checkRefreshToken();
   };
 
@@ -95,18 +97,29 @@ export const useMediConnectStore = create((set) => {
     checkRefreshToken();
   };
   
+  const setIsRegistered = async (bool) => {
+    // Store isRegistered as a string ("true" or "false")
+    await SecureStore.setItemAsync('isRegistered', bool ? "true" : "false");
+  };
+
+  const getIsRegistered = async () => {
+    // Retrieve and convert isRegistered to a boolean
+    const isRegistered = await SecureStore.getItemAsync('isRegistered');
+    return isRegistered === "true";
+  };
   
   return {
     selectedAppointmentMonth: "",  
     setSelectedAppointmentMonth: (Month) => set({ selectedAppointmentMonth: Month }),
     
-    isRegistered: false,
-    setIsRegistered: (bool) => set({ isRegistered: bool }),
-
     PatientData: {},
     setPatientData: (data) => set({ PatientData: data }),
 
+    ReloadAppointments : 1,
+    setReloadAppointments: (Num) => set({ ReloadAppointments: Num }),
     isAuthenticated: false,
+    setIsRegistered,
+    getIsRegistered,
     setTokens,
     clearTokens,
     fetchWithRetry,

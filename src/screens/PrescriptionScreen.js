@@ -11,7 +11,8 @@ export default function PrescriptionScreen({navigation}){
 
       const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
       const [Loading, setLoading] = useState(true);
-      const [Prescriptions, setPrescriptions]=useState([{
+      const [Loading2, setLoading2] = useState(true);
+      const [Prescriptions, setPrescriptions]=useState([/*{
         Doctor:"Dr. John Doe",
         Date:"2024-09-01",
         Medication:[
@@ -281,14 +282,14 @@ export default function PrescriptionScreen({navigation}){
               "Duration": "10 Days"
             }
           ]
-      }
+      }*/
 
     
     ]);
     const [LatestPrescription, setLatestPrescription] = useState({})
 
     useEffect(()=>{
-      const fetchLatestPrescription=async()=>{
+      /*const fetchLatestPrescription=async()=>{
         const response = await FetchRequest("https://www.mediconnect.live/mobile/latest-prescription","get"
         );
         if (response.status === 200) {
@@ -299,8 +300,22 @@ export default function PrescriptionScreen({navigation}){
         else{
         console.log("Error Fetching Latest Prescription Data on Prescription Screen: ",response.data);
         setLoading(true);
-    }}
-    fetchLatestPrescription();
+    }}*/
+
+    const fetchAllPrescriptions=async()=>{
+      const response = await FetchRequest("https://www.mediconnect.live/mobile/all-prescriptions","get"
+      );
+      if (response.status === 200) {
+          console.log("All prescription Data , Back to Prescription screen Success: ",response.data);
+          setPrescriptions(response.data);
+          setLoading2(false);
+      }
+      else{
+      console.log("Error Fetching All Prescription Data on Prescription Screen: ",response.data);
+      setLoading2(true);
+  }}
+    //fetchLatestPrescription();
+    fetchAllPrescriptions();
     },[])
 
     return(
@@ -310,12 +325,13 @@ export default function PrescriptionScreen({navigation}){
                 <Text style={styles.PrescriptionText}>My Prescriptions</Text>
                 </View>
             <ScrollView contentContainerStyle={styles.scrollView}>
-            <Text style={styles.LatestPrescriptionText}>Latest Prescription</Text>
-            {Loading? <Text style={styles.LoadingText}>Loading...</Text>:
-                (<>
-                <MedicationTable Medication={Prescriptions[1].Medication}/></>)}
-                <Text style={styles.PastPrescriptionText}>Past Prescriptions</Text>
+            {!Loading2?(<>
+            <Text style={styles.LatestPrescriptionText}>Current Prescription </Text>
+              <Text style={styles.dated}> Dated: {Prescriptions[1].date}</Text>
+                <MedicationTable Medication={Prescriptions[1].medication}/>
+                <Text style={styles.PastPrescriptionText}>Past Prescriptions</Text>                
                 <PrescriptionTable Prescription={Prescriptions} Navigation={navigation}/>
+                </>):<Text style={styles.LoadingText}>Loading...</Text>}
             </ScrollView>
         </SafeAreaView>
     );
@@ -351,6 +367,14 @@ const styles = StyleSheet.create({
         alignSelf:"flex-start",
         marginTop:hp(2.3),
     },
+    dated:{
+      fontSize: hp(1.5),
+      fontWeight:"bold",
+        alignSelf:"flex-start",
+        marginTop:hp(1),
+        color:"gray"
+    }
+    ,
     PastPrescriptionText:{
         marginTop:hp(2),
         fontSize:hp(2.5),
