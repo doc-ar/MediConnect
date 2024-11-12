@@ -1,0 +1,108 @@
+.loading-state{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100vh;
+}
+
+.patient-profile-container {
+    padding: 20px;
+    background-color: #f7f9fc;
+}
+
+.patient-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.patient-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 40%;
+    margin-right: 30px;
+}
+
+.patient-photo {
+    width: 150px;
+    height: 150px;
+    /* border-radius: 50%; */
+    margin-right: 20px;
+}
+
+.vitals-section {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 60%;
+}
+
+.vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.vitals-grid div {
+    background-color: #f0f4f8;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+
+.vitals-grid div > p{
+     margin: 5px;
+}
+.patient-records {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.record-section {
+    margin-bottom: 20px;
+}
+
+.record-row {
+    display: flex;
+    justify-content: space-between;
+    background-color: #f0f4f8;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+}
+
+.follow-up-section {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.review-btn {
+    background-color: #233B69;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.review-btn:hover {
+    background-color: #1f3260;
+}

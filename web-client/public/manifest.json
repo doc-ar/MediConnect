@@ -1,0 +1,6 @@
+{
+  "short_name": "MediConnect",
+  "name": "FYP MediConnect",
+  "start_url": ".",
+  "display": "standalone"
+}
