@@ -285,6 +285,39 @@ app.get("/web/get-appointments", authMiddleware, async (req, res) => {
   }
 });
 
+app.get("/web/get-prescriptions", authMiddleware, async (req, res) => {
+  try {
+    // Check if prescription exists
+    const object_exists = sql`
+      SELECT patient_id FROM patients
+      WHERE patient_id = ${req.body.patient_id}
+    `;
+    if (object_exists.length === 0) {
+      return res
+        .status(409)
+        .json({ error: "The patient has no prescriptions" });
+    }
+
+    // Execute Query
+    const prescriptions = await sql`
+      SELECT  pa.name AS "patient_name",
+              TO_CHAR(ts.date, 'YYYY-Mon-DD') AS "date",
+              p.prescription_data AS "medication"
+      FROM prescriptions p
+      JOIN appointments a ON a.appointment_id = p.appointment_id
+      JOIN time_slots ts ON ts.slot_id = a.slot_id
+      JOIN doctors d ON d.doctor_id = a.doctor_id
+      JOIN patients pa ON pa.patient_id = a.patient_id
+      JOIN users u ON u.user_id = pa.user_id
+      WHERE pa.patient_id = ${req.body.patient_id}
+    `;
+
+    return res.json(prescriptions);
+  } catch (error) {
+    return res.json({ error: error.message });
+  }
+});
+
 // PATCH request endpoints
 app.patch("/web/update-doctor", authMiddleware, async (req, res) => {
   try {

@@ -65,26 +65,40 @@ app.post("/auth/signup", async (req, res) => {
 
 app.post("/auth/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const users = await sql`SELECT * FROM users WHERE email = ${email}`;
     var hasPatientProfile = false;
     var hasDoctorProfile = false;
+    const users = await sql`
+      SELECT * FROM users WHERE email = ${req.body.email}
+    `;
 
     // Email Check
     if (users.length === 0)
       return res.status(401).json({ error: "Email does not exist" });
-
     // Password Check
-    const validPassword = await bcrypt.compare(password, users[0].password);
+    const validPassword = await bcrypt.compare(
+      req.body.password,
+      users[0].password,
+    );
     if (!validPassword)
       return res.status(401).json({ error: "Password is incorrect" });
 
+    // Generate Tokens
+    let tokens = jwtTokens(users[0]);
+
+    // Check if Doctor
+    const doctor = await sql`
+      SELECT u.user_id, d.doctor_id, u.email, u.role FROM doctors d
+      JOIN users u ON u.user_id = d.user_id
+      WHERE u.user_id = ${users[0].user_id}
+    `;
+    if (doctor.length > 0) {
+      hasDoctorProfile = true;
+      return res.json(doctor);
+    }
+
+    // Check if Patient
     const patient = await sql`
       SELECT * FROM patients
-      WHERE user_id = ${users[0].user_id}
-    `;
-    const doctor = await sql`
-      SELECT * FROM doctors
       WHERE user_id = ${users[0].user_id}
     `;
 
@@ -95,7 +109,6 @@ app.post("/auth/login", async (req, res) => {
       hasDoctorProfile = true;
     }
 
-    let tokens = jwtTokens(users[0]);
     tokens.hasPatientProfile = hasPatientProfile;
     tokens.hasDoctorProfile = hasDoctorProfile;
     res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
