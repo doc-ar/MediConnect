@@ -22,5 +22,12 @@
     "create-react-app": "^5.0.1",
     "dotenv": "^16.4.5",
     "http": "^0.0.1-security"
-  }
+  },
+  "private": true,
+  "workspaces": [
+    "auth",
+    "mobile-backend",
+    "web-backend",
+    "web-client"
+  ]
 }

@@ -1,5 +1,4 @@
 import express, { json } from "express";
-//import useragent from "express-useragent";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
@@ -67,6 +66,7 @@ app.post("/auth/login", async (req, res) => {
   try {
     var hasPatientProfile = false;
     var hasDoctorProfile = false;
+    var tokens = null;
     const users = await sql`
       SELECT * FROM users WHERE email = ${req.body.email}
     `;
@@ -82,9 +82,6 @@ app.post("/auth/login", async (req, res) => {
     if (!validPassword)
       return res.status(401).json({ error: "Password is incorrect" });
 
-    // Generate Tokens
-    let tokens = jwtTokens(users[0]);
-
     // Check if Doctor
     const doctor = await sql`
       SELECT u.user_id, d.doctor_id, u.email, u.role FROM doctors d
@@ -92,27 +89,26 @@ app.post("/auth/login", async (req, res) => {
       WHERE u.user_id = ${users[0].user_id}
     `;
     if (doctor.length > 0) {
+      tokens = jwtTokens(doctor[0]);
       hasDoctorProfile = true;
-      return res.json(doctor);
+      tokens.hasDoctorProfile = hasDoctorProfile;
+      res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
+      return res.json(tokens);
     }
 
     // Check if Patient
     const patient = await sql`
-      SELECT * FROM patients
-      WHERE user_id = ${users[0].user_id}
+      SELECT u.user_id, p.patient_id, u.email, u.role FROM patients p
+      JOIN users u ON u.user_id = p.user_id
+      WHERE u.user_id = ${users[0].user_id}
     `;
-
     if (patient.length > 0) {
+      tokens = jwtTokens(patient[0]);
       hasPatientProfile = true;
+      tokens.hasPatientProfile = hasPatientProfile;
+      res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
+      return res.json(tokens);
     }
-    if (doctor.length > 0) {
-      hasDoctorProfile = true;
-    }
-
-    tokens.hasPatientProfile = hasPatientProfile;
-    tokens.hasDoctorProfile = hasDoctorProfile;
-    res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
-    res.json(tokens);
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
