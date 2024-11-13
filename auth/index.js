@@ -57,14 +57,14 @@ app.post("/auth/signup", async (req, res) => {
     `;
 
     // Email Check
-    if (users.length === 0)
-      return res.status(401).json({ error: "Email does not exist" });
+    if (users.length > 0)
+      return res.status(403).json({ error: "The user already exists" });
 
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newUser = await sql`INSERT INTO users (email,password, role)
       VALUES (${req.body.email}, ${hashedPassword}, ${req.body.role}) 
       RETURNING *`;
-    res.json({ users: newUser[0] });
+    return res.json({ users: newUser[0] });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
