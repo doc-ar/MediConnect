@@ -52,6 +52,14 @@ app.delete("/auth/refresh-token", (req, res) => {
 
 app.post("/auth/signup", async (req, res) => {
   try {
+    const users = await sql`
+      SELECT * FROM users WHERE email = ${req.body.email}
+    `;
+
+    // Email Check
+    if (users.length === 0)
+      return res.status(401).json({ error: "Email does not exist" });
+
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newUser = await sql`INSERT INTO users (email,password, role)
       VALUES (${req.body.email}, ${hashedPassword}, ${req.body.role}) 
@@ -82,33 +90,31 @@ app.post("/auth/login", async (req, res) => {
     if (!validPassword)
       return res.status(401).json({ error: "Password is incorrect" });
 
-    // Check if Doctor
-    const doctor = await sql`
-      SELECT u.user_id, d.doctor_id, u.email, u.role FROM doctors d
+    tokens = jwtTokens(users[0]);
+
+    const [doctor, patient] = await Promise.all([
+      sql`SELECT u.user_id, d.doctor_id, u.email, u.role FROM doctors d
       JOIN users u ON u.user_id = d.user_id
-      WHERE u.user_id = ${users[0].user_id}
-    `;
+      WHERE u.user_id = ${users[0].user_id}`,
+      sql`SELECT u.user_id, p.patient_id, u.email, u.role FROM patients p
+      JOIN users u ON u.user_id = p.user_id
+      WHERE u.user_id = ${users[0].user_id}`,
+    ]);
+
+    // Check if Doctor
     if (doctor.length > 0) {
-      tokens = jwtTokens(doctor[0]);
       hasDoctorProfile = true;
-      tokens.hasDoctorProfile = hasDoctorProfile;
-      res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
-      return res.json(tokens);
     }
 
     // Check if Patient
-    const patient = await sql`
-      SELECT u.user_id, p.patient_id, u.email, u.role FROM patients p
-      JOIN users u ON u.user_id = p.user_id
-      WHERE u.user_id = ${users[0].user_id}
-    `;
     if (patient.length > 0) {
-      tokens = jwtTokens(patient[0]);
       hasPatientProfile = true;
-      tokens.hasPatientProfile = hasPatientProfile;
-      res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
-      return res.json(tokens);
     }
+
+    tokens.hasPatientProfile = hasPatientProfile;
+    tokens.hasDoctorProfile = hasDoctorProfile;
+    res.cookie("refresh_token", tokens.refreshToken, { httpOnly: true });
+    return res.json(tokens);
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
