@@ -2,13 +2,14 @@ import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useNavigation } from '@react-navigation/native';
-import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { AntDesign, FontAwesome, Entypo } from "@expo/vector-icons";
 import { StatusBar } from "expo-status-bar";
 import Calendar from "react-native-calendars/src/calendar";
 import { SelectList } from "react-native-dropdown-select-list";
 import {RadioButton } from 'react-native-paper';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useMediConnectStore } from "../Store/Store";
+import Modal from "react-native-modal";
 
 export default function NewAppointment() {
     const navigation = useNavigation();
@@ -32,6 +33,10 @@ export default function NewAppointment() {
     const [SlotsList, setSlotsList] = useState([]);
     const [SelectedSlot, setSelectedSlot] = useState(null);
     const [SubmitError, setSubmitError] = useState('');
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [SubmitMessage,setSubmitMessage]=useState("");
+    const [isErrorModalVisible, setErrorModalVisible] = useState(false);
+
     useEffect(() => {
         fetchDoctorData();
         setMinMaxDate();
@@ -157,8 +162,10 @@ export default function NewAppointment() {
     };
 
     const handleSubmit = async()=>{
+
         if(!DoctorType || !DoctorsName || !selectedDate || !SelectedSlot){
-            setSubmitError("All the Categories must be filled to Scehdule Appointment");
+            setSubmitError("All the Categories must be selected to Scehdule Appointment");
+            setErrorModalVisible(true);
         }
         else{
             console.log("Appointment Scheduled by patient: ", DoctorType, DoctorsName, selectedDate, SelectedSlot)
@@ -167,22 +174,18 @@ export default function NewAppointment() {
                 status:"scheduled",
                 slot: SelectedSlot,
                 patient_id: PatientData.user_id,
-                doctor_id: '6c66e242-d106-4b81-a8f9-f46b6b1d8209',
+                doctor_id: DoctorsList.find(doctor => doctor.name === DoctorsName).id,
             }
             );
             if (response.status === 200) {
                 console.log("Appointment scheduled Success: ",response.data);
-                NewReloadAppointments=ReloadAppointments+1;
-                setReloadAppointments(NewReloadAppointments);
-                navigation.navigate("Home", {
-                    screen: "AppointmentScreen",
-                  }); 
+                setSubmitMessage("Appointment Scheduled Successfully");
+                setModalVisible(true);
             }
             else{
                 console.log("Error Fetching Latest Prescription Data on Prescription Screen: ", response.data);
-                navigation.navigate("Home", {
-                    screen: "AppointmentScreen",
-                  }); 
+                setSubmitMessage("Error Scheduling Appointment. Try Again.");
+                setModalVisible(true);
             }
         
         }
@@ -270,12 +273,35 @@ export default function NewAppointment() {
                     ) : (
                         <></>
                     )}
-                    {SubmitError && <Text style={styles.SubmitError}>{SubmitError}</Text>}
                     <TouchableOpacity style={styles.Button} onPress={handleSubmit}>
                         <Text style={styles.ButtonText}>Schedule Appointment</Text>
                     </TouchableOpacity>
                     
+            <Modal isVisible={isModalVisible}>
+                <View style={styles.ModalView}>
+                    <Text style={styles.ModalText}>{SubmitMessage}</Text>
+                    {SubmitMessage === "Appointment Scheduled Successfully"?
+                    <AntDesign name="checkcircle" size={hp(9)} color="#2F3D7E" style={styles.Modalcheck}/>:
+                    <Entypo name="circle-with-cross" size={hp(9)} color="#a1020a" style={styles.Modalcheck}/>
+                    }
+                    <TouchableOpacity style={[styles.ModalBackButton, {backgroundColor:"#FAE9E6"}]} onPress={()=>navigation.goBack()}>
+                        <Text style={[styles.ModalBackButtonText, {color:"#a1020a" }]}>Go Back</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+
+            <Modal isVisible={isErrorModalVisible}>
+                <View style={styles.ModalView}>
+                    <Text style={styles.ModalText}>{SubmitError}</Text>
+                    <Entypo name="circle-with-cross" size={hp(9)} color="#a1020a" style={styles.Modalcheck}/>
+                    <TouchableOpacity style={[styles.ModalBackButton, {backgroundColor:"#FAE9E6"}]} onPress={()=>setErrorModalVisible(false)}>
+                        <Text style={[styles.ModalBackButtonText, {color:"#a1020a" }]}>Go Back</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+            
                 </ScrollView>
+                
             )}
         </SafeAreaView>
     );
@@ -370,5 +396,37 @@ const styles = StyleSheet.create({
         color: "red",
         alignSelf: "center",
         marginTop: hp(1)
-    }
+    },
+    ModalView:{
+        backgroundColor:"white",
+        borderRadius:20,
+        height:hp(25),
+        width:wp(80),
+        alignSelf:"center",
+        alignItems:"center",
+        justifyContent:"center"
+      },
+      ModalText:{
+        fontSize:hp(2),
+        fontWeight:"bold",
+        textAlign:"center",
+        marginBottom:hp(1)
+      },
+      Modalcheck:{
+        alignSelf:"center",
+      },
+      ModalBackButton:{
+        backgroundColor:"#2F3D7E",
+        borderRadius:12,
+        width:wp(50),
+        height:hp(5),
+        justifyContent:"center",
+        alignItems:"center",
+        marginTop:hp(2)
+      },
+      ModalBackButtonText:{
+        color:"white",
+        fontSize:hp(1.8),
+        fontWeight:"bold"
+      }
 });

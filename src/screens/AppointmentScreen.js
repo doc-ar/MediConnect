@@ -8,9 +8,10 @@ import { useMediConnectStore } from "../Store/Store";
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
+import { AntDesign } from "@expo/vector-icons";
 export default function AppointmentScreen() {
   const navigation = useNavigation();
-  const [Appointments, setAppointments] = useState({});
+  const [Appointments, setAppointments] = useState([]);
   const [MonthData, setMonthData] = useState([]);
   const [Loading, setLoading] = useState(true);
   const selectedAppointmentMonth = useMediConnectStore((state) => state.selectedAppointmentMonth);
@@ -109,16 +110,16 @@ export default function AppointmentScreen() {
       <View style={styles.AppointmentView}>
         <Text style={styles.AppointmentText}>My Appointments</Text>
       </View>
-      <View style={styles.NewApointmentView}>
-        <Entypo name="plus" size={hp(4)} color="white" style={styles.plusIcon} onPress={()=>navigation.navigate("NewAppointment")} />
-      </View>
+      
+        <AntDesign name="pluscircle" size={hp(5)} color="#2F3D7E" style={styles.plusIcon} onPress={()=>navigation.navigate("NewAppointment")} />
       <DropdownDates Data={MonthData}/>
       <View>
-      {!Loading && selectedAppointmentMonth && Appointments[selectedAppointmentMonth] ? (
-      <AppointmentCard Appointments={Appointments[selectedAppointmentMonth]} />
-        ) : (
-          <></>
-      )}
+      {!Loading && selectedAppointmentMonth && Appointments[selectedAppointmentMonth] ?
+      <AppointmentCard Appointments={Appointments[selectedAppointmentMonth]} />:
+        null}
+        {!Loading && Object.keys(Appointments).length === 0 ? (
+          <Text style={styles.NoAppointmentText}>You currently have no Appointment data available.</Text>
+        ) : null}
 
       {Loading && <Text>Loading Appointments ...</Text>}
       </View>
@@ -148,18 +149,21 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#41474D",
   },
-  NewApointmentView: {
+  plusIcon: {
     alignItems: "center",
     position: "absolute",
     right: wp(4),
     bottom: hp(3),
     zIndex:1,
-    backgroundColor:"#2F3D7E",
     borderRadius:28,
-    width:wp(),
-    height:hp(10),
     justifyContent:"center"
   },
-  plusIcon: {
+  NoAppointmentText:{
+    fontWeight:"bold",
+    fontSize: hp(2),
+    color:"#41474D",
+    textAlign:"center",
+    marginTop:hp(3),
+    paddingHorizontal:wp(5)
   }
 });

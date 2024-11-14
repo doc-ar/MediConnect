@@ -7,9 +7,8 @@ export const useMediConnectStore = create((set) => {
   const checkRefreshToken = async () => {
     const refreshToken = await SecureStore.getItemAsync('refreshToken');
     set({ isAuthenticated: !!refreshToken });
+    return !!refreshToken;
   };
-
-  checkRefreshToken();
   
   const fetchWithRetry = async (url, method, data = undefined) => {
     
@@ -105,7 +104,7 @@ export const useMediConnectStore = create((set) => {
   const getIsRegistered = async () => {
     // Retrieve and convert isRegistered to a boolean
     const isRegistered = await SecureStore.getItemAsync('isRegistered');
-    return isRegistered === "true";
+    return isRegistered === "true"?true:false;
   };
   
   return {
@@ -117,11 +116,14 @@ export const useMediConnectStore = create((set) => {
 
     ReloadAppointments : 1,
     setReloadAppointments: (Num) => set({ ReloadAppointments: Num }),
+    RegistrationCheck: false,
+    setRegistrationCheck: (bool) => set({ RegistrationCheck: bool }),
     isAuthenticated: false,
     setIsRegistered,
     getIsRegistered,
     setTokens,
     clearTokens,
     fetchWithRetry,
+    checkRefreshToken
   };
 });

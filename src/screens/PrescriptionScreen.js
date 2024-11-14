@@ -325,12 +325,15 @@ export default function PrescriptionScreen({navigation}){
                 <Text style={styles.PrescriptionText}>My Prescriptions</Text>
                 </View>
             <ScrollView contentContainerStyle={styles.scrollView}>
-            {!Loading2?(<>
+            {!Loading2?( Prescriptions.length!==0?<>
             <Text style={styles.LatestPrescriptionText}>Current Prescription </Text>
               <Text style={styles.dated}> Dated: {Prescriptions[1].date}</Text>
                 <MedicationTable Medication={Prescriptions[1].medication}/>
                 <Text style={styles.PastPrescriptionText}>Past Prescriptions</Text>                
                 <PrescriptionTable Prescription={Prescriptions} Navigation={navigation}/>
+                </>:
+                <>
+                  <Text style={styles.NoPrescriptionText}>You currently have no prescription data.</Text>
                 </>):<Text style={styles.LoadingText}>Loading...</Text>}
             </ScrollView>
         </SafeAreaView>
@@ -386,6 +389,12 @@ const styles = StyleSheet.create({
       fontWeight: "bold",
       marginVertical: hp(4),
       alignSelf:"center",
+  },
+  NoPrescriptionText:{
+    fontWeight:"bold",
+    fontSize: hp(2),
+    color:"#41474D",
+    textAlign:"center",
+    marginTop:hp(3)
   }
-    
 })

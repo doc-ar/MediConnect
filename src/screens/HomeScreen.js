@@ -5,7 +5,6 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {MaterialIcons} from '@expo/vector-icons';
-import { Entypo } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMediConnectStore } from '../Store/Store';
 import { FlatList } from 'react-native';
@@ -156,9 +155,7 @@ const formatTimeTo12Hour = (time) => {
                         <Text style={styles.AppointmentText}> Appointments</Text>
                     </View>
                     <View style={styles.NewAppointmentView}>
-                        <View style={styles.NewApointmentLogoView}>
-                            <Entypo name="plus" size={hp(2)} color="white" style={styles.plusIcon} onPress={()=>navigation.navigate("NewAppointment")} />
-                        </View>
+                        <AntDesign name="pluscircle" size={hp(2.5)} color="#2F3D7E" style={styles.plusIcon} onPress={()=>navigation.navigate("NewAppointment")} />
                         <Text style={styles.NewAppointmentText}>Schedule a New Appointment</Text>
                     </View>
                 </>
@@ -259,15 +256,9 @@ const styles = StyleSheet.create({
         
     },
     plusIcon:{
+        marginTop:hp(0.2)
     },
-    NewApointmentLogoView: {
-        alignItems: "center",
-        backgroundColor:"#2F3D7E",
-        borderRadius:25,
-        width:wp(6),
-        height:hp(2.75),
-        justifyContent:"center",
-      },
+    
       BioView2:{
         marginVertical:hp(1)
       },

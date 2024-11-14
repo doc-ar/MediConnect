@@ -13,6 +13,7 @@ export default function LoginScreen({ navigation }) {
     const [error,setError] = useState('');
     const setTokens = useMediConnectStore((state) => state.setTokens);
     const setIsRegistered = useMediConnectStore((state) => state.setIsRegistered);
+    const setRegistrationCheck = useMediConnectStore((state) => state.setRegistrationCheck);
     const handleLogin = async () => {
         setError('');
 
@@ -31,7 +32,7 @@ export default function LoginScreen({ navigation }) {
             const response = await axios.post("https://www.mediconnect.live/auth/login", {
                 email: email,
                 password: password,
-                role:"patient"
+                role: "patient"
             }, {
                 headers: {
                     'Content-Type': 'application/json',
@@ -40,9 +41,9 @@ export default function LoginScreen({ navigation }) {
 
             if (response.status === 200 && response.data) {
                 console.log("Success", response.data);
-                setTokens(response.data.accessToken,response.data.refreshToken);
                 setIsRegistered(response.data.hasPatientProfile);
-                
+                setTokens(response.data.accessToken,response.data.refreshToken);
+                setRegistrationCheck(true);
             } else {
                 setError("Login Failed. Try again.");
                 setIsRegistered(false);
