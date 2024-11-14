@@ -214,7 +214,7 @@ app.get("/mobile/get-doctors", authMiddleware, async (req, res) => {
   try {
     const result = await sql`
       SELECT
-          d.name, u.email, d.contact, d.roomno,
+          d.doctor_id, d.name, u.email, d.contact, d.roomno,
           d.designation, d.qualification, d.image,
           json_agg(
               json_build_object(
