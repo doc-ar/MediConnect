@@ -1,0 +1,33 @@
+{
+  "name": "mediconnect",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "startAll": "forever start Auth/index.js; forever start Doctor/index.js; forever start Patient/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/doc-ar/MediConnect"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/doc-ar/MediConnect/issues"
+  },
+  "homepage": "https://github.com/doc-ar/MediConnect#readme",
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.1",
+    "create-react-app": "^5.0.1",
+    "dotenv": "^16.4.5",
+    "http": "^0.0.1-security"
+  },
+  "private": true,
+  "workspaces": [
+    "auth",
+    "mobile-backend",
+    "web-backend",
+    "web-client"
+  ]
+}
