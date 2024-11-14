@@ -239,7 +239,7 @@ app.get("/mobile/get-doctors", authMiddleware, async (req, res) => {
               ts.doctor_id, ts.date, ts.day
       ) AS slot_data ON slot_data.doctor_id = d.doctor_id
       GROUP BY
-          d.name, u.email, d.contact, d.roomno, d.designation, d.qualification, d.image;
+          d.doctor_id, d.name, u.email, d.contact, d.roomno, d.designation, d.qualification, d.image;
     `;
     res.json(result);
   } catch (error) {
