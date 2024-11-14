@@ -1,0 +1,17 @@
+.start-appointment-btn {
+  margin-left: auto; /* Align the button to the right */
+  background-color: #2F3D7E !important; 
+  color: white !important;
+  border-radius: 5px;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+}
+
+.start-appointment-btn:hover {
+  background-color: #0056b3;
+}
+
+.e-btn.e-flat.e-primary{
+    color:#2F3D7E;
+}
