@@ -1,2 +1,4 @@
-node_modules
-.env
+# Python
+.venv
+*.pkl
+__pycache__
