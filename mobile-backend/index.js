@@ -247,6 +247,30 @@ app.get("/mobile/get-doctors", authMiddleware, async (req, res) => {
   }
 });
 
+app.get("/mobile/get-soap-notes", authMiddleware, async (req, res) => {
+  try {
+    // Check that the user role is patient
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "patient")) {
+      return res.status(403).json({ error: "The user is not a patient" });
+    }
+
+    const soap_note = await sql`
+      SELECT sn.soap_note_data FROM soap_notes sn
+      JOIN patients p ON p.patient_id = sn.patient_id
+    `;
+    if (soap_note.length === 0) {
+      return res.json({});
+    }
+
+    return res.status(200).json(soap_note[0]);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // PATCH Request endpoints
 app.patch("/mobile/update-patient", authMiddleware, async (req, res) => {
   try {
