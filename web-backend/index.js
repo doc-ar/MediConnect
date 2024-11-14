@@ -318,6 +318,37 @@ app.get("/web/get-prescriptions", authMiddleware, async (req, res) => {
   }
 });
 
+app.post("/web/generate-soap-notes", authMiddleware, async (req, res) => {
+  try {
+    // check if role is doctor
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "doctor")) {
+      return res.status(403).json({ error: "The user is not a doctor" });
+    }
+
+    const transcript = req.body.transcript;
+    const response = await fetch("http://127.0.0.1:5000", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ transcript: transcript }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Flask server responded with status ${response.status}`);
+    }
+
+    const result = await response.json();
+    return res.json(result);
+  } catch (error) {
+    console.error("Error:", error.message);
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 // PATCH request endpoints
 app.patch("/web/update-doctor", authMiddleware, async (req, res) => {
   try {
