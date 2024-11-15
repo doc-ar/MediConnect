@@ -231,7 +231,7 @@ app.get("/mobile/get-doctors", authMiddleware, async (req, res) => {
           SELECT
               ts.doctor_id, ts.date, ts.day,
               array_agg(
-                  to_char(ts.start_time, 'HH:MI am') || ' - ' || to_char(ts.end_time, 'HH:MI am')
+                  to_char(ts.start_time, 'HH:MI am') || ' - ' || to_char(ts.end_time, 'HH:MI am') || ' - ' || ts.slot_id
               ) AS slots
           FROM
               time_slots ts
