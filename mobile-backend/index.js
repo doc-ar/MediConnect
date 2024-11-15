@@ -111,7 +111,7 @@ app.get("/mobile/all-appointments", authMiddleware, async (req, res) => {
     const tokenData = jwt.decode(token);
 
     const result = await sql`
-      SELECT  a.appointment_id, a.status,
+      SELECT  a.appointment_id, ts.slot_id, a.status,
               d.name, u.email AS doctor_email, d.designation, d.qualification, d.image, d.roomno, d.contact,
               ts.date, ts.start_time, ts.end_time, ts.day,
               prescription_data AS prescription
@@ -137,7 +137,7 @@ app.get("/mobile/upcoming-appointments", authMiddleware, async (req, res) => {
     const tokenData = jwt.decode(token);
 
     const result = await sql`
-      SELECT  a.appointment_id, a.status,
+      SELECT  a.appointment_id, ts.slot_id, a.status,
               d.name, d.designation, d.qualification, d.image, d.roomno, d.contact, u.email,
               ts.date, ts.start_time, ts.end_time, ts.day
       FROM appointments a
