@@ -1,14 +1,18 @@
 import express, { json } from "express";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { neon } from "@neondatabase/serverless";
 import { authMiddleware } from "./utils/authorization.js";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 const sql = neon(process.env.DATABASE_URL);
-const PORT = process.env.PORT;
+const PORT = process.env.MOBILE_BACKEND_PORT || 3002;
 const corsOptions = { credentials: true, origin: process.env.URL || "*" };
 
 const app = express();
