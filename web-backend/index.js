@@ -1,14 +1,18 @@
 import express, { json } from "express";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { neon } from "@neondatabase/serverless";
 import { authMiddleware } from "./utils/authorization.js";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
+dotenv.config({ path: path.resolve(__dirname, "../.env") });
 const sql = neon(process.env.DATABASE_URL);
-const PORT = process.env.PORT;
+const PORT = process.env.WEB_BACKEND_PORT || 3001;
 const corsOptions = { credentials: true, origin: process.env.URL || "*" };
 
 const app = express();
@@ -285,21 +289,24 @@ app.get("/web/get-appointments", authMiddleware, async (req, res) => {
   }
 });
 
-app.get("/web/get-prescriptions", authMiddleware, async (req, res) => {
-  try {
-    // Check if prescription exists
-    const object_exists = sql`
+app.get(
+  "/web/get-prescriptions/:patient_id",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      // Check if prescription exists
+      const object_exists = sql`
       SELECT patient_id FROM patients
-      WHERE patient_id = ${req.body.patient_id}
+      WHERE patient_id = ${req.params.patient_id}
     `;
-    if (object_exists.length === 0) {
-      return res
-        .status(409)
-        .json({ error: "The patient has no prescriptions" });
-    }
+      if (object_exists.length === 0) {
+        return res
+          .status(409)
+          .json({ error: "The patient has no prescriptions" });
+      }
 
-    // Execute Query
-    const prescriptions = await sql`
+      // Execute Query
+      const prescriptions = await sql`
       SELECT  pa.name AS "patient_name",
               TO_CHAR(ts.date, 'YYYY-Mon-DD') AS "date",
               p.prescription_data AS "medication"
@@ -309,14 +316,15 @@ app.get("/web/get-prescriptions", authMiddleware, async (req, res) => {
       JOIN doctors d ON d.doctor_id = a.doctor_id
       JOIN patients pa ON pa.patient_id = a.patient_id
       JOIN users u ON u.user_id = pa.user_id
-      WHERE pa.patient_id = ${req.body.patient_id}
+      WHERE pa.patient_id = ${req.params.patient_id}
     `;
 
-    return res.json(prescriptions);
-  } catch (error) {
-    return res.json({ error: error.message });
-  }
-});
+      return res.json(prescriptions);
+    } catch (error) {
+      return res.json({ error: error.message });
+    }
+  },
+);
 
 app.post("/web/generate-soap-notes", authMiddleware, async (req, res) => {
   try {
