@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "startAll": "forever start Auth/index.js; forever start Doctor/index.js; forever start Patient/index.js"
+    "startAll": "forever start auth/index.js; forever start web-backend/index.js; forever start mobile-backend/index.js"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,6 @@
     "@neondatabase/serverless": "^0.10.3",
     "create-react-app": "^5.0.1",
     "dotenv": "^16.4.5",
-    "forever": "^4.0.3",
     "http": "^0.0.1-security"
   },
   "private": true,
