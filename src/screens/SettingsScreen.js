@@ -37,6 +37,14 @@ export default function SettingsScreen() {
                             <MaterialIcons name="navigate-next" size={hp(4)} color="#7B7B7C"/>
                         </TouchableOpacity>
 
+                        <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate("SecurityScreen")}>
+                            <View style={styles.buttonstartView}>
+                              <MaterialIcons name="security" size={hp(3.3)} color="#7B7B7C"/>
+                              <Text style={styles.buttonText}>Security</Text>
+                            </View>
+                            <MaterialIcons name="navigate-next" size={hp(4)} color="#7B7B7C"/>
+                        </TouchableOpacity>
+
                         <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate("NotificationSettings")}>
                             <View style={styles.buttonstartView}>
                               <Ionicons name="notifications" size={hp(3.3)} color="#7B7B7C"/>
@@ -60,6 +68,8 @@ export default function SettingsScreen() {
                             </View>
                             <MaterialIcons name="navigate-next" size={hp(4)} color="#7B7B7C"/>
                         </TouchableOpacity>
+
+                        
                     </View>
 
                     <TouchableOpacity onPress={()=>clearTokens()} style={styles.LogOutbutton}>

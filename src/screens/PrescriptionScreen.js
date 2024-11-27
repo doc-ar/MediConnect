@@ -6,11 +6,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import MedicationTable from '../components/MedicationTable';
 import PrescriptionTable from '../components/PrescriptionTable';
 import { useMediConnectStore } from '../Store/Store';
-
-export default function PrescriptionScreen({navigation}){
-
+import { AntDesign } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+export default function PrescriptionScreen(){
+      const navigation = useNavigation();
       const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
-      const [Loading, setLoading] = useState(true);
       const [Loading2, setLoading2] = useState(true);
       const [Prescriptions, setPrescriptions]=useState([/*{
         Doctor:"Dr. John Doe",
@@ -286,7 +286,6 @@ export default function PrescriptionScreen({navigation}){
 
     
     ]);
-    const [LatestPrescription, setLatestPrescription] = useState({})
 
     useEffect(()=>{
       /*const fetchLatestPrescription=async()=>{
@@ -322,8 +321,9 @@ export default function PrescriptionScreen({navigation}){
         <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="white"/>
               <View style={styles.TopView}>
+              <AntDesign name="arrowleft" size={hp(3.5)} color="#646466" style={styles.backArrow} onPress={()=>navigation.goBack()}/>
                 <Text style={styles.PrescriptionText}>My Prescriptions</Text>
-                </View>
+              </View>
             <ScrollView contentContainerStyle={styles.scrollView}>
             {!Loading2?( Prescriptions.length!==0?<>
             <Text style={styles.LatestPrescriptionText}>Current Prescription </Text>
@@ -352,13 +352,19 @@ const styles = StyleSheet.create({
         paddingHorizontal:wp(4)
     },
     TopView:{
-      paddingTop: hp(0.5),
+      flexDirection:"row",
+      marginTop:hp(0.5),
+      justifyContent:"center",
+      width: wp(100),
+      alignItems:"center",
       borderBottomWidth:hp(0.06),
       borderBottomColor:"#d4d2cd",
-      paddingBottom:hp(1),
-      width:wp(100),
-      alignItems:"center"
+      paddingBottom:hp(1)
     },
+    backArrow:{
+      position:"absolute",
+      left: 0
+  },
     PrescriptionText: {
       fontSize: hp(2.8),
       fontWeight: "bold",

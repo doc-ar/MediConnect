@@ -2,13 +2,13 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import React from "react";
 import { useState } from "react";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import PrescriptionScreen from "../screens/PrescriptionScreen";
 import AppointmentScreen from "../screens/AppointmentScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import HomeScreen from "../screens/HomeScreen";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { heightPercentageToDP as hp} from "react-native-responsive-screen";
+import MedicalReacordsScreen from "../screens/MedicalRecordsScreen";
 export default function HomeStack() {
   const Tab = createBottomTabNavigator();
   const [activeTab,setActiveTab]= useState("Home");
@@ -39,23 +39,23 @@ export default function HomeStack() {
         }}
       />
       <Tab.Screen
-        name="Prescription"
-        component={PrescriptionScreen}
+        name="MedicalRecordsScreen"
+        component={MedicalReacordsScreen}
         listeners={() => ({
           tabPress: () => {
             
-            setActiveTab("Prescription")
+            setActiveTab("Medical Records")
             
           },
         })}
         options={{
-          tabBarLabel: "Prescriptions",
+          tabBarLabel: "Medical Records",
           tabBarLabelStyle: { color: "black", fontWeight: "bold",marginBottom:hp(0.5)},
            tabBarIcon: () => (
             <MaterialCommunityIcons
               name="clipboard-plus"
               size={26}
-              color={activeTab=="Prescription"? "#2F3D7E":"gray"}
+              color={activeTab=="Medical Records"? "#2F3D7E":"gray"}
             />
           ),
         }}

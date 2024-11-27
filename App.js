@@ -19,10 +19,13 @@ import AppInfoScreen from './src/screens/AppInfoScreen';
 import EditProfile from './src/screens/EditProfile';
 import NotificationScreen from './src/screens/NotificationScreen';
 import RescheduleScreen from './src/screens/RescheduleScreen';
+import PrescriptionScreen from './src/screens/PrescriptionScreen';
+import SOAPNotesScreen from './src/screens/SOAPNotesScreen';
 import SetImage from './src/screens/SetImage';
 import { useMediConnectStore } from './src/Store/Store';
 import { useEffect, useState } from 'react';
-
+import MedicalDataScreen from './src/screens/MedicalDataScreen';
+import SecurityScreen from './src/screens/SecurityScreen';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -79,6 +82,8 @@ export default function App() {
                   // User authenticated and registered: Show home and additional screens
                   <>
                     <Stack.Screen name="HomeStack" component={HomeStack} />
+                    <Stack.Screen name="PrescriptionScreen" component={PrescriptionScreen} />
+                    <Stack.Screen name="SOAPNotesScreen" component={SOAPNotesScreen} />
                     <Stack.Screen name="PrescriptionDetail" component={PrescriptionDetail} />
                     <Stack.Screen name="AppointmentDetails" component={AppointmentDetails} />
                     <Stack.Screen name="NewAppointment" component={NewAppointment} />
@@ -92,6 +97,9 @@ export default function App() {
                     <Stack.Screen name="NotificationScreen" component={NotificationScreen} />
                     <Stack.Screen name="RescheduleScreen" component={RescheduleScreen} />
                     <Stack.Screen name="SetImage" component={SetImage} />
+                    <Stack.Screen name="MedicalDataScreen" component={MedicalDataScreen} />
+                    <Stack.Screen name="SecurityScreen" component={SecurityScreen} />
+
                   </>
                 ) : (
                   // User authenticated but not registered: Show registration details screen

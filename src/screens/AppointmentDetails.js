@@ -14,7 +14,7 @@ export default function AppointmentDetails() {
     const navigation = useNavigation();
     const [isCancelModalVisible, setCancelModalVisible] = useState(false);
     const { AppointmentDetail } = route.params; 
-
+    console.log(AppointmentDetail);
 
     return (
     <SafeAreaView style={styles.container}>

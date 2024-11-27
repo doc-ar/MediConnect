@@ -29,7 +29,7 @@ export default function RescheduleScreen(){
         ]
       },
       {
-        "date": "2024-10-30",
+        "date": "2024-10-17",
         "day": "Thursday",
         "slots": [
           "10:00 am - 11:00 am",
@@ -38,7 +38,7 @@ export default function RescheduleScreen(){
         ]
       },
       {
-        "date": "2024-11-02",
+        "date": "2024-11-16",
         "day": "Friday",
         "slots": [
           "10:00 am - 11:00 am",

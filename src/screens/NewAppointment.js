@@ -22,6 +22,7 @@ export default function NewAppointment() {
     const [DoctorsName, setDoctorsName] = useState([]);
     const [DoctorTypesList, setDoctorTypesList] = useState([]);
     const [DoctorType, setDoctorType] = useState("");
+    const [SelectedDoctorTypeFilter, setSelectedDoctorTypeFilter] = useState("designation");
     const [IsDataFetched, setIsDataFetched] = useState(false);
     const [SelectedDoctorSchedule, setSelectedDoctorSchedule] = useState([]);
     const [minDate, setMinDate] = useState('');
@@ -41,23 +42,64 @@ export default function NewAppointment() {
         fetchDoctorData();
         setMinMaxDate();
     }, []);
-
+    
     useEffect(() => {
-        const filteredDoctors = DoctorsList.filter(doctor => doctor.designation === DoctorType);
-        const doctors = filteredDoctors.map(doctor => ({
-            key: doctor.name, 
-            value: doctor.name
-        }));
-        const uniqueDoctors = [...new Set(doctors)];
-        setDoctorsNameList(uniqueDoctors);
-    }, [DoctorType]);
-
+        setDoctorType("");
+        setDoctorTypesList([]);
+        setDoctorsNameList([]);
+        setMarkedDates({});
+        setSelectedDate("");
+        setSlotsList([]);
+        setEnableSlots(false);
+        setSelectedDoctorSchedule([]);
+        setDoctorsName("");
+        // Dynamically populate DoctorTypesList based on the selected filter type
+        if (SelectedDoctorTypeFilter === "designation") {
+            const designations = DoctorsList.map(doctor => ({
+                key: doctor.designation,
+                value: doctor.designation,
+            }));
+            const uniqueDesignations = [...new Set(designations)];
+            setDoctorTypesList(uniqueDesignations);
+        } else if (SelectedDoctorTypeFilter === "qualification") {
+            const qualifications = DoctorsList.map(doctor => ({
+                key: doctor.qualification,
+                value: doctor.qualification,
+            }));
+            const uniqueQualifications = [...new Set(qualifications)];
+            setDoctorTypesList(uniqueQualifications);
+        }
+    }, [SelectedDoctorTypeFilter, DoctorsList]);
+    
     useEffect(() => {
+        // Populate DoctorsNameList based on the selected filter type and DoctorType
+        if (SelectedDoctorTypeFilter === "designation") {
+            const filteredDoctors = DoctorsList.filter(doctor => doctor.designation === DoctorType);
+            const doctors = filteredDoctors.map(doctor => ({
+                key: doctor.name,
+                value: doctor.name,
+            }));
+            const uniqueDoctors = [...new Set(doctors)];
+            setDoctorsNameList(uniqueDoctors);
+        } else if (SelectedDoctorTypeFilter === "qualification") {
+            const filteredDoctors = DoctorsList.filter(doctor => doctor.qualification === DoctorType);
+            const doctors = filteredDoctors.map(doctor => ({
+                key: doctor.name,
+                value: doctor.name,
+            }));
+            const uniqueDoctors = [...new Set(doctors)];
+            setDoctorsNameList(uniqueDoctors);
+        }
+    }, [DoctorType, SelectedDoctorTypeFilter]);
+    
+    useEffect(() => {
+        // Fetch the selected doctor's schedule when a doctor is selected
         const selectedDoctor = DoctorsList.find(doctor => doctor.name === DoctorsName);
         if (selectedDoctor) {
             setSelectedDoctorSchedule(selectedDoctor.schedule);
         }
     }, [DoctorsName]);
+    
 
     useEffect(() => {
         const Slots = SelectedDoctorSchedule.find(scheduleItem => scheduleItem.date === selectedDate)?.slots || [];
@@ -117,13 +159,6 @@ export default function NewAppointment() {
     };*/
 
     const fetchDoctorData = async () => {
-        try {
-            const response = await fetch('https://my-json-server.typicode.com/EmamaBilalKhan/MediConnect-API-3/Doctors');
-            const data2 = await response.json();
-            console.log("data2: ", data2);
-        } catch (error) {
-            console.error('Error fetching Doctors:', error);
-        }
         
         const response = await FetchRequest("https://www.mediconnect.live/mobile/get-doctors", "get");
         if (response.status === 200) {
@@ -162,6 +197,7 @@ export default function NewAppointment() {
     };
 
     const handleSubmit = async()=>{
+        console.log("Appointment Scheduled by patient: ", DoctorType, DoctorsName, selectedDate, SelectedSlot)
 
         if(!DoctorType || !DoctorsName || !selectedDate || !SelectedSlot){
             setSubmitError("All the Categories must be selected to Scehdule Appointment");
@@ -180,6 +216,7 @@ export default function NewAppointment() {
             if (response.status === 200) {
                 console.log("Appointment scheduled Success: ",response.data);
                 setSubmitMessage("Appointment Scheduled Successfully");
+                setReloadAppointments(ReloadAppointments+1);
                 setModalVisible(true);
             }
             else{
@@ -193,10 +230,12 @@ export default function NewAppointment() {
     
     
         const formatSlot = (slot) => {
+        console.log(slot);
         const parts = slot.split("-");
         const startTime = parts[0];
         const endTime = parts[1];
         const slotId = parts.slice(2).join("-"); // Join remaining parts for slot ID
+        console.log("slotId: ", slotId);
     return { displayTime: `${startTime} - ${endTime}`, slotId };
         };
 
@@ -208,8 +247,35 @@ export default function NewAppointment() {
                 <Text style={styles.AppointmentText}>New Appointment</Text>
             </View>
             {IsDataFetched && (
+
                 <ScrollView contentContainerStyle={styles.BottomView}>
+                    
                     <Text style={styles.FormTexts}>Select Doctor type:</Text>
+                    <View style={styles.TypesView}>
+                <Text style={styles.RadioButtonTypeText}>Filter:</Text>
+
+                <View style={styles.RadioButtonTypesView}>
+                    <View style={styles.RadioButtonSet}>
+                        
+                    <RadioButton
+                                value={"qualification"}
+                                status={SelectedDoctorTypeFilter ==="qualification" ? 'checked' : 'unchecked'}
+                                onPress={() => setSelectedDoctorTypeFilter("qualification")}
+                                color="#2F3D7E"
+                            />
+                    <Text style={[styles.RadioButtonText, {marginLeft:wp(0.5)}]}>qualification</Text>
+                    </View>
+                    <View style={styles.RadioButtonSet}>
+                    <RadioButton
+                                value={"designation"}
+                                status={SelectedDoctorTypeFilter==="designation" ? 'checked' : 'unchecked'}
+                                onPress={() => setSelectedDoctorTypeFilter("designation")}
+                                color="#2F3D7E"
+                    />
+                    <Text style={[styles.RadioButtonText, {marginLeft:wp(0.5)}]}>designation</Text>
+                    </View>
+                </View>
+                </View>
                     <SelectList
                         setSelected={(Type)=>{setDoctorType(Type); setDoctorsName("");}}
                         data={DoctorTypesList}
@@ -219,7 +285,7 @@ export default function NewAppointment() {
                         dropdownStyles={styles.dropdownStyles}
                         search={true}
                     />
-
+                
                     <Text style={styles.FormTexts}>Select Doctor:</Text>
                     <SelectList
                         key={DoctorType}
@@ -428,5 +494,28 @@ const styles = StyleSheet.create({
         color:"white",
         fontSize:hp(1.8),
         fontWeight:"bold"
-      }
+      },
+      TypesView:{
+        flexDirection:"row",
+        justifyContent:"space-between",
+        width:wp(90),
+        marginVertical:hp(1)
+
+      },
+      RadioButtonTypesView:{
+        flexDirection:"row",
+        justifyContent:"space-between",
+        width:wp(60),
+        alignSelf:"center",
+      },
+      RadioButtonSet:{
+        flexDirection:"row",
+        alignItems:"center",
+      },
+    RadioButtonTypeText:{
+        fontSize: hp(1.8),
+        marginTop:hp(1),
+        fontWeight:"700"
+    },
+    
 });

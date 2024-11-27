@@ -1,8 +1,12 @@
 import { StyleSheet } from 'react-native'; 
 import { DataTable } from 'react-native-paper'; 
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
+import { TouchableOpacity, View, Text } from 'react-native';
+import { FontAwesome6 } from '@expo/vector-icons';
+
 export default function MedicationTable({Medication}){ 
-return ( 
+return (
+    <View style={styles.ContainerView}> 
 	<DataTable style={styles.container}> 
 	<DataTable.Header> 
 		<DataTable.Title>Medicine</DataTable.Title> 
@@ -23,6 +27,11 @@ return (
     
 
 	</DataTable> 
+    <TouchableOpacity style={styles.button} onPress={() => {}}>
+        <FontAwesome6 name="cart-shopping" size={hp(1.8)} color="white" />
+        <Text style={styles.buttonText}>MediConnect Store</Text>
+    </TouchableOpacity>
+    </View>
 ); 
 }; 
 
@@ -35,6 +44,26 @@ container: {
     marginVertical: hp(2),
     borderRadius: 15
 }, 
-
+button: {
+    backgroundColor: '#2F3D7E',
+    borderRadius: 5,
+    marginTop: hp(1),
+    alignItems: 'center',
+    width: wp(43),
+    alignSelf:"flex-end",
+    height: hp(4),
+    justifyContent:"space-between",
+    flexDirection:"row",
+    paddingHorizontal: wp(1.5)    
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: hp(1.8),
+    fontWeight: 'bold',
+  },
+  ContainerView:{
+    width:wp(95),
+    alignSelf:"center"
+  }
 
 });

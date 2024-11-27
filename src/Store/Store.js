@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const useMediConnectStore = create((set) => {
 
@@ -106,14 +107,60 @@ export const useMediConnectStore = create((set) => {
     const isRegistered = await SecureStore.getItemAsync('isRegistered');
     return isRegistered === "true"?true:false;
   };
+
+  const getNotifications = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('notifications');
+      return jsonValue != null ? JSON.parse(jsonValue) : {};
+    } catch (e) {
+      console.error('Error retrieving notifications:', e);
+      return {};
+    }
+  };
+
+  const saveNotifications = async (notificationText) => {
+    try {
+      // Retrieve the current notifications object
+      const existingNotifications = await getNotifications();
+  
+      // Generate a unique ID for the new notification
+      const id = Object.keys(existingNotifications).length;
+      const notificationId = id+1;
+  
+      // Add the new notification to the existing notifications object
+      const updatedNotifications = {
+        ...existingNotifications,
+        [notificationId]: notificationText,
+      };
+  
+      // Save the updated object back to AsyncStorage
+      await AsyncStorage.setItem('notifications', JSON.stringify(updatedNotifications));
+  
+      console.log('New notification added');
+      console.log("Notifications:", await getNotifications());
+    } catch (e) {
+      console.error('Error saving notification:', e);
+    }
+  };
+
+  const clearNotifications = async () => {
+    try {
+      await AsyncStorage.removeItem('notifications');
+      console.log('All notifications cleared');
+    } catch (e) {
+      console.error('Error clearing notifications:', e);
+    }
+  };
   
   return {
     selectedAppointmentMonth: "",  
     setSelectedAppointmentMonth: (Month) => set({ selectedAppointmentMonth: Month }),
-    
+    notifications : [
+      { id: 1, title: "New Message", message: "You have a new message from John", date: "2024-11-15", isRead: false },
+      { id: 2, title: "App Update", message: "Version 2.0 is now available", date: "2024-11-14", isRead: false }
+    ],
     PatientData: {},
     setPatientData: (data) => set({ PatientData: data }),
-
     ReloadAppointments : 1,
     setReloadAppointments: (Num) => set({ ReloadAppointments: Num }),
     RegistrationCheck: false,
@@ -124,6 +171,9 @@ export const useMediConnectStore = create((set) => {
     setTokens,
     clearTokens,
     fetchWithRetry,
-    checkRefreshToken
+    checkRefreshToken,
+    getNotifications,
+    saveNotifications,
+    clearNotifications
   };
 });
