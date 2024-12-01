@@ -26,6 +26,10 @@ import { useMediConnectStore } from './src/Store/Store';
 import { useEffect, useState } from 'react';
 import MedicalDataScreen from './src/screens/MedicalDataScreen';
 import SecurityScreen from './src/screens/SecurityScreen';
+import ChangePassword from './src/screens/ChangePassword';
+import PurchaseMedication from './src/screens/PurchaseMedication';
+import PatientDocuments from './src/screens/PatientDocuments';
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -99,6 +103,9 @@ export default function App() {
                     <Stack.Screen name="SetImage" component={SetImage} />
                     <Stack.Screen name="MedicalDataScreen" component={MedicalDataScreen} />
                     <Stack.Screen name="SecurityScreen" component={SecurityScreen} />
+                    <Stack.Screen name="ChangePassword" component={ChangePassword} />
+                    <Stack.Screen name="PurchaseMedication" component={PurchaseMedication} />
+                    <Stack.Screen name="PatientDocuments" component={PatientDocuments} />
 
                   </>
                 ) : (

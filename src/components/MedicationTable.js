@@ -3,8 +3,9 @@ import { DataTable } from 'react-native-paper';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { TouchableOpacity, View, Text } from 'react-native';
 import { FontAwesome6 } from '@expo/vector-icons';
-
+import { useNavigation } from '@react-navigation/native';
 export default function MedicationTable({Medication}){ 
+  const navigation = useNavigation();
 return (
     <View style={styles.ContainerView}> 
 	<DataTable style={styles.container}> 
@@ -27,9 +28,9 @@ return (
     
 
 	</DataTable> 
-    <TouchableOpacity style={styles.button} onPress={() => {}}>
+    <TouchableOpacity style={styles.button} onPress={() =>navigation.navigate("PurchaseMedication",{Medication:Medication})}>
         <FontAwesome6 name="cart-shopping" size={hp(1.8)} color="white" />
-        <Text style={styles.buttonText}>MediConnect Store</Text>
+        <Text style={styles.buttonText}>Buy</Text>
     </TouchableOpacity>
     </View>
 ); 
@@ -49,17 +50,18 @@ button: {
     borderRadius: 5,
     marginTop: hp(1),
     alignItems: 'center',
-    width: wp(43),
+    width: wp(20),
     alignSelf:"flex-end",
     height: hp(4),
-    justifyContent:"space-between",
     flexDirection:"row",
-    paddingHorizontal: wp(1.5)    
+    paddingHorizontal: wp(1.5),
+    justifyContent:"center"    
   },
   buttonText: {
     color: 'white',
-    fontSize: hp(1.8),
+    fontSize: hp(2),
     fontWeight: 'bold',
+    marginLeft:wp(2)
   },
   ContainerView:{
     width:wp(95),

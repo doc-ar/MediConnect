@@ -4,7 +4,7 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Fontisto from '@expo/vector-icons/Fontisto';
 import { FontAwesome5 } from '@expo/vector-icons';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 export default function MedicalReacordsScreen(){
@@ -25,10 +25,15 @@ export default function MedicalReacordsScreen(){
                     <Fontisto name="prescription" size={hp(6)} color="#2F3D7E" style={styles.ButtonIcon} />
                     <Text style={styles.ButtonText}>SOAP Notes</Text>
                 </TouchableOpacity>
+                <TouchableOpacity style={styles.ButtonView} onPress={()=>navigation.navigate("PatientDocuments")}>
+                    <Ionicons name="document-text-outline" size={hp(6)} color="#2F3D7E" style={styles.ButtonIcon} />
+                    <Text style={styles.ButtonText}>Documents</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.ButtonView} onPress={()=>navigation.navigate("MedicalDataScreen")}>
                     <FontAwesome5 name="stethoscope" size={hp(6)} color="#2F3D7E" style={styles.ButtonIcon} />
                     <Text style={styles.ButtonText}>Medical Data</Text>
                 </TouchableOpacity>
+                
             </View>
         </SafeAreaView>
     )

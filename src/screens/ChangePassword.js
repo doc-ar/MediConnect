@@ -9,11 +9,11 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Modal from "react-native-modal";
 import { ScrollView } from 'react-native';
 
-export default function SignUpScreen() {
+export default function ChangePassword() {
     const navigation = useNavigation();
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [email, setEmail] = useState('');
+    const [currentPassword, setCurrentPassword] = useState('');
     const [error,setError] = useState('');
     const [isModalVisible, setModalVisible] = useState(false);
     const [isPasswordValid, setIsPasswordValid] = useState(false);
@@ -27,30 +27,27 @@ export default function SignUpScreen() {
         setIsPasswordValid(hasUppercase && hasLowercase && hasNumber && hasSpecialChar);
     };
 
-    const handleSignUp = async () => {
+    const handleChangePassword = async () => {
         setError('');
 
-        if (!email || !password || !confirmPassword) {
+        if (!currentPassword || !password || !confirmPassword) {
             setError("Fields cannot be empty");
             return;
         }
 
-        const emailPattern = /^[a-zA-Z0-9._-]+@gmail\.com$/;
-        if (!emailPattern.test(email)) {
-            setError("Email format is not valid");
-            return;
-        }
-
         if(!isPasswordValid){
-            setError("Password not valid");
+            setError("New Password not valid");
             return;
         }
         if (password !== confirmPassword) {
             setError("Password and Confirm Password do not match");
             return;
         }
+        else{
+            setModalVisible(true);
+        }
 
-        try {
+        /*try {
             const response = await axios.post("https://www.mediconnect.live/auth/signup", {
                 email: email,
                 password: password,
@@ -70,31 +67,30 @@ export default function SignUpScreen() {
         } catch (error) {
             console.error("Error:",  error);
             setError("Sign Up Failed. Try Again.");
-        }
+        }*/
     };
     
     return (
         <SafeAreaView style={styles.container}>    
-            <StatusBar barStyle="light-content" backgroundColor="#2F3D7E" />
-            <View style={styles.topContainer}>
-                <Text style={styles.TopSignUpText}>Sign Up</Text>
-                <Text style={styles.subtitleText}>Create your account to get your</Text>
-                <Text style={styles.subtitleText}>Mediconnect experience started</Text>
+            <StatusBar barStyle="dark-content" backgroundColor="white" />
+            <View style={styles.TopView}>
+            <AntDesign name="arrowleft" size={hp(3.5)} color="#646466" style={styles.backArrow} onPress={()=>navigation.goBack()}/>
+            <Text style={styles.PrescriptionText}>Change Password</Text>
             </View>
             <ScrollView keyboardShouldPersistTaps="never" contentContainerStyle={styles.BottomView} >
             <View style={styles.inputContainer}>
-                <Text style={styles.label}>Email Address</Text>
+                <Text style={styles.label}>Current Password</Text>
                 <View style={styles.inputWrapper}>
                     <TextInput
                         style={styles.input}
-                        placeholder="Enter your email address..."
+                        placeholder="Enter your Current Password..."
                         placeholderTextColor="#B0B0B0"
-                        value={email}
-                        onChangeText={setEmail}
+                        value={currentPassword}
+                        onChangeText={setCurrentPassword}
                         onFocus={() => setShowPasswordValidation(false)}
                     />
                 </View>
-                <Text style={styles.label}>Password</Text>
+                <Text style={styles.label}>New Password</Text>
                 {showPasswordValidation && (
                         <View style={styles.passwordValidation}>
                             <Text style={styles.validationText}>
@@ -125,7 +121,7 @@ export default function SignUpScreen() {
                         onFocus={() => setShowPasswordValidation(true)}
                     />
                 </View>
-                <Text style={styles.label}>Confirm Password</Text>
+                <Text style={styles.label}>Confirm New Password</Text>
                 <View style={styles.inputWrapper}>
                     <TextInput
                         style={styles.input}
@@ -139,22 +135,16 @@ export default function SignUpScreen() {
                 </View>
             </View>
             
-            <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-                <Text style={styles.signUpButtonText}>Sign Up</Text>
+            <TouchableOpacity style={styles.signUpButton} onPress={handleChangePassword}>
+                <Text style={styles.signUpButtonText}>Change Password</Text>
             </TouchableOpacity>
             {error && <Text style={styles.error}>{error}</Text>}
-            <View style={styles.footerView}>
-                <Text style={styles.footerText}>Already have an account? </Text>
-                <TouchableOpacity onPress={()=>navigation.navigate("Login")}><Text style={styles.FooterSignInText}>Login</Text></TouchableOpacity>
-            </View>
+            
             <Modal isVisible={isModalVisible}>
                 <View style={styles.ModalView}>
-                    <Text style={styles.ModalText}>Account Successfully Created!</Text>
+                    <Text style={styles.ModalText}>Password Successfully Changed</Text>
                     <AntDesign name="checkcircle" size={hp(9)} color="#2F3D7E" style={styles.Modalcheck}/>
-                    <View style={styles.ModalButtons}>
-                      <TouchableOpacity onPress={()=>setModalVisible(false)} style={styles.ModalCancelButton}><Text style={styles.CancelButtonText}>Cancel</Text></TouchableOpacity>
-                      <TouchableOpacity style={styles.ModalButton} onPress={()=>{navigation.navigate("Login")}}><Text style={styles.LoginButtonText}>Login</Text></TouchableOpacity>
-                    </View>
+                    <TouchableOpacity style={styles.ModalButton} onPress={()=>{navigation.goBack()}}><Text style={styles.ModalButtonText}>Back</Text></TouchableOpacity>
                 </View>
             </Modal>     
             </ScrollView>
@@ -168,24 +158,25 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         alignItems: 'center',
     },
-    topContainer: {
-        backgroundColor: '#2F3D7E',
+    PrescriptionText:{
+        fontSize:hp(2.8),
+        fontWeight:"bold",
+        color:"#41474D"
+    },
+    TopView:{
+        flexDirection:"row",
+        marginTop:hp(0.5),
+        justifyContent:"center",
         width: wp(100),
-        height: hp(30),
-        justifyContent: 'center',
-        alignItems: 'center',
+        alignItems:"center",
+        borderBottomWidth:hp(0.06),
+        borderBottomColor:"#d4d2cd",
+        paddingBottom:hp(1)
+        
     },
-    TopSignUpText: {
-        color: 'white',
-        fontSize: hp(6.5),
-        fontWeight: '500',
-        marginBottom:hp(2)
-    },
-    subtitleText: {
-        color: 'white',
-        textAlign: 'center',
-        marginBottom: hp(1),
-        fontSize: hp(2.2),
+    backArrow:{
+        position:"absolute",
+        left: 0
     },
     BottomView: {
         width: wp(100),
@@ -194,7 +185,7 @@ const styles = StyleSheet.create({
     },
     inputContainer: {
         width: wp(85),
-        marginTop: hp(5),
+        marginTop: hp(2),
     },
     label: {
         marginTop: hp(3),
@@ -270,25 +261,7 @@ const styles = StyleSheet.create({
         textAlign:"center",
         marginVertical:hp(2)
       },
-      ModalButtons:{
-        alignSelf:"center",
-        flexDirection:"row",
-        justifyContent:"space-between",
-        alignItems:"center",
-        marginVertical:hp(1),
-        height:hp(7),
-        width:wp(70),
-      },
-      ModalCancelButton:{
-        justifyContent:"center",
-        borderRadius:10,
-        width: wp(33),
-        height: hp(5),
-        alignItems:"center",
-        backgroundColor: "white",
-        borderWidth: 1,
-        borderColor:"red"
-      },
+      
       ModalButton:{
         justifyContent:"center",
         borderRadius:10,
@@ -296,15 +269,11 @@ const styles = StyleSheet.create({
         height: hp(5),
         alignItems:"center",
         backgroundColor: "#2F3D7E",
+        alignSelf:"center",
+        marginVertical:hp(2)
       },
-      LoginButtonText:{
+      ModalButtonText:{
         color:"white",
-        fontSize:hp(1.8),
-        fontWeight:"bold"
-      },
-      CancelButtonText:{
-        color:"red",
-        fontSize:hp(1.8),
         fontWeight:"bold"
       },
       Modalcheck:{

@@ -22,12 +22,6 @@ export default function LoginScreen({ navigation }) {
             return;
         }
 
-        //const emailPattern = /^[a-zA-Z0-9._-]+@gmail\.com$/;
-        //if (!emailPattern.test(email)) {
-        //    setError("Email format is not valid");
-        //    return;
-        //}
-
         try {
             const response = await axios.post("https://www.mediconnect.live/auth/login", {
                 email: email,

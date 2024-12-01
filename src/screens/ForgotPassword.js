@@ -83,17 +83,18 @@ backArrow:{
   },
   button:{
     width: wp(30),
-    height: hp(5),
+    height: hp(6),
     marginVertical: hp(2),
     marginHorizontal: wp(25),
     backgroundColor: "#2F3D7E",
-    borderRadius: 5,
+    borderRadius: 10,
     alignItems:"center",
     justifyContent:"center"
   },
   buttontext:{
     textAlign: "center",
     color: "white",
-    fontWeight:"bold"
+    fontWeight:"bold",
+    fontSize: hp(2.5)
   },
 })
