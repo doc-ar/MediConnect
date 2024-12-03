@@ -270,8 +270,9 @@ app.get("/web/get-appointments", authMiddleware, async (req, res) => {
     const tokenData = jwt.decode(token);
 
     const appointments = await sql`
-      SELECT  a.appointment_id AS appointmentId, a.status,
-              d.name AS doctorname, d.designation, d.qualification, d.image, d.roomno AS doctorRoom, d.contact, u.email,
+      SELECT  a.appointment_id AS appointmentId, ts.slot_id, a.status,
+              d.name AS doctorname, d.designation, d.qualification,
+              d.image, d.roomno AS doctorRoom, d.contact, u.email,
               TO_CHAR(ts.date, 'YYYY-Mon-DD') AS "date", ts.day, ts.start_time AS startTime, ts.end_time AS endTime,
               p.name AS patientName, p.contact AS patientContact, patient_u.email AS patientEmail, p.address AS patientAddress
       FROM appointments a
