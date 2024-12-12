@@ -101,7 +101,7 @@ router.post("/forgot-password", async (req, res) => {
     // Generate Reset Token
     const user_id = user[0].user_id;
     const resetToken = generateResetToken(user_id);
-    const resetLink = `https://mediconnect.live/reset-password?token=${resetToken}`;
+    const resetLink = `https://mediconnect.live/auth/reset-password?token=${resetToken}`;
 
     // Configure Nodemailer
     const transporter = nodemailer.createTransport({
