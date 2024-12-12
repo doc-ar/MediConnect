@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "startAll": "forever start auth/index.js; forever start web-backend/index.js; forever start mobile-backend/index.js"
   },
@@ -18,10 +19,12 @@
   },
   "homepage": "https://github.com/doc-ar/MediConnect#readme",
   "dependencies": {
-    "@neondatabase/serverless": "^0.10.3",
+    "@neondatabase/serverless": "^0.10.4",
     "create-react-app": "^5.0.1",
-    "dotenv": "^16.4.5",
-    "http": "^0.0.1-security"
+    "crypto": "^1.0.1",
+    "dotenv": "^16.4.7",
+    "http": "^0.0.1-security",
+    "nodemailer": "^6.9.16"
   },
   "private": true,
   "workspaces": [

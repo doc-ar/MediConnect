@@ -82,13 +82,15 @@ To use the JWT Authentication do the following:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
 Sample Input:
 
 ```json
 {
-  "email": "weused@test.com",
+  "email": "dr.louis@gmail.com",
   "password": "12345678",
-  "role": "patient"
+  "role": "doctor"
 }
 ```
 
@@ -97,14 +99,16 @@ Response:
 ```json
 {
   "users": {
-    "user_id": "7f347868-e8f3-4533-b391-83a6c10e2cfa",
-    "email": "weused@test.com",
-    "password": "$2b$10$ZAkwJFT.skbitU0tbD0SS.PxKz4OFSUmfnIQcikOa6E.sevqtK/My",
-    "role": "patient",
-    "created_at": "2024-11-03T22:57:36.578Z"
+    "user_id": "4ecb1312-dd2d-4fa3-bea0-a19dc3775b29",
+    "email": "dr.louis@gmail.com",
+    "password": "$2b$10$.rHfOyLWjz8KcWLNVy1HMOHI8u1Z7YSJE6FX8HBHuWTQBSM05loDq",
+    "role": "doctor",
+    "created_at": "2024-12-11T20:49:12.212Z"
   }
 }
 ```
+
+</details>
 
 ## `POST` /auth/login
 
@@ -118,11 +122,14 @@ Response:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
+
 Sample Input:
 
 ```json
 {
-  "email": "weused@yahoo.com",
+  "email": "asfar.hassan@gmail.com",
   "password": "12345678"
 }
 ```
@@ -131,10 +138,14 @@ Response:
 
 ```json
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmVkZTQzNjMtMzA1Mi00MDJmLTk2MDctMDAwZWI2ZWQyZDRhIiwiZW1haWwiOiJ3ZXVzZWRAeWFob28uY29tIiwiaWF0IjoxNzMwNjc0Nzc5LCJleHAiOjE3MzA2NzU5Nzl9.JnAxQC6NGw3-qX5nbk52lQ8HctEuHQoJBd0BF-NcJbE",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmVkZTQzNjMtMzA1Mi00MDJmLTk2MDctMDAwZWI2ZWQyZDRhIiwiZW1haWwiOiJ3ZXVzZWRAeWFob28uY29tIiwiaWF0IjoxNzMwNjc0Nzc5LCJleHAiOjE3MzA2NzcxNzl9.P-39BoVwDati6BttOWyLoBytvpqn4iTY4mwCUhXVU70"
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYWJjZWRiYmQtNTM5Yi00YmY0LTgxNzMtNjY0NzZmNDQ1YmRkIiwiZW1haWwiOiJhc2Zhci5oYXNzYW5AZ21haWwuY29tIiwicm9sZSI6ImRvY3RvciIsImlhdCI6MTczMzk2ODA3NSwiZXhwIjoxNzMzOTY5Mjc1fQ.G_eL4iYadik_FR-bK3Zs4rcf4LdV4TsZ3O-D21v0kWw",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYWJjZWRiYmQtNTM5Yi00YmY0LTgxNzMtNjY0NzZmNDQ1YmRkIiwiZW1haWwiOiJhc2Zhci5oYXNzYW5AZ21haWwuY29tIiwicm9sZSI6ImRvY3RvciIsImlhdCI6MTczMzk2ODA3NSwiZXhwIjoxNzMzOTcwNDc1fQ.2Qbj3j8pMxGbZdSGiz8Z8SpiserHi9jorlX1qOTFyrA",
+  "hasPatientProfile": false,
+  "hasDoctorProfile": true
 }
 ```
+
+</details>
 
 ## `GET` /auth/validate
 
@@ -142,7 +153,7 @@ Response:
 
 `request.body`:`{}`
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `response`:`{'Success'}`
 
@@ -160,13 +171,16 @@ Response:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
+
 > Input is only required for mobile client, on web this will be done automatically through cookies
 
 Sample Input:
 
 ```json
 {
-    "refresh_token": ${Your refresh token}
+    "refresh_token": ${Your_refresh_token}
 }
 ```
 
@@ -174,8 +188,8 @@ Response:
 
 ```json
 {
-  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmVkZTQzNjMtMzA1Mi00MDJmLTk2MDctMDAwZWI2ZWQyZDRhIiwiZW1haWwiOiJ3ZXVzZWRAeWFob28uY29tIiwiaWF0IjoxNzMwNjc0Nzc5LCJleHAiOjE3MzA2NzU5Nzl9.JnAxQC6NGw3-qX5nbk52lQ8HctEuHQoJBd0BF-NcJbE",
-  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYmVkZTQzNjMtMzA1Mi00MDJmLTk2MDctMDAwZWI2ZWQyZDRhIiwiZW1haWwiOiJ3ZXVzZWRAeWFob28uY29tIiwiaWF0IjoxNzMwNjc0Nzc5LCJleHAiOjE3MzA2NzcxNzl9.P-39BoVwDati6BttOWyLoBytvpqn4iTY4mwCUhXVU70"
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYWJjZWRiYmQtNTM5Yi00YmY0LTgxNzMtNjY0NzZmNDQ1YmRkIiwiZW1haWwiOiJhc2Zhci5oYXNzYW5AZ21haWwuY29tIiwicm9sZSI6ImRvY3RvciIsImlhdCI6MTczMzk2ODMyNiwiZXhwIjoxNzMzOTY5NTI2fQ.LdMxpsKS9Na4tSeEy8gCF_SiXPCG2fucYN8IbSyy9YU",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiYWJjZWRiYmQtNTM5Yi00YmY0LTgxNzMtNjY0NzZmNDQ1YmRkIiwiZW1haWwiOiJhc2Zhci5oYXNzYW5AZ21haWwuY29tIiwicm9sZSI6ImRvY3RvciIsImlhdCI6MTczMzk2ODMyNiwiZXhwIjoxNzMzOTcwNzI2fQ.AQvxgircM0rIIfpHjV1Z20nsVOe1Ku623VRIO_MRaEk"
 }
 ```
 
@@ -187,13 +201,15 @@ Or if Refresh token is expired the response is:
 }
 ```
 
+</details>
+
 # Mobile Backend
 
 ## `POST` /mobile/create-patient-profile
 
 ### Description
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `request.body`:`{user_id, name, gender, address, weight, blood_pressure, image, age, blood_glucose, contact, bloodtype, allergies, height}`
 
@@ -242,7 +258,7 @@ Response:
 
 ### Description
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `request.body`:`{doctor_id, patient_id, slot_id}`
 
@@ -276,7 +292,7 @@ Response:
 
 ### Description
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `response`: Data of currently logged in patient
 
@@ -308,7 +324,7 @@ Response:
 
 ### Description
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `response`: All appointments with the status 'scheduled'
 
@@ -332,7 +348,7 @@ Response:
 
 ### Description
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `response`: All appointments that have been created against the current patient
 
@@ -377,7 +393,7 @@ Response:
 
 ### Description
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `response`: A formatted prescription with doctor name and date
 
@@ -426,7 +442,7 @@ Response:
 
 ### Description
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `response`: A list of all the doctor (and their details) currently registered in the database
 
@@ -502,7 +518,7 @@ Response:
 
 ### Description
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `request.body`:`{name, gender, address, weight, blood_pressure, image, age, blood_glucose, contact, bloodtype, allergies, height}
 }`
@@ -560,7 +576,7 @@ Response:
 
 `method`:`POST`
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `request.body`:`{user_id, name, roomno, qualification, image, designation, contact}`
 
@@ -597,7 +613,7 @@ Response:
 
 ### Description
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `response`: All data of the currently logged in doctor
 
@@ -655,7 +671,7 @@ Response:
 
 ### Description
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `response`: All patients in db
 
@@ -770,7 +786,7 @@ Response:
 
 ### Description
 
-`request.headers.authorization`:`Bearer $(Your Access Token)`
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
 
 `request.body`:`{name, roomno, qualification, image, designation, contact}`
 
