@@ -1,8 +1,12 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import path from "path";
+import { fileURLToPath } from "url";
 import { authenticateToken } from "../utils/authorization.js";
 import { generateResetToken, jwtTokens } from "../utils/jwt-helpers.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const router = express.Router();
 
 router.get("/validate", authenticateToken, async (req, res) => {
