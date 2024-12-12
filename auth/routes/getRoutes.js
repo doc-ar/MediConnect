@@ -33,8 +33,11 @@ router.get("/refresh-token", (req, res) => {
   }
 });
 
+router.use(express.static(path.join(__dirname, "../public")));
 router.get("/reset-password", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "reset-password", "index.html"));
+  res.sendFile(
+    path.join(__dirname, "../public", "reset-password", "index.html"),
+  );
 });
 
 export default router;
