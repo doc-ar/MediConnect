@@ -12,11 +12,9 @@ import cors from "cors";
 const PORT = process.env.AUTH_PORT || 3000;
 const corsOptions = { credentials: true, origin: process.env.URL || "*" };
 const app = express();
-app.use(express.static(path.join(__dirname, "public")));
 app.use(cors(corsOptions));
 app.use(json());
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
 
 // Import Routes
 import getRoutes from "./routes/getRoutes.js";
