@@ -12,4 +12,11 @@ function jwtTokens({ user_id, email, role }) {
   return { accessToken, refreshToken };
 }
 
-export { jwtTokens };
+function generateResetToken(user_id) {
+  const resetToken = jwt.sign({ user_id }, process.env.RESET_TOKEN_SECRET, {
+    expiresIn: process.env.RESET_TOKEN_EXPIRE,
+  });
+  return resetToken;
+}
+
+export { jwtTokens, generateResetToken };
