@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { neon } from "@neondatabase/serverless";
-import { authMiddleware } from "./utils/authorization.js";
+import { authMiddleware } from "../utils/authorization.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,7 +18,6 @@ const corsOptions = { credentials: true, origin: process.env.URL || "*" };
 const app = express();
 app.use(express.json());
 app.use(cors(corsOptions));
-app.use(json());
 
 // POST request Endpoints
 app.post("/web/create-doctor-profile", authMiddleware, async (req, res) => {
@@ -186,8 +185,9 @@ app.get("/web/doctor-data", authMiddleware, async (req, res) => {
 app.get("/web/get-patients", authMiddleware, async (req, res) => {
   try {
     const result = await sql`
-      SELECT  p.patient_id AS patientid, p.name, u.email, p.address, p.weight, p.blood_pressure AS bloodpressure,
-              p.contact, p.blood_glucose AS bloodglucose, p.image, p.gender, p.age,
+      SELECT  p.patient_id AS patientid, p.name, u.email, p.address, p.contact,
+              p.image, p.gender, p.age, p.allergies, p.weight, p.reports,
+              p.blood_pressure AS bloodpressure, p.blood_glucose AS bloodglucose,
               json_agg(
                 json_build_object(
                   'doctor', prescriptions.doctor,
@@ -226,8 +226,9 @@ app.get("/web/get-patients", authMiddleware, async (req, res) => {
 app.get("/web/get-patients/:id", authMiddleware, async (req, res) => {
   try {
     const result = await sql`
-      SELECT  p.patient_id AS patientid, p.name, u.email, p.address, p.weight, p.blood_pressure AS bloodpressure,
-              p.contact, p.blood_glucose AS bloodglucose, p.image, p.gender, p.age,
+      SELECT  p.patient_id AS patientid, p.name, u.email, p.address, p.contact,
+              p.image, p.gender, p.age, p.allergies, p.weight, p.reports,
+              p.blood_pressure AS bloodpressure, p.blood_glucose AS bloodglucose,
               json_agg(
                 json_build_object(
                   'doctor', prescriptions.doctor,
