@@ -35,10 +35,10 @@ const app = express();
 //app.use(express.json());
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: false }));
-app.use("file/reports", express.static(path.join(__dirname, "reports")));
+app.use("/file/reports", express.static(path.join(__dirname, "reports")));
 
 app.post(
-  "file/upload",
+  "/file/upload",
   authMiddleware,
   upload.single("report"),
   async (req, res) => {
