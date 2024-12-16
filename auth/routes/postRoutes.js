@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import nodemailer from "nodemailer";
 import { generateResetToken, jwtTokens } from "../utils/jwt-helpers.js";
 import { neon } from "@neondatabase/serverless";
+import { authenticateToken } from "../utils/authorization.js";
 const router = express.Router();
 
 router.post("/signup", async (req, res) => {
@@ -78,9 +79,38 @@ router.post("/login", async (req, res) => {
   }
 });
 
-router.post("/change-password", async (req, res) => {
+router.post("/change-password", authenticateToken, async (req, res) => {
   try {
     const sql = neon(process.env.DATABASE_URL);
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const tokenData = jwt.decode(token);
+
+    // Get user data and request data
+    const old_password = req.body.old_password;
+    const new_password = req.body.new_password;
+    const users = await sql`
+      SELECT * FROM users WHERE user_id = ${tokenData.user_id};
+    `;
+
+    // Compare and check if old password is valid
+    const validPassword = await bcrypt.compare(old_password, users[0].password);
+    if (!validPassword)
+      return res.status(401).json({ error: "Password is incorrect" });
+
+    // Hash and update the new password
+    const hashedPassword = await bcrypt.hash(new_password, 10);
+    const updated_user = await sql`
+      UPDATE users
+      SET password = ${hashedPassword}
+      WHERE user_id = ${tokenData.user_id}
+      RETURNING *
+    `;
+
+    res.status(200).json({
+      message: "Password reset successful",
+      updated_user: updated_user,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
