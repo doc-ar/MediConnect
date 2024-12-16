@@ -51,13 +51,13 @@ app.post(
         return res.status(403).json({ error: "The user is not a patient" });
       }
 
-      let currentReports = patientReports[0]?.reports || [];
-      const fileUrl = `https://www.mediconnect.live/file/reports/${req.file.filename}`;
       const patientReports = await sql`
         SELECT reports
         FROM patients
         WHERE user_id = ${tokenData.user_id}
       `;
+      let currentReports = patientReports[0]?.reports || [];
+      const fileUrl = `https://www.mediconnect.live/file/reports/${req.file.filename}`;
 
       const newReport = {
         url: fileUrl,
