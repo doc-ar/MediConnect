@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { neon } from "@neondatabase/serverless";
-import { authMiddleware } from "./utils/authorization.js";
+import { authMiddleware } from "../utils/authorization.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -18,7 +18,6 @@ const corsOptions = { credentials: true, origin: process.env.URL || "*" };
 const app = express();
 app.use(express.json());
 app.use(cors(corsOptions));
-app.use(json());
 
 // Post Requests
 app.post("/mobile/create-patient-profile", authMiddleware, async (req, res) => {
@@ -92,11 +91,15 @@ app.get("/mobile/patient-data", authMiddleware, async (req, res) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "patient")) {
+      return res.status(403).json({ error: "The user is not a patient" });
+    }
 
     const patientData = await sql`
       SELECT  u.user_id,p.patient_id,          
               u.email,p.name,p.gender,p.address,p.weight,p.blood_pressure,p.image,
-              p.age,p.blood_glucose,p.contact,p.bloodtype,p.allergies,p.height
+              p.age,p.blood_glucose,p.contact,p.bloodtype,p.allergies,p.height,
+              p.reports
       FROM  users u
       JOIN  patients p ON p.user_id = u.user_id
       WHERE u.user_id = ${tokenData.user_id};
@@ -113,6 +116,9 @@ app.get("/mobile/all-appointments", authMiddleware, async (req, res) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "patient")) {
+      return res.status(403).json({ error: "The user is not a patient" });
+    }
 
     const result = await sql`
       SELECT  a.appointment_id, ts.slot_id, a.status,
@@ -139,6 +145,9 @@ app.get("/mobile/upcoming-appointments", authMiddleware, async (req, res) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "patient")) {
+      return res.status(403).json({ error: "The user is not a patient" });
+    }
 
     const result = await sql`
       SELECT  a.appointment_id, ts.slot_id, a.status,
@@ -166,6 +175,9 @@ app.get("/mobile/all-prescriptions", authMiddleware, async (req, res) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "patient")) {
+      return res.status(403).json({ error: "The user is not a patient" });
+    }
 
     const result = await sql`
       SELECT  d.name AS "doctor",
@@ -191,6 +203,9 @@ app.get("/mobile/latest-prescription", authMiddleware, async (req, res) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "patient")) {
+      return res.status(403).json({ error: "The user is not a patient" });
+    }
 
     const result = await sql`
       SELECT  d.name AS "doctor",
@@ -216,6 +231,13 @@ app.get("/mobile/latest-prescription", authMiddleware, async (req, res) => {
 
 app.get("/mobile/get-doctors", authMiddleware, async (req, res) => {
   try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "patient")) {
+      return res.status(403).json({ error: "The user is not a patient" });
+    }
+
     const result = await sql`
       SELECT
           d.doctor_id, d.name, u.email, d.contact, d.roomno,
@@ -235,7 +257,8 @@ app.get("/mobile/get-doctors", authMiddleware, async (req, res) => {
           SELECT
               ts.doctor_id, ts.date, ts.day,
               array_agg(
-                  to_char(ts.start_time, 'HH:MI am') || ' - ' || to_char(ts.end_time, 'HH:MI am') || ' - ' || ts.slot_id
+                  to_char(ts.start_time, 'HH:MI am') || ' - ' || to_char(ts.end_time, 'HH:MI am')
+                  || ' - ' || ts.slot_id
               ) AS slots
           FROM
               time_slots ts
@@ -281,6 +304,10 @@ app.patch("/mobile/update-patient", authMiddleware, async (req, res) => {
     const authHeader = req.headers["authorization"];
     const token = authHeader && authHeader.split(" ")[1];
     const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "patient")) {
+      return res.status(403).json({ error: "The user is not a patient" });
+    }
+
     const patientData = await sql`
       SELECT * FROM patients
       WHERE user_id = ${tokenData.user_id};
