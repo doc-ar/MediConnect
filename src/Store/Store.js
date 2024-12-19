@@ -17,11 +17,29 @@ export const useMediConnectStore = create((set) => {
       // Retrieve access token
       const accessToken = await SecureStore.getItemAsync('accessToken');
       console.log("access: ",accessToken);
-      const headers = {
+      
+      let headers = {
         Authorization: `Bearer ${accessToken}`,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       };
+
+       // Check if body has a 'report' key for file upload
+  let formData = null;
+  if (data && data.report) {
+    console.log("Detected file upload. Switching to multipart/form-data.");
+    headers["Content-Type"] = "multipart/form-data";
+
+    formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("report", {
+      uri: data.report,
+      name: data.name || "uploaded_file.pdf",
+      type: "application/pdf", // Adjust MIME type if necessary
+    });
+  }
+
+  const requestData = formData?formData: data;
 
       // Make the initial request
       console.log("Making initial request");
@@ -30,7 +48,7 @@ export const useMediConnectStore = create((set) => {
         url:url,
         method:method,
         headers:headers,
-        data:data
+        data:requestData
       });
       console.log("initial req successful");
       return response;
@@ -66,7 +84,7 @@ export const useMediConnectStore = create((set) => {
               url:url,
               method:method,
               headers: { ...headers, Authorization: `Bearer ${newAccessToken}` },
-              data:data,
+              data:requestData,
             });
             console.log("Request again successful. data: ",response.data);
             return response;

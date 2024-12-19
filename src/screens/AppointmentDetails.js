@@ -197,27 +197,31 @@ const styles = StyleSheet.create({
         backgroundColor: "#2F3D7E",
         paddingVertical:hp(1),
         paddingHorizontal:wp(1),
-        borderRadius:10,
+        borderRadius:12,
         marginVertical:hp(1),
         width: wp(90),
-        alignItems:"center"
+        alignItems:"center",
+        height:hp(5),
+        justifyContent:"center"
       },
       RescheduleButtonText:{
         color: "white",
-        fontSize:hp(1.8),
+        fontSize:hp(2),
         fontWeight:"bold"
       },
       CancelButton:{
         paddingVertical:hp(1),
         paddingHorizontal:wp(1),
-        borderRadius:10,
+        borderRadius:12,
         width: wp(90),
         alignItems:"center",
         backgroundColor: "#a1020a",
+        height:hp(5),
+        justifyContent:"center"
       },
       CancelButtonText:{
         color:"white",
-        fontSize:hp(1.8),
+        fontSize:hp(2),
         fontWeight:"bold"
       },
       CancelModalView:{
@@ -225,7 +229,9 @@ const styles = StyleSheet.create({
         borderRadius:20,
         height:hp(25),
         width:wp(80),
-        alignSelf:"center"
+        alignSelf:"center",
+        alignItems:"center",
+        justifyContent:"center"
       },
       ModalText:{
         fontSize:hp(2),

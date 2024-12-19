@@ -103,7 +103,7 @@ const formatTimeTo12Hour = (time) => {
                         <Text style={styles.AppointmentDetailsText}>{item.designation}</Text>
                         <Text style={styles.AppointmentDetailsText}>{item.start_time} - {item.end_time}</Text>
                     </View>
-                    <MaterialIcons name="navigate-next" size={hp(5)} color="#2F3D7E" />
+                    <MaterialIcons name="navigate-next" size={hp(5)} color="#2F3D7E" style={styles.Appointment_forward_Icon} />
                 </View>
         </TouchableOpacity>);
     }
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         width: wp(95),
         alignSelf:"center",
-        borderRadius: 10,
+        borderRadius: 20,
         flexDirection:"row", 
         height: hp(12),
         marginBottom:hp(2)
@@ -311,12 +311,15 @@ const styles = StyleSheet.create({
         backgroundColor:"#EBEDF3",
         width: wp(73),
         paddingLeft: wp(3),
-        paddingRight: wp(3)
+        paddingRight: wp(3),
+        borderTopRightRadius:20,
+        borderBottomRightRadius:20
+        
     },
     AppointmentDetailsView2:{
         flexDirection:"column",
         justifyContent:"space-between",
-        height:hp(8)
+        height:hp(8),
     },
     DoctorName:{
         fontSize:hp(2.3),
@@ -332,5 +335,8 @@ const styles = StyleSheet.create({
     },
     AppointmentList:{
         
+    },
+    Appointment_forward_Icon:{
     }
+    
 });
