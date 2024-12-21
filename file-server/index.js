@@ -2,7 +2,7 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import cors from "cors";
-import fs from "fs";
+import fs, { stat } from "fs";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { fileURLToPath } from "url";
@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
     cb(null, dir);
   },
   filename: function (req, file, cb) {
-    cb(null, `${Date.now()}-${file.originalname}`); // Unique filename
+    cb(null, `${Date.now()}-${file.originalname.replace(" ", "")}`);
   },
 });
 
@@ -34,6 +34,7 @@ const app = express();
 
 //app.use(express.json());
 app.use(cors(corsOptions));
+app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use("/file/reports", express.static(path.join(__dirname, "reports")));
 
@@ -79,11 +80,66 @@ app.post(
         upload_date: newReport.date_added,
       });
     } catch (error) {
-      console.error(error);
       return res.status(500).json({ error: error.message });
     }
   },
 );
+
+app.delete("/file/delete", authMiddleware, async (req, res) => {
+  try {
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "patient")) {
+      return res.status(403).json({ error: "The user is not a patient" });
+    }
+
+    const file_url = req.body.file_url;
+    const filename = file_url.replace(
+      "https://www.mediconnect.live/file/reports/",
+      "",
+    );
+    const file_path = path.join(__dirname, "reports", filename);
+    if (!fs.existsSync(file_path)) {
+      return res.status(404).json({
+        error: `The file '${filename}' does not exist on the server.`,
+      });
+    }
+
+    // Delete File
+    fs.unlink(file_path, (err) => {
+      if (err) {
+        throw new Error(`Error removing file: ${err.message}`);
+      }
+    });
+
+    // Retrieve the current reports from the database
+    const patientReports = await sql`
+      SELECT reports
+      FROM patients
+      WHERE user_id = ${tokenData.user_id}
+    `;
+    let currentReports = patientReports[0]?.reports || [];
+
+    // Filter out the report matching the deleted file's URL
+    const updatedReports = currentReports.filter(
+      (report) => report.url !== file_url,
+    );
+
+    // Update the patient's reports in the database
+    await sql`
+      UPDATE patients
+      SET reports = ${JSON.stringify(updatedReports)}
+      WHERE user_id = ${tokenData.user_id}
+    `;
+
+    res.status(200).json({
+      message: `The file '${filename}' was removed successfully.`,
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`File Server is running on port ${PORT}`);
