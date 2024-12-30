@@ -1,7 +1,7 @@
 # Table of Contents
 
-- [Authentication
-  Service](#authentication-service)
+- [Table of Contents](#table-of-contents)
+- [Authentication Service](#authentication-service)
   - [`POST` /auth/signup](#post-authsignup)
     - [Description](#description)
     - [Example](#example)
@@ -9,46 +9,73 @@
     - [Description](#description-1)
     - [Example](#example-1)
   - [`GET` /auth/validate](#get-authvalidate)
+    - [Description](#description-2)
   - [`GET` /auth/refresh-token](#get-authrefresh-token)
+    - [Description](#description-3)
     - [Example](#example-2)
+  - [`POST` /auth/forgot-password](#post-authforgot-password)
+    - [Description](#description-4)
+    - [Example](#example-3)
+  - [`POST` /auth/change-password](#post-authchange-password)
+    - [Description](#description-5)
+    - [Example](#example-4)
 - [Mobile Backend](#mobile-backend)
   - [`POST` /mobile/create-patient-profile](#post-mobilecreate-patient-profile)
-    - [Description](#description-2)
-    - [Example](#example-3)
-  - [`POST` /mobile/create-appointment](#post-mobilecreate-appointment)
-    - [Description](#description-3)
-    - [Example](#example-4)
-  - [`GET` /mobile/patient-data](#get-mobilepatient-data)
-    - [Description](#description-4)
-    - [Example](#example-5)
-  - [`GET` /mobile/upcoming-appointments](#get-mobileupcoming-appointments)
-    - [Description](#description-5)
-    - [Example](#example-6)
-  - [`GET` /mobile/all-appointments](#get-mobileall-appointments)
     - [Description](#description-6)
-    - [Example](#example-7)
-  - [`GET` /mobile/latest-prescription](#get-mobilelatest-prescription)
+    - [Example](#example-5)
+  - [`POST` /mobile/create-appointment](#post-mobilecreate-appointment)
     - [Description](#description-7)
-    - [Example](#example-8)
-  - [`GET` /mobile/get-doctors](#get-mobileget-doctors)
+    - [Example](#example-6)
+  - [`GET` /mobile/patient-data](#get-mobilepatient-data)
     - [Description](#description-8)
-    - [Example](#example-9)
-  - [`PATCH` /mobile/update-patient](#patch-mobileupdate-patient)
+    - [Example](#example-7)
+  - [`GET` /mobile/upcoming-appointments](#get-mobileupcoming-appointments)
     - [Description](#description-9)
+    - [Example](#example-8)
+  - [`GET` /mobile/all-appointments](#get-mobileall-appointments)
+    - [Description](#description-10)
+    - [Example](#example-9)
+  - [`GET` /mobile/latest-prescription](#get-mobilelatest-prescription)
+    - [Description](#description-11)
     - [Example](#example-10)
+  - [`GET` /mobile/all-prescriptions](#get-mobileall-prescriptions)
+    - [Description](#description-12)
+    - [Example](#example-11)
+  - [`GET` /mobile/get-doctors](#get-mobileget-doctors)
+    - [Description](#description-13)
+    - [Example](#example-12)
+  - [`PATCH` /mobile/update-patient](#patch-mobileupdate-patient)
+    - [Description](#description-14)
+    - [Example](#example-13)
 - [Web Backend](#web-backend)
   - [`POST` /web/create-doctor-profile](#post-webcreate-doctor-profile)
-    - [Description](#description-10)
-    - [Example](#example-11)
-  - [`GET` /web/doctor-data](#get-webdoctor-data)
-    - [Description](#description-11)
-    - [Example](#example-12)
-  - [`GET` /web/get-patients](#get-webget-patients)
-    - [Description](#description-12)
-    - [Example](#example-13)
-  - [`PATCH` /web/update-doctor](#patch-webupdate-doctor)
-    - [Description](#description-13)
+    - [Description](#description-15)
     - [Example](#example-14)
+  - [`GET` /web/doctor-data](#get-webdoctor-data)
+    - [Description](#description-16)
+    - [Example](#example-15)
+  - [`GET` /web/get-patients](#get-webget-patients)
+    - [Description](#description-17)
+    - [Example](#example-16)
+  - [`GET` /web/get-appointments](#get-webget-appointments)
+    - [Description](#description-18)
+    - [Example](#example-17)
+  - [`GET` /web/get-prescriptions/{patient\_id}](#get-webget-prescriptionspatient_id)
+    - [Description](#description-19)
+    - [Example](#example-18)
+  - [`POST` /web/new-soapnote](#post-webnew-soapnote)
+    - [Description](#description-20)
+    - [Example](#example-19)
+  - [`POST` /web/new-transcription](#post-webnew-transcription)
+    - [Description](#description-21)
+    - [Example](#example-20)
+  - [`POST` /web/new-prescription](#post-webnew-prescription)
+    - [Description](#description-22)
+    - [Example](#example-21)
+  - [`PATCH` /web/update-doctor](#patch-webupdate-doctor)
+    - [Description](#description-23)
+    - [Example](#example-22)
+
 
 # Authentication Service
 
@@ -149,6 +176,8 @@ Response:
 
 ## `GET` /auth/validate
 
+### Description
+
 > **_NOTE:_** This is an internal API used for authentication. Do not use this endpoint
 
 `request.body`:`{}`
@@ -160,6 +189,8 @@ Response:
 - `status 200`: If the JWT access token is still valid
 
 ## `GET` /auth/refresh-token
+
+### Description
 
 `request.body`:`{refresh_token}`
 
@@ -203,6 +234,78 @@ Or if Refresh token is expired the response is:
 
 </details>
 
+## `POST` /auth/forgot-password
+
+### Description
+
+`request.body`:`{email}`
+
+`response`:`{message}`
+
+### Example
+
+<details>
+<summary>Expand / Collapse</summary><br>
+
+Sample Input:
+
+```json
+{
+  "email": "emamabilal@gmail.com"
+}
+```
+
+Response:
+
+```json
+{
+  "message": "Password reset email sent!"
+}
+```
+
+</details>
+
+## `POST` /auth/change-password
+
+### Description
+
+`request.body`:`{old_password, new_password}`
+
+`response`:`{message, updated_user}`
+
+### Example
+
+<details>
+<summary>Expand / Collapse</summary><br>
+
+Sample Input:
+
+```json
+{
+  "old_password": "12345678",
+  "new_password": "Emama1?"
+}
+```
+
+Response:
+
+```json
+{
+  "message": "Password reset successful",
+  "updated_user": [
+    {
+      "user_id": "60110a4c-1577-4e32-add1-988107939218",
+      "email": "emamabilal@gmail.com",
+      "password": "$2b$10$PyT2SZzijg0HH8Se99LJiu4ZXymAv9ihioKCsJO01J6TpGjFF7nve",
+      "role": "patient",
+      "created_at": "2024-12-15T21:09:25.117Z"
+    }
+  ]
+}
+```
+
+</details>
+
 # Mobile Backend
 
 ## `POST` /mobile/create-patient-profile
@@ -217,19 +320,25 @@ Or if Refresh token is expired the response is:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
+
 Sample Input:
 
 ```json
 {
-  "name": "Amaid Zia",
+  "name": "Mike Adams",
   "gender": "Male",
-  "address": "Some address",
-  "weight": "65",
-  "blood_pressure": "80/120",
-  "age": "35",
-  "blood_glucose": "2500",
-  "contact": "+921234567890",
-  "height": "161"
+  "address": "654 Cedar Ln, Lakeville",
+  "weight": "85",
+  "blood_pressure": "125/75",
+  "image": "https://example.com/images/madams.jpg",
+  "age": "50",
+  "blood_glucose": "90",
+  "contact": "+12345678905",
+  "bloodtype": "A-",
+  "allergies": "Sulfa Drugs",
+  "height": "182"
 }
 ```
 
@@ -237,22 +346,25 @@ Response:
 
 ```json
 {
-  "patient_id": "370c003c-06df-479a-9833-ae441a3ea4f8",
-  "user_id": "bede4363-3052-402f-9607-000eb6ed2d4a",
-  "name": "Amaid Zia",
+  "patient_id": "e257d960-331a-4e03-964e-e7d7c72e9476",
+  "user_id": "1b4583f8-21fd-4e4c-a626-df44c285249b",
+  "name": "Mike Adams",
   "gender": "Male",
-  "address": "Some address",
-  "weight": "65",
-  "blood_pressure": "80/120",
-  "image": null,
-  "age": 35,
-  "blood_glucose": "2500",
-  "contact": "+921234567890",
-  "bloodtype": null,
-  "allergies": null,
-  "height": "161"
+  "address": "654 Cedar Ln, Lakeville",
+  "image": "https://example.com/images/madams.jpg",
+  "age": 50,
+  "contact": "+12345678905",
+  "weight": "85",
+  "blood_pressure": "125/75",
+  "blood_glucose": "90",
+  "bloodtype": "A-",
+  "allergies": "Sulfa Drugs",
+  "height": "182",
+  "reports": []
 }
 ```
+
+</details>
 
 ## `POST` /mobile/create-appointment
 
@@ -265,6 +377,9 @@ Response:
 `response`: Displays the newly created doctor's profile in JSON
 
 ### Example
+
+<details>
+<summary>Expand / Collapse</summary><br>
 
 Sample Input:
 
@@ -288,6 +403,8 @@ Response:
 }
 ```
 
+</details>
+
 ## `GET` /mobile/patient-data
 
 ### Description
@@ -298,27 +415,33 @@ Response:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
+
 Response:
 
 ```json
 {
-  "user_id": "bede4363-3052-402f-9607-000eb6ed2d4a",
-  "patient_id": "370c003c-06df-479a-9833-ae441a3ea4f8",
-  "email": "weused@yahoo.com",
-  "name": "Amaid Zia",
+  "user_id": "1b4583f8-21fd-4e4c-a626-df44c285249b",
+  "patient_id": "e257d960-331a-4e03-964e-e7d7c72e9476",
+  "email": "mike.addams@gmail.com",
+  "name": "Mike Adams",
   "gender": "Male",
-  "address": "Some address",
-  "weight": "65",
-  "blood_pressure": "80/120",
-  "image": null,
-  "age": 35,
-  "blood_glucose": "2500",
-  "contact": "+921234567890",
-  "bloodtype": null,
-  "allergies": null,
-  "height": "161"
+  "address": "654 Cedar Ln, Lakeville",
+  "weight": "85",
+  "blood_pressure": "125/75",
+  "image": "https://example.com/images/madams.jpg",
+  "age": 50,
+  "blood_glucose": "90",
+  "contact": "+12345678905",
+  "bloodtype": "A-",
+  "allergies": "Sulfa Drugs",
+  "height": "182",
+  "reports": []
 }
 ```
+
+</details>
 
 ## `GET` /mobile/upcoming-appointments
 
@@ -330,6 +453,8 @@ Response:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
 Response:
 
 ```json
@@ -344,6 +469,8 @@ Response:
 ]
 ```
 
+</details>
+
 ## `GET` /mobile/all-appointments
 
 ### Description
@@ -354,6 +481,8 @@ Response:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
 Response:
 
 ```json
@@ -389,6 +518,8 @@ Response:
 ]
 ```
 
+</details>
+
 ## `GET` /mobile/latest-prescription
 
 ### Description
@@ -399,6 +530,8 @@ Response:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
 Response:
 
 ```json
@@ -438,6 +571,63 @@ Response:
 }
 ```
 
+</details>
+
+## `GET` /mobile/all-prescriptions
+
+### Description
+
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
+
+`response`: A formatted list of all prescriptions
+
+### Example
+
+<details>
+<summary>Expand / Collapse</summary><br>
+Response:
+
+```json
+[
+  {
+    "doctor": "Emama Bilal",
+    "date": "2024-Nov-10",
+    "medication": [
+      {
+        "Medicine": "Azoxan",
+        "Strength": "500mg",
+        "Dosage": "2 tablets",
+        "Frequency": "12 hrs",
+        "Duration": "10 Days"
+      },
+      {
+        "Medicine": "Conta",
+        "Strength": "200mg",
+        "Dosage": "1 tablet",
+        "Frequency": "6 hrs",
+        "Duration": "5 Days"
+      },
+      {
+        "Medicine": "Floran",
+        "Strength": "500mg",
+        "Dosage": "1 tablet",
+        "Frequency": "24 hrs",
+        "Duration": "8 Days"
+      },
+      {
+        "Medicine": "Roxan",
+        "Strength": "200mg",
+        "Dosage": "2 tablets",
+        "Frequency": "12 hrs",
+        "Duration": "10 Days"
+      }
+    ]
+  }
+]
+```
+
+</details>
+
 ## `GET` /mobile/get-doctors
 
 ### Description
@@ -448,6 +638,8 @@ Response:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
 Response:
 
 ```json
@@ -514,6 +706,8 @@ Response:
 ]
 ```
 
+</details>
+
 ## `PATCH` /mobile/update-patient
 
 ### Description
@@ -523,10 +717,12 @@ Response:
 `request.body`:`{name, gender, address, weight, blood_pressure, image, age, blood_glucose, contact, bloodtype, allergies, height}
 }`
 
-`response`: The newly updated doctor's profile in JSON
+`response`: The newly updated patient's profile in JSON
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
 Sample Input:
 
 > The specified fields are updated in the DB and the unspecified ones are set to null. So update all available fields
@@ -568,6 +764,8 @@ Response:
 }
 ```
 
+</details>
+
 # Web Backend
 
 ## `POST` /web/create-doctor-profile
@@ -584,13 +782,18 @@ Response:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
 Sample Input:
 
 ```json
 {
-  "name": "AbdurRahman Khan",
-  "roomno": "D3102",
-  "contact": "+92 315 6893410"
+  "name": "Dr. Saba Qamar",
+  "roomno": "505",
+  "qualification": "MBBS, DCH",
+  "designation": "Pediatrician",
+  "image": "https://example.com/images/sqamar.jpg",
+  "contact": "+12345678914"
 }
 ```
 
@@ -598,16 +801,18 @@ Response:
 
 ```json
 {
-  "doctor_id": "ffee19ea-7fe2-414c-a54f-ca8984d8b890",
-  "user_id": "82f776f8-9a8f-42bd-9497-a25d98685a2f",
-  "name": "AbdurRahman Khan",
-  "roomno": "D3102",
-  "qualification": null,
-  "image": null,
-  "designation": null,
-  "contact": "+92 315 6893410"
+  "doctor_id": "5c93dbfa-0632-4024-a1ca-bff39bd1d24b",
+  "user_id": "ea132879-0a1c-42b1-affc-cd97ffe03c20",
+  "name": "Dr. Saba Qamar",
+  "roomno": "505",
+  "qualification": "MBBS, DCH",
+  "image": "https://example.com/images/sqamar.jpg",
+  "designation": "Pediatrician",
+  "contact": "+12345678914"
 }
 ```
+
+</details>
 
 ## `GET` /web/doctor-data
 
@@ -619,6 +824,8 @@ Response:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
 Response:
 
 ```json
@@ -667,6 +874,8 @@ Response:
 }
 ```
 
+</details>
+
 ## `GET` /web/get-patients
 
 ### Description
@@ -677,6 +886,8 @@ Response:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
 Response:
 
 ```json
@@ -782,6 +993,144 @@ Response:
 ]
 ```
 
+</details>
+
+## `GET` /web/get-appointments
+
+### Description
+
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
+
+`response`: List of all appointments of current doctor
+
+### Example
+
+<details>
+<summary>Expand / Collapse</summary><br>
+Sample Input:
+
+```json
+
+```
+
+Response:
+
+```json
+
+```
+
+</details>
+
+## `GET` /web/get-prescriptions/{patient_id}
+
+### Description
+
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
+
+`response`: List of all prescriptions of specified patient
+
+### Example
+
+<details>
+<summary>Expand / Collapse</summary><br>
+Sample Input:
+
+```json
+
+```
+
+Response:
+
+```json
+
+```
+
+</details>
+
+## `POST` /web/new-soapnote
+
+### Description
+
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
+
+`request.body`:`{soap_note_data}`
+
+`response`: The newly created soap note
+
+### Example
+
+<details>
+<summary>Expand / Collapse</summary><br>
+Sample Input:
+
+```json
+
+```
+
+Response:
+
+```json
+
+```
+
+</details>
+
+## `POST` /web/new-transcription
+
+### Description
+
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
+
+`request.body`:`{transcript_data}`
+
+`response`: The newly created transcription
+
+### Example
+
+<details>
+<summary>Expand / Collapse</summary><br>
+Sample Input:
+
+```json
+
+```
+
+Response:
+
+```json
+
+```
+
+</details>
+
+## `POST` /web/new-prescription
+
+### Description
+
+`request.headers.authorization`:`Bearer $(Your_Access_Token)`
+
+`request.body`:`{prescription_data}`
+
+`response`: The newly created prescription
+
+### Example
+
+<details>
+<summary>Expand / Collapse</summary><br>
+Sample Input:
+
+```json
+
+```
+
+Response:
+
+```json
+
+```
+
+</details>
+
 ## `PATCH` /web/update-doctor
 
 ### Description
@@ -794,6 +1143,8 @@ Response:
 
 ### Example
 
+<details>
+<summary>Expand / Collapse</summary><br>
 Sample Input:
 
 > The specified fields are updated in the DB and the unspecified ones are set to null. So update all the fields every time
@@ -821,3 +1172,5 @@ Response:
   "contact": "+92321534212"
 }
 ```
+
+</details>
