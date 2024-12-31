@@ -79,6 +79,13 @@ app.post("/mobile/create-appointment", authMiddleware, async (req, res) => {
       VALUES (${req.body.doctor_id}, ${req.body.patient_id}, ${req.body.slot_id}, 'scheduled')
       RETURNING *
     `;
+
+    await sql`
+      UPDATE time_slots
+      SET status = 'FALSE'
+      WHERE slot_id = ${req.body.slot_id}
+    `;
+
     res.status(200).json(appointment[0]);
   } catch (error) {
     res.json({ error: error.message });
