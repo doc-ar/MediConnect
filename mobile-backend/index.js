@@ -82,7 +82,7 @@ app.post("/mobile/create-appointment", authMiddleware, async (req, res) => {
 
     await sql`
       UPDATE time_slots
-      SET status = 'FALSE'
+      SET availability = 'FALSE'
       WHERE slot_id = ${req.body.slot_id}
     `;
 
