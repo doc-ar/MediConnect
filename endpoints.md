@@ -72,9 +72,12 @@
   - [`POST` /web/new-prescription](#post-webnew-prescription)
     - [Description](#description-22)
     - [Example](#example-21)
-  - [`PATCH` /web/update-doctor](#patch-webupdate-doctor)
+  - [`POST` /web/get-medicines](#post-webget-medicines)
     - [Description](#description-23)
     - [Example](#example-22)
+  - [`PATCH` /web/update-doctor](#patch-webupdate-doctor)
+    - [Description](#description-24)
+    - [Example](#example-23)
 
 
 # Authentication Service
@@ -1127,6 +1130,67 @@ Response:
 
 ```json
 
+```
+
+</details>
+
+## `POST` /web/get-medicines
+
+### Description
+
+`response`: A JSON list of all medicines
+
+### Example
+
+<details>
+<summary>Expand / Collapse</summary><br>
+Response:
+
+```json
+[
+    {
+        "medicine_id": "b16f9826-9761-4e88-9aa6-22cf51f35124",
+        "medicine_name": "Panadol",
+        "medicine_formula": "Paracetamol",
+        "medicine_strength": "500mg",
+        "price": "40"
+    },
+    {
+        "medicine_id": "c853ef6a-d889-4a72-a387-4f236eed6be8",
+        "medicine_name": "Nims",
+        "medicine_formula": "Nimesulide",
+        "medicine_strength": "100mg",
+        "price": "120"
+    },
+    {
+        "medicine_id": "067d7855-4c76-4f5a-a96c-48769cffe3dc",
+        "medicine_name": "Arinac",
+        "medicine_formula": "Ibuprofen / Pseudoephedrine",
+        "medicine_strength": "200mg / 30mg",
+        "price": "65"
+    },
+    {
+        "medicine_id": "13a0ca9c-77b0-49cb-9c91-670c6c17308d",
+        "medicine_name": "Arinac Forte",
+        "medicine_formula": "Ibuprofen / Pseudoephedrine",
+        "medicine_strength": "400mg / 60mg",
+        "price": "115"
+    },
+    {
+        "medicine_id": "244f8339-87f0-41ea-a40e-543a7888feea",
+        "medicine_name": "Nuberol",
+        "medicine_formula": "Orphenadrine Citrate / Paracetamol",
+        "medicine_strength": "35mg / 450mg",
+        "price": "65"
+    },
+    {
+        "medicine_id": "6944d827-8f87-462e-a7c2-464c22823e87",
+        "medicine_name": "Nuberol Forte",
+        "medicine_formula": "Orphenadrine Citrate / Paracetamol",
+        "medicine_strength": "50mg / 650mg",
+        "price": "55"
+    }
+]
 ```
 
 </details>
