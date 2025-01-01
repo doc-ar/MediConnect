@@ -146,7 +146,6 @@ app.post("/web/new-prescription", authMiddleware, async (req, res) => {
   }
 });
 
-// GET request endpoints
 app.get("/web/doctor-data", authMiddleware, async (req, res) => {
   try {
     const authHeader = req.headers["authorization"];
@@ -323,10 +322,21 @@ app.get(
 
       return res.json(prescriptions);
     } catch (error) {
-      return res.json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   },
 );
+
+app.get("/web/get-medicines", authMiddleware, async (req, res) => {
+  try {
+    const medicines = await sql`
+      SELECT * FROM medicines
+    `;
+    return res.status(200).json(medicines);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 app.post("/web/generate-soap-notes", authMiddleware, async (req, res) => {
   try {
@@ -359,7 +369,6 @@ app.post("/web/generate-soap-notes", authMiddleware, async (req, res) => {
   }
 });
 
-// PATCH request endpoints
 app.patch("/web/update-doctor", authMiddleware, async (req, res) => {
   try {
     const authHeader = req.headers["authorization"];
