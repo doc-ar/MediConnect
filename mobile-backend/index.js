@@ -268,7 +268,8 @@ app.get("/mobile/upcoming-appointments", authMiddleware, async (req, res) => {
       JOIN users u ON u.user_id = d.user_id
       WHERE p.user_id = ${tokenData.user_id}
       AND a.status IN ('scheduled', 'rescheduled')
-      ORDER BY ts.date DESC
+      AND (ts.date > CURRENT_DATE OR (ts.date = CURRENT_DATE AND ts.start_time > CURRENT_TIME))
+      ORDER BY ts.date ASC, ts.start_time ASC
       LIMIT 1
     `;
 
