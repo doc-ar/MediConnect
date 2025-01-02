@@ -150,6 +150,49 @@ app.patch(
   },
 );
 
+app.patch("/mobile/cancel-appointment", authMiddleware, async (req, res) => {
+  try {
+    if (!req.body.appointment_id) {
+      return res.status(400).json({ error: "appointment_id is required" });
+    }
+
+    // Check that the user role is patient
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "patient")) {
+      return res.status(403).json({ error: "The user is not a patient" });
+    }
+
+    // Check if appointment exists
+    const appointment = await sql`
+SELECT * FROM appointments
+WHERE appointment_id = ${req.body.appointment_id}
+`;
+    if (appointment.length == 0) {
+      return res.status(404).json({ error: "The appointment does not exist" });
+    }
+
+    // Execute Query
+    const updated_appointment = await sql`
+UPDATE appointments
+SET status = 'cancelled'
+WHERE appointment_id = ${req.body.appointment_id}
+RETURNING *
+`;
+
+    await sql`
+UPDATE time_slots
+SET availability = 'TRUE'
+WHERE slot_id = ${appointment[0].slot_id}
+`;
+
+    res.status(200).json(updated_appointment[0]);
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
+
 // GET Request endpoints
 app.get("/mobile/patient-data", authMiddleware, async (req, res) => {
   try {
@@ -224,7 +267,7 @@ app.get("/mobile/upcoming-appointments", authMiddleware, async (req, res) => {
       JOIN patients p ON p.patient_id = a.patient_id
       JOIN users u ON u.user_id = d.user_id
       WHERE p.user_id = ${tokenData.user_id}
-      AND a.status = 'scheduled'
+      AND a.status IN ('scheduled', 'rescheduled')
       ORDER BY ts.date DESC
       LIMIT 1
     `;
