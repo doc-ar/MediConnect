@@ -371,6 +371,7 @@ app.get("/mobile/get-doctors", authMiddleware, async (req, res) => {
               ) AS slots
           FROM
               time_slots ts
+          WHERE ts.availability = 'TRUE'
           GROUP BY
               ts.doctor_id, ts.date, ts.day
       ) AS slot_data ON slot_data.doctor_id = d.doctor_id
