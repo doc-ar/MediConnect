@@ -92,6 +92,64 @@ app.post("/mobile/create-appointment", authMiddleware, async (req, res) => {
   }
 });
 
+app.patch(
+  "/mobile/reschedule-appointment",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      if (!req.body.appointment_id || !req.body.slot_id) {
+        return res
+          .status(400)
+          .json({ error: "appointment_id and slot_id are required" });
+      }
+
+      // Check that the user role is patient
+      const authHeader = req.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+      const tokenData = jwt.decode(token);
+      if (!(tokenData.role === "patient")) {
+        return res.status(403).json({ error: "The user is not a patient" });
+      }
+
+      // Check if appointment exists
+      const appointment = await sql`
+        SELECT * FROM appointments
+        WHERE appointment_id = ${req.body.appointment_id}
+      `;
+      if (appointment.length == 0) {
+        return res
+          .status(404)
+          .json({ error: "The appointment does not exist" });
+      }
+
+      // Execute Query
+      const old_slot = appointment[0].slot_id;
+      const updated_appointment = await sql`
+        UPDATE appointments
+        SET slot_id = ${req.body.slot_id},
+            status = 'rescheduled'
+        WHERE appointment_id = ${req.body.appointment_id}
+        RETURNING *
+      `;
+
+      await sql`
+        UPDATE time_slots
+        SET availability = 'FALSE'
+        WHERE slot_id = ${req.body.slot_id}
+      `;
+      await sql`
+        UPDATE time_slots
+        SET availability = 'TRUE'
+        WHERE slot_id = ${old_slot}
+      `;
+
+      res.status(200).json(updated_appointment[0]);
+    } catch (error) {
+      res.json({ error: error.message });
+    }
+  },
+);
+
 // GET Request endpoints
 app.get("/mobile/patient-data", authMiddleware, async (req, res) => {
   try {
