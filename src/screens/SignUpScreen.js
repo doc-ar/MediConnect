@@ -34,7 +34,6 @@ export default function SignUpScreen() {
             setError("Fields cannot be empty");
             return;
         }
-
         const emailPattern = /^[a-zA-Z0-9._-]+@gmail\.com$/;
         if (!emailPattern.test(email)) {
             setError("Email format is not valid");

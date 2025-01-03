@@ -20,9 +20,9 @@ return (
         <DataTable.Row key={Index}>
           <DataTable.Cell>{Medication.Medicine}</DataTable.Cell>
           <DataTable.Cell>{Medication.Strength}</DataTable.Cell>
-          <DataTable.Cell>{Medication.Dosage}</DataTable.Cell>
+          <DataTable.Cell>{Medication.dosage}</DataTable.Cell>
           <DataTable.Cell>{Medication.Frequency}</DataTable.Cell>
-          <DataTable.Cell>{Medication.Duration}</DataTable.Cell>
+          <DataTable.Cell>{Medication.duration}</DataTable.Cell>
         </DataTable.Row>
       ))}
     

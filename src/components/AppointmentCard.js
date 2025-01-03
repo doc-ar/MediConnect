@@ -56,6 +56,8 @@ const AppointmentItem = ({ appointment }) => {
             ? "Appointment Completed"
             : appointment.status === "cancelled"
             ? "Appointment Cancelled"
+            :appointment.status === "rescheduled"
+            ? "Rescheduled"
             : "Scheduled"}
         </Text>
       </View>
@@ -92,7 +94,8 @@ useEffect(() => {
   <View style={styles.container}>  
     <FlatList
       data={Object.keys(Appointments)}
-      keyExtractor={(item) => `${item?.appointment_id}`}
+      //keyExtractor={(item) => `${item?.appointment_id}`}
+      keyExtractor={(item, index) => `${item?.appointment_id}-${index}`}
       renderItem={({ item: date }) => {
         const appointmentsForDate = Appointments[date];
         const firstAppointment = appointmentsForDate[0];
@@ -109,7 +112,8 @@ useEffect(() => {
           
             <FlatList
               data={appointmentsForDate}
-              keyExtractor={(item) => `${item?.appointment_id}`}
+              //keyExtractor={(item) => `${item?.appointment_id}`}
+              keyExtractor={(item, index) => `${item?.appointment_id}-${index}`}
               renderItem={({ item: appointment }) => (
                 <AppointmentItem appointment={appointment} />
               )}
@@ -127,6 +131,7 @@ useEffect(() => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
+    paddingBottom: hp(10)
   },
   noAppointmentsText: {
     fontSize: hp(2.5),

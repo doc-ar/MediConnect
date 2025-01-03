@@ -6,8 +6,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useMediConnectStore } from "../Store/Store";
 import { useEffect, useState } from "react";
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 export default function NotificationScreen() {
     const navigation = useNavigation();
     const getNotifications = useMediConnectStore((state) => state.getNotifications);
@@ -35,7 +34,8 @@ export default function NotificationScreen() {
                 {!loading && Object.keys(notifications).length === 0 && <Text style={styles.LoadingText}>No Notifications</Text>}
                 {!loading && Object.keys(notifications).map((key) => (
                     <View key={key} style={styles.NotificationView}>
-                        <FontAwesome name="circle" size={hp(2)} color="#2F3D7E" style={styles.NotificationIcon} />
+                        <View style={styles.NotificationIconTextView}></View>
+                        <MaterialIcons name="notifications-none" size={hp(3.5)} color="#2F3D7E" style={styles.NotificationIcon} />
                         <Text style={styles.NotificationText}>{notifications[key]}</Text>
                     </View>
                 ))}
@@ -79,25 +79,33 @@ const styles = StyleSheet.create({
     LoadingText: {
         fontSize: hp(1.5),
         fontWeight: "bold",
+        marginTop: hp(1),
     },
     NotificationView: {
-        flexDirection: "row",
-        alignItems: "center",
         marginVertical: hp(0.5),
         borderBottomWidth: 1,
         borderBottomColor: "#d4d2cd",
         position:"relative",
-        paddingBottom:hp(1)
+        paddingBottom:hp(1),
+        height:hp(7),
+        justifyContent:"center",
+        flexDirection:"column"
     },
     NotificationText: {
         fontSize: hp(2),
         flex: 1,
         flexWrap: "wrap",
-        marginLeft:wp(6),
-        marginRight:wp(1)
+        marginLeft:wp(8),
+        marginRight:wp(1),
+        fontWeight: "bold",
+        position:"absolute",
+
     },
     NotificationIcon: {
         position:"absolute",
-        top:hp(0.5)
+    },
+    NotificationIconTextView:{
+        flexDirection: "row",
+        alignItems: "center",
     }
 });

@@ -7,15 +7,19 @@ import { useMediConnectStore } from '../Store/Store';
 export default function DropDownDates({ Data }) {
   const setSelectedAppointmentMonth = useMediConnectStore(state => state.setSelectedAppointmentMonth);
   const selectedAppointmentMonth = useMediConnectStore(state => state.selectedAppointmentMonth);
+  console.log(Data);
+  const defaultOption = Data.find((item) => item === selectedAppointmentMonth)
+    ? { key: `${selectedAppointmentMonth}-${Data.indexOf(selectedAppointmentMonth)}`, value: selectedAppointmentMonth }
+    : { key: `${Data[0]}-0`, value: Data[0] };
 
-  const defaultOption = Data.find((item) => item === selectedAppointmentMonth) 
-    ? { key: selectedAppointmentMonth, value: selectedAppointmentMonth }
-    : { key: Data[0], value: Data[0] };
-
+    const handleSelection = (item) => {
+      const selectedMonth = item.split('-')[0];
+      setSelectedAppointmentMonth(selectedMonth); 
+    };
   return (
     <View style={styles.container}>
       <SelectList
-        setSelected={setSelectedAppointmentMonth}
+        setSelected={handleSelection}
         data={Data}
         arrowicon={<FontAwesome name="chevron-down" size={12} color={'black'} />}
         boxStyles={styles.boxStyles}

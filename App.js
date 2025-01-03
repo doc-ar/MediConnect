@@ -71,6 +71,7 @@ export default function App() {
     }
    }, [RegistrationCheck]);
 
+
   return (
     <NavigationContainer>
       <SafeAreaProvider>

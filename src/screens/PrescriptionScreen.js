@@ -327,8 +327,9 @@ export default function PrescriptionScreen(){
             <ScrollView contentContainerStyle={styles.scrollView}>
             {!Loading2?( Prescriptions.length!==0?<>
             <Text style={styles.LatestPrescriptionText}>Current Prescription </Text>
-              <Text style={styles.dated}> Dated: {Prescriptions[1].date}</Text>
-                <MedicationTable Medication={Prescriptions[1].medication}/>
+              <Text style={styles.dated}> Dated: {Prescriptions[0].date}</Text>
+                <MedicationTable Medication={Prescriptions[0].medication}/>
+                {console.log("Prescriptions",Prescriptions[0].medication)}
                 <Text style={styles.PastPrescriptionText}>Past Prescriptions</Text>                
                 <PrescriptionTable Prescription={Prescriptions} Navigation={navigation}/>
                 </>:

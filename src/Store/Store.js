@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import * as SecureStore from 'expo-secure-store';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import * as Notifications from 'expo-notifications';
 export const useMediConnectStore = create((set) => {
 
   const checkRefreshToken = async () => {
@@ -14,7 +14,7 @@ export const useMediConnectStore = create((set) => {
   const fetchWithRetry = async (url, method, data = undefined) => {
     
       console.log("In fetch function");
-      // Retrieve access token
+     
       const accessToken = await SecureStore.getItemAsync('accessToken');
       console.log("access: ",accessToken);
       
@@ -24,7 +24,7 @@ export const useMediConnectStore = create((set) => {
         'Accept': 'application/json',
       };
 
-       // Check if body has a 'report' key for file upload
+       
   let formData = null;
   if (data && data.report) {
     console.log("Detected file upload. Switching to multipart/form-data.");
@@ -35,13 +35,12 @@ export const useMediConnectStore = create((set) => {
     formData.append("report", {
       uri: data.report,
       name: data.name || "uploaded_file.pdf",
-      type: "application/pdf", // Adjust MIME type if necessary
+      type: "application/pdf",
     });
   }
 
   const requestData = formData?formData: data;
 
-      // Make the initial request
       console.log("Making initial request");
     try{
       let response = await axios({
@@ -59,12 +58,10 @@ export const useMediConnectStore = create((set) => {
 
       const refreshToken = await SecureStore.getItemAsync('refreshToken');
         if (!refreshToken) {
-          // Log the user out if there's no refresh token
           console.log("No refresh token in secure storage, logging user out");
           await clearTokens();
           return null;
         }
-        // Attempt to refresh the access token
         try{
           console.log("Got refresh token, Making request for auth token");
           const refreshResponse = await axios.get(
@@ -77,7 +74,6 @@ export const useMediConnectStore = create((set) => {
           await setTokens(newAccessToken, newRefreshToken);
           console.log("Got new refresh and auth token");
           console.log("new access: ", newAccessToken);
-          // Retry the original request with the new access token
           try{
             console.log("Retrying request with new access token");
             response = await axios({
@@ -106,6 +102,7 @@ export const useMediConnectStore = create((set) => {
     await SecureStore.deleteItemAsync('accessToken');
     await SecureStore.deleteItemAsync('refreshToken');
     await SecureStore.deleteItemAsync('isRegistered');
+    console.log("cleared tokens");
     checkRefreshToken();
   };
 
@@ -113,6 +110,17 @@ export const useMediConnectStore = create((set) => {
     await SecureStore.setItemAsync('accessToken', accessToken);
     await SecureStore.setItemAsync('refreshToken', refreshToken);
     checkRefreshToken();
+  };
+
+  const setNotificationPermission = async (bool) => {
+    // Store as a string ("true" or "false")
+    await SecureStore.setItemAsync('NotificationPermission', bool ? "true" : "false");
+  };
+
+  const getNotificationPermission = async () => {
+    // Retrieve and convert to a boolean
+    const NotificationPermission = await SecureStore.getItemAsync('NotificationPermission');
+    return NotificationPermission === "true"?true:false;
   };
   
   const setIsRegistered = async (bool) => {
@@ -125,6 +133,18 @@ export const useMediConnectStore = create((set) => {
     const isRegistered = await SecureStore.getItemAsync('isRegistered');
     return isRegistered === "true"?true:false;
   };
+
+  async function showAppointmentNotification(message) {
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'Appointment Update',
+        body: message,
+        sound: 'default',
+      },
+      trigger: null,
+    });
+    saveNotifications(message);
+  }
 
   const getNotifications = async () => {
     try {
@@ -173,14 +193,12 @@ export const useMediConnectStore = create((set) => {
   return {
     selectedAppointmentMonth: "",  
     setSelectedAppointmentMonth: (Month) => set({ selectedAppointmentMonth: Month }),
-    notifications : [
-      { id: 1, title: "New Message", message: "You have a new message from John", date: "2024-11-15", isRead: false },
-      { id: 2, title: "App Update", message: "Version 2.0 is now available", date: "2024-11-14", isRead: false }
-    ],
     PatientData: {},
     setPatientData: (data) => set({ PatientData: data }),
-    ReloadAppointments : 1,
-    setReloadAppointments: (Num) => set({ ReloadAppointments: Num }),
+    ReloadAppointments : false,
+    setReloadAppointments: (bool) => set({ ReloadAppointments: bool }),
+    ReloadUpcomingAppointments : false,
+    setReloadUpcomingAppointments: (bool) => set({ ReloadAppointments: bool }),
     RegistrationCheck: false,
     setRegistrationCheck: (bool) => set({ RegistrationCheck: bool }),
     isAuthenticated: false,
@@ -192,6 +210,9 @@ export const useMediConnectStore = create((set) => {
     checkRefreshToken,
     getNotifications,
     saveNotifications,
-    clearNotifications
+    clearNotifications,
+    getNotificationPermission,
+    setNotificationPermission,
+    showAppointmentNotification
   };
 });

@@ -18,8 +18,19 @@ export default function AppointmentScreen() {
   const setSelectedAppointmentMonth = useMediConnectStore((state) => state.setSelectedAppointmentMonth);
   const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
   const ReloadAppointments = useMediConnectStore(state=>state.ReloadAppointments);
+  const setReloadAppointments = useMediConnectStore(state=>state.setReloadAppointments);
+  const setReloadUpcomingAppointments = useMediConnectStore(state=>state.setReloadUpcomingAppointments);
+
   useEffect(() => {
     fetchAppointments();
+  }, []);
+
+  useEffect(() => {
+    if (ReloadAppointments) {
+      fetchAppointments();
+      setReloadAppointments(false);
+      setReloadUpcomingAppointments(true);
+    }
   }, [ReloadAppointments]);
 
   useEffect(() => {
@@ -156,7 +167,8 @@ const styles = StyleSheet.create({
     bottom: hp(3),
     zIndex:1,
     borderRadius:28,
-    justifyContent:"center"
+    justifyContent:"center",
+    backgroundColor:"white"
   },
   NoAppointmentText:{
     fontWeight:"bold",

@@ -14,7 +14,6 @@ import Modal from "react-native-modal";
 export default function NewAppointment() {
     const navigation = useNavigation();
     const setReloadAppointments = useMediConnectStore((state)=>state.setReloadAppointments);
-    const ReloadAppointments = useMediConnectStore((state)=>state.ReloadAppointments)
     const FetchRequest = useMediConnectStore((state)=>state.fetchWithRetry);
     const PatientData = useMediConnectStore(state=>state.PatientData);
     const [DoctorsList, setDoctorsList] = useState([]);
@@ -29,6 +28,7 @@ export default function NewAppointment() {
     const [maxDate, setMaxDate] = useState('');
     const [markedDates, setMarkedDates] = useState({});
     const [selectedDate,setSelectedDate] = useState('');
+    const [selectedTime,setSelectedTime] = useState('');
     const [EnableSlots, setEnableSlots] = useState(false);
     const [EnableCalender, setEnableCalender] = useState(false);
     const [SlotsList, setSlotsList] = useState([]);
@@ -37,6 +37,7 @@ export default function NewAppointment() {
     const [isModalVisible, setModalVisible] = useState(false);
     const [SubmitMessage,setSubmitMessage]=useState("");
     const [isErrorModalVisible, setErrorModalVisible] = useState(false);
+    const showAppointmentNotification = useMediConnectStore(state=>state.showAppointmentNotification);
 
     useEffect(() => {
         fetchDoctorData();
@@ -53,7 +54,6 @@ export default function NewAppointment() {
         setEnableSlots(false);
         setSelectedDoctorSchedule([]);
         setDoctorsName("");
-        // Dynamically populate DoctorTypesList based on the selected filter type
         if (SelectedDoctorTypeFilter === "designation") {
             const designations = DoctorsList.map(doctor => ({
                 key: doctor.designation,
@@ -72,7 +72,6 @@ export default function NewAppointment() {
     }, [SelectedDoctorTypeFilter, DoctorsList]);
     
     useEffect(() => {
-        // Populate DoctorsNameList based on the selected filter type and DoctorType
         if (SelectedDoctorTypeFilter === "designation") {
             const filteredDoctors = DoctorsList.filter(doctor => doctor.designation === DoctorType);
             const doctors = filteredDoctors.map(doctor => ({
@@ -93,7 +92,6 @@ export default function NewAppointment() {
     }, [DoctorType, SelectedDoctorTypeFilter]);
     
     useEffect(() => {
-        // Fetch the selected doctor's schedule when a doctor is selected
         const selectedDoctor = DoctorsList.find(doctor => doctor.name === DoctorsName);
         if (selectedDoctor) {
             setSelectedDoctorSchedule(selectedDoctor.schedule);
@@ -129,35 +127,6 @@ export default function NewAppointment() {
     }, [SelectedDoctorSchedule, selectedDate]);
     
 
-    /*const fetchDoctorData = async () => {
-        try {
-            const response = await fetch('https://my-json-server.typicode.com/EmamaBilalKhan/MediConnect-API-3/Doctors');
-            const data2 = await response.json();
-            console.log("data2: ", data2);
-        } catch (error) {
-            console.error('Error fetching Doctors:', error);
-        }
-        const response = await FetchRequest("https://www.mediconnect.live/mobile/get-doctors","get"
-        );
-        if (response.status === 200) {
-            console.log("Doctors Data , Back to Schedule screen Success: ",response.data);
-            const data = response.data;
-            setDoctorsList(data);
-            
-            const designations = data.map(doctor => ({
-                key: doctor.designation,
-                value: doctor.designation
-            }));
-            const uniqueDesignations = [...new Set(designations)];
-            setDoctorTypesList(uniqueDesignations);
-            setIsDataFetched(true);
-
-        }
-        else{
-        console.log("Error Fetching Latest Prescription Data on Prescription Screen: ",response.data);
-    }
-    };*/
-
     const fetchDoctorData = async () => {
         
         const response = await FetchRequest("https://www.mediconnect.live/mobile/get-doctors", "get");
@@ -165,24 +134,15 @@ export default function NewAppointment() {
             console.log("Doctors Data , Back to Schedule screen Success: ", response.data);
             const data = response.data;
     
-            // Filter doctors based on qualification, designation, and schedule's first entry date
             const filteredDoctors = data.filter(doctor => 
                 doctor.qualification && 
                 doctor.designation && 
                 doctor.schedule?.[0]?.date
             );
-    
             setDoctorsList(filteredDoctors);
-    
-            const designations = filteredDoctors.map(doctor => ({
-                key: doctor.designation,
-                value: doctor.designation
-            }));
-            const uniqueDesignations = [...new Set(designations)];
-            setDoctorTypesList(uniqueDesignations);
             setIsDataFetched(true);
         } else {
-            console.log("Error Fetching Latest Prescription Data on Prescription Screen: ", response.data);
+            console.log("Error Fetching Doctor Data: ", response.data);
         }
     };
     
@@ -198,6 +158,7 @@ export default function NewAppointment() {
 
     const handleSubmit = async()=>{
         console.log("Appointment Scheduled by patient: ", DoctorType, DoctorsName, selectedDate, SelectedSlot)
+        console.log("Doctor id: ",DoctorsList.find(doctor => doctor.name === DoctorsName).doctor_id);
 
         if(!DoctorType || !DoctorsName || !selectedDate || !SelectedSlot){
             setSubmitError("All the Categories must be selected to Scehdule Appointment");
@@ -205,22 +166,24 @@ export default function NewAppointment() {
         }
         else{
             console.log("Appointment Scheduled by patient: ", DoctorType, DoctorsName, selectedDate, SelectedSlot)
-            
+            console.log(DoctorsList.find(doctor => doctor.name === DoctorsName));
             const response = await FetchRequest("https://www.mediconnect.live/mobile/create-appointment","post",{
                 status:"scheduled",
-                slot: SelectedSlot,
-                patient_id: PatientData.user_id,
-                doctor_id: DoctorsList.find(doctor => doctor.name === DoctorsName).id,
+                slot_id: SelectedSlot,
+                patient_id: PatientData.patient_id,
+                doctor_id: DoctorsList.find(doctor => doctor.name === DoctorsName).doctor_id,
             }
             );
             if (response.status === 200) {
                 console.log("Appointment scheduled Success: ",response.data);
                 setSubmitMessage("Appointment Scheduled Successfully");
-                setReloadAppointments(ReloadAppointments+1);
                 setModalVisible(true);
+                setReloadAppointments(true);
+
+                showAppointmentNotification(`Appointment Scheduled with ${DoctorsName} on ${selectedDate} at ${selectedTime}`);
             }
             else{
-                console.log("Error Fetching Latest Prescription Data on Prescription Screen: ", response.data);
+                console.log("Error on new app Screen: ", response.data);
                 setSubmitMessage("Error Scheduling Appointment. Try Again.");
                 setModalVisible(true);
             }
@@ -234,7 +197,7 @@ export default function NewAppointment() {
         const parts = slot.split("-");
         const startTime = parts[0];
         const endTime = parts[1];
-        const slotId = parts.slice(2).join("-"); // Join remaining parts for slot ID
+        const slotId = parts.slice(2).join("-").slice(1);
         console.log("slotId: ", slotId);
     return { displayTime: `${startTime} - ${endTime}`, slotId };
         };
@@ -320,12 +283,13 @@ export default function NewAppointment() {
                                 <Text style={styles.TimeSlotsText}>Select from Available Time Slots:</Text>
                                 {SlotsList.map((slot, index) => {
                     const { displayTime, slotId } = formatSlot(slot);
+                    
                     return (
                         <View key={index} style={styles.RadioButton}>
                             <RadioButton
                                 value={slotId}
                                 status={slotId === SelectedSlot ? 'checked' : 'unchecked'}
-                                onPress={() => setSelectedSlot(slotId)}
+                                onPress={() => {setSelectedSlot(slotId); setSelectedTime(displayTime);}}
                                 color="#2F3D7E"
                             />
                             <Text style={styles.RadioButtonText}>{displayTime}</Text>

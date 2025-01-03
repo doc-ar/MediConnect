@@ -2,19 +2,56 @@ import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useRoute } from "@react-navigation/native";
 import { useNavigation } from '@react-navigation/native';
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Entypo } from "@expo/vector-icons";
 import MedicationTable from "../components/MedicationTable";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import Modal from "react-native-modal";
 import { useState } from "react";
+import { ActivityIndicator } from "react-native";
+import { useMediConnectStore } from "../Store/Store";
 
 export default function AppointmentDetails() {
     const route = useRoute(); 
     const navigation = useNavigation();
+    const setReloadAppointments = useMediConnectStore((state) => state.setReloadAppointments)
+    const FetchRequest = useMediConnectStore((state) => state.fetchWithRetry);
     const [isCancelModalVisible, setCancelModalVisible] = useState(false);
-    const { AppointmentDetail } = route.params; 
-    console.log(AppointmentDetail);
+    const { AppointmentDetail } = route.params;
+    const { appointment_id, slot_id } = AppointmentDetail; 
+    const [isLoadingModalVisible, setLoadingModalVisible]= useState(false);
+    const [isSubmitModalVisible, setSubmitModalVisible] = useState(false);
+    const [SubmitMessage,setSubmitMessage]=useState("");
+    const showAppointmentNotification = useMediConnectStore(state=>state.showAppointmentNotification);
+
+    const handleCancelAppointment = async () => {
+      setLoadingModalVisible(true);
+      console.log("Attempting to cancel appointment:", appointment_id);
+  
+      try {
+          const response = await FetchRequest("https://www.mediconnect.live/mobile/cancel-appointment", "patch", {
+              appointment_id,
+          });
+  
+          if (response.status === 200) {
+              console.log("Appointment cancelled successfully:", response.data);
+              setSubmitMessage("Appointment Cancelled Successfully");
+              setCancelModalVisible(false);
+              setSubmitModalVisible(true);
+              setReloadAppointments(true);
+              showAppointmentNotification(`Appointment cancelled with ${AppointmentDetail.name} on ${AppointmentDetail.date}`);
+          } else {
+              console.error("Error cancelling appointment:", response);
+              setSubmitMessage("Error Cancelling Appointment. Try Again.");
+          }
+      } catch (error) {
+          console.error("Network error cancelling appointment:", error);
+          setSubmitMessage("Network Error. Please try again.");
+      } finally {
+          setLoadingModalVisible(false);
+      }
+  };
+  
 
     return (
     <SafeAreaView style={styles.container}>
@@ -62,7 +99,7 @@ export default function AppointmentDetails() {
             {(AppointmentDetail.status === 'Scheduled' || AppointmentDetail.status === 'scheduled' || AppointmentDetail.status === 'rescheduled' || AppointmentDetail.status === 'Rescheduled' || AppointmentDetail.status === 'ReScheduled') && (
               <>
               <View style={styles.BottomButtons}>
-                <TouchableOpacity onPress={()=>navigation.navigate('RescheduleScreen')} style={styles.RescheduleButton}>
+                <TouchableOpacity onPress={()=>navigation.navigate('RescheduleScreen',{appointment_id: AppointmentDetail.appointment_id, doctor_name: AppointmentDetail.name})} style={styles.RescheduleButton}>
                   <Text style={styles.RescheduleButtonText}>Reschedule</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.CancelButton} onPress={()=>setCancelModalVisible(true)}>
@@ -74,13 +111,32 @@ export default function AppointmentDetails() {
                     <Text style={styles.ModalText}>Do you want to cancel your Appointment?</Text>
                     <View style={styles.CancelModalButtons}>
                       <TouchableOpacity onPress={()=>setCancelModalVisible(false)} style={styles.CancelModalCancelButton}><Text style={styles.CancelButtonText}>Don't Cancel</Text></TouchableOpacity>
-                      <TouchableOpacity style={styles.CancelModalButton}><Text style={styles.RescheduleButtonText}>Yes, Cancel Appointment</Text></TouchableOpacity>
+                      <TouchableOpacity onPress={()=>handleCancelAppointment()} style={styles.CancelModalButton}><Text style={styles.RescheduleButtonText}>Yes, Cancel Appointment</Text></TouchableOpacity>
                     </View>
                 </View>
               </Modal>
+        <Modal isVisible={isLoadingModalVisible}>
+          <View style={styles.LoadingModal}>
+            <ActivityIndicator size="large" color="#fafafa"/>
+          </View>
+        </Modal>
+
+        <Modal isVisible={isSubmitModalVisible}>
+                <View style={styles.ModalView}>
+                    <Text style={styles.ModalText}>{SubmitMessage}</Text>
+                    {SubmitMessage === "Appointment Cancelled Successfully"?
+                    <AntDesign name="checkcircle" size={hp(9)} color="#2F3D7E" style={styles.Modalcheck}/>:
+                    <Entypo name="circle-with-cross" size={hp(9)} color="#a1020a" style={styles.Modalcheck}/>
+                    }
+                    <TouchableOpacity style={[styles.ModalBackButton, {backgroundColor:"#FAE9E6"}]} onPress={()=>navigation.navigate("HomeStack", {
+            screen: "AppointmentScreen",})}>
+                        <Text style={[styles.ModalBackButtonText, {color:"#a1020a" }]}>Go Back</Text>
+                    </TouchableOpacity>
+                </View>
+        </Modal>
               </>
             )}
-            
+       
             
         </View>
     </SafeAreaView>
@@ -263,5 +319,47 @@ const styles = StyleSheet.create({
         height: hp(5),
         alignItems:"center",
         backgroundColor: "#2F3D7E",
-      }
+      },
+      LoadingModal:{
+        height:hp(30),
+        width:wp(80),
+        alignSelf:"center",
+        justifyContent:"center",
+        alignItems:"center",
+      },
+       
+    ModalView:{
+      backgroundColor:"white",
+      borderRadius:20,
+      height:hp(25),
+      width:wp(80),
+      alignSelf:"center",
+      alignItems:"center",
+      justifyContent:"center"
+    },
+    ModalText:{
+      fontSize:hp(2),
+      fontWeight:"bold",
+      textAlign:"center",
+      marginBottom:hp(1)
+    },
+    Modalcheck:{
+      alignSelf:"center",
+    },
+    ModalBackButton:{
+      backgroundColor:"#2F3D7E",
+      borderRadius:12,
+      width:wp(50),
+      height:hp(5),
+      justifyContent:"center",
+      alignItems:"center",
+      marginTop:hp(2)
+    },
+    ModalBackButtonText:{
+      color:"white",
+      fontSize:hp(1.8),
+      fontWeight:"bold"
+    },
+  
+
 });

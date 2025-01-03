@@ -128,8 +128,33 @@ export default function PatientDocuments() {
   }
   
 
-  const handleDelete = (fileName) => {
-    console.log("Deleting file: ", fileName);
+  const handleDelete = async(file_Url) => {
+    console.log("Deleting file: ", file_Url);
+    try{
+      setIsLoadingModalVisible(true);
+      const response = await FetchRequest("https://www.mediconnect.live/file/delete","DELETE",{file_url: file_Url});
+      if(response.status === 200){
+        console.log("File Deleted Successfully");
+        setModalText("File Deleted Successfully!");
+        setSuccess(true);
+        setModalVisible(true);
+        fetchPatientData();
+      }
+      else{
+        console.log("File Deletion Failed, response: ", response);
+        setModalText("File Deletion Failed, Try Again");
+        setModalVisible(true);
+      }
+      }
+    catch(error){
+      console.error("Error Deleting file: ", error);
+      setModalText("File Deletion Failed, Try Again");
+      setModalVisible(true);
+    }
+    finally{
+      setIsLoadingModalVisible(false);
+    }
+
   };
 
   const fetchPatientData=async()=>{
@@ -157,7 +182,7 @@ export default function PatientDocuments() {
           name="delete-outline"
           size={hp(2.8)}
           color="red"
-          onPress={() => handleDelete(item.name)}
+          onPress={() => handleDelete(item.url)}
         />
       </View>
     </TouchableOpacity>

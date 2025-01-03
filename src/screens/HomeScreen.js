@@ -8,6 +8,7 @@ import {MaterialIcons} from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMediConnectStore } from '../Store/Store';
 import { FlatList } from 'react-native';
+import * as Notifications from 'expo-notifications';
 
 export default function HomeScreen({navigation}) {
 
@@ -16,20 +17,10 @@ export default function HomeScreen({navigation}) {
     const [Loading, setLoading] = useState(true);
     const setPatientData = useMediConnectStore(state=>state.setPatientData);
     const Info = useMediConnectStore(state=>state.PatientData);
-
-    useEffect(()=>{
-    const fetchPatientData=async()=>{
-        const response = await FetchRequest("https://www.mediconnect.live/mobile/patient-data","get"
-        );
-        if (response.status === 200) {
-            console.log("Patient Data , Back to Home Screen Success: ",response.data);
-            setLoading(false);
-            setPatientData(response.data);
-        }
-        else{
-        console.log("Error Fetching Patient Data on Home Screen: ",response.data);
-        setLoading(true);
-    }}
+    const ReloadUpcomingAppointments = useMediConnectStore((state)=>state.ReloadUpcomingAppointments);
+    const setReloadUpcomingAppointments = useMediConnectStore((state)=>state.setReloadUpcomingAppointments);
+    const getNotificationPermission = useMediConnectStore(state => state.getNotificationPermission);
+    const setNotificationPermission = useMediConnectStore(state => state.setNotificationPermission);
 
     const fetchUpcomingAppointments = async () => {
         const response = await FetchRequest("https://www.mediconnect.live/mobile/upcoming-appointments", "get");
@@ -42,7 +33,7 @@ export default function HomeScreen({navigation}) {
                 const { yearMonth, date } = formatDate(appointment.date);
                 const start_time = formatTimeTo12Hour(appointment.start_time);
                 const end_time = formatTimeTo12Hour(appointment.end_time);
-
+    
                 // Add formatted yearMonth and date properties to each appointment object
                 return {
                     ...appointment,
@@ -59,12 +50,52 @@ export default function HomeScreen({navigation}) {
         }
     };
     
-
+    useEffect(()=>{
+    const fetchPatientData=async()=>{
+        const response = await FetchRequest("https://www.mediconnect.live/mobile/patient-data","get"
+        );
+        if (response.status === 200) {
+            console.log("Patient Data , Back to Home Screen Success: ",response.data);
+            setLoading(false);
+            setPatientData(response.data);
+        }
+        else{
+        console.log("Error Fetching Patient Data on Home Screen: ",response.data);
+        setLoading(true);
+    }}
     fetchPatientData();
     fetchUpcomingAppointments();
     },
     []
 );
+
+useEffect(()=>{
+    if(ReloadUpcomingAppointments){
+    fetchUpcomingAppointments();
+    setReloadUpcomingAppointments(false);
+    }
+},[ReloadUpcomingAppointments]);
+
+useEffect(() => {
+    const getPermission = async () => {
+        const { status } = await Notifications.getPermissionsAsync();
+        console.log(status);
+        if (status !== 'granted') {
+            const { granted } = await Notifications.requestPermissionsAsync();
+            if (granted) {
+                setNotificationPermission(true);
+            } else {
+                console.log("Notification permission denied");
+            }
+        } else {
+            setNotificationPermission(true);
+
+        }
+    };
+    getPermission();
+}, []);
+
+
     
 const formatTimeTo12Hour = (time) => {
     const [hours, minutes] = time.split(':');
