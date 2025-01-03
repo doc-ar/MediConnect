@@ -40,10 +40,13 @@ app.post("/mobile/create-patient-profile", authMiddleware, async (req, res) => {
     }
 
     const result = await sql`
-      INSERT INTO patients (user_id,name,gender,address,weight,blood_pressure,image,age,blood_glucose,contact,bloodtype,allergies,height)
+      INSERT INTO patients (user_id,name,gender,address,weight,
+                            blood_pressure,image,age,blood_glucose,
+                            contact,bloodtype,allergies,height)
       VALUES (${tokenData.user_id},${req.body.name},${req.body.gender},${req.body.address},
               ${req.body.weight},${req.body.blood_pressure},${req.body.image},${req.body.age},
-              ${req.body.blood_glucose},${req.body.contact},${req.body.bloodtype},${req.body.allergies},${req.body.height})
+              ${req.body.blood_glucose},${req.body.contact},${req.body.bloodtype},
+              ${req.body.allergies},${req.body.height})
       RETURNING *
     `;
     res.status(200).json(result[0]);
@@ -68,6 +71,7 @@ app.post("/mobile/create-appointment", authMiddleware, async (req, res) => {
       WHERE doctor_id = ${req.body.doctor_id}
       AND patient_id = ${req.body.patient_id}
       AND slot_id = ${req.body.slot_id}
+      AND status != 'cancelled'
     `;
     if (appointments.length > 0 && appointments[0].appointment_id) {
       return res.status(409).json({ error: "The appointment already exists" });
@@ -166,26 +170,26 @@ app.patch("/mobile/cancel-appointment", authMiddleware, async (req, res) => {
 
     // Check if appointment exists
     const appointment = await sql`
-SELECT * FROM appointments
-WHERE appointment_id = ${req.body.appointment_id}
-`;
+      SELECT * FROM appointments
+      WHERE appointment_id = ${req.body.appointment_id}
+    `;
     if (appointment.length == 0) {
       return res.status(404).json({ error: "The appointment does not exist" });
     }
 
     // Execute Query
     const updated_appointment = await sql`
-UPDATE appointments
-SET status = 'cancelled'
-WHERE appointment_id = ${req.body.appointment_id}
-RETURNING *
-`;
+      UPDATE appointments
+      SET status = 'cancelled'
+      WHERE appointment_id = ${req.body.appointment_id}
+      RETURNING *
+    `;
 
     await sql`
-UPDATE time_slots
-SET availability = 'TRUE'
-WHERE slot_id = ${appointment[0].slot_id}
-`;
+      UPDATE time_slots
+      SET availability = 'TRUE'
+      WHERE slot_id = ${appointment[0].slot_id}
+    `;
 
     res.status(200).json(updated_appointment[0]);
   } catch (error) {
