@@ -117,7 +117,7 @@ export default function RescheduleScreen({ route }){
                       setSubmitMessage("Appointment Rescheduled Successfully");
                       setModalVisible(true);
                       setReloadAppointments(true);
-                      showAppointmentNotification(`Appointment Rescheduled with ${doctor_name} on ${selectedDate} at ${selectedTime}`);
+                      showAppointmentNotification(`Appointment Rescheduled with ${doctor_name} on ${selectedDate} at ${selectedTime}`,null);
                   }
                   else{
                       console.log("Error on new app reschedule Screen: ", response.data);

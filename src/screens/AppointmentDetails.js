@@ -39,7 +39,7 @@ export default function AppointmentDetails() {
               setCancelModalVisible(false);
               setSubmitModalVisible(true);
               setReloadAppointments(true);
-              showAppointmentNotification(`Appointment cancelled with ${AppointmentDetail.name} on ${AppointmentDetail.date}`);
+              showAppointmentNotification(`Appointment cancelled with ${AppointmentDetail.name} on ${AppointmentDetail.date}`,null);
           } else {
               console.error("Error cancelling appointment:", response);
               setSubmitMessage("Error Cancelling Appointment. Try Again.");

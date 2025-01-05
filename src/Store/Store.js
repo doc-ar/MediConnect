@@ -113,38 +113,59 @@ export const useMediConnectStore = create((set) => {
   };
 
   const setNotificationPermission = async (bool) => {
-    // Store as a string ("true" or "false")
     await SecureStore.setItemAsync('NotificationPermission', bool ? "true" : "false");
   };
 
   const getNotificationPermission = async () => {
-    // Retrieve and convert to a boolean
     const NotificationPermission = await SecureStore.getItemAsync('NotificationPermission');
     return NotificationPermission === "true"?true:false;
   };
   
   const setIsRegistered = async (bool) => {
-    // Store isRegistered as a string ("true" or "false")
     await SecureStore.setItemAsync('isRegistered', bool ? "true" : "false");
   };
 
   const getIsRegistered = async () => {
-    // Retrieve and convert isRegistered to a boolean
     const isRegistered = await SecureStore.getItemAsync('isRegistered');
     return isRegistered === "true"?true:false;
   };
 
-  async function showAppointmentNotification(message) {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+
+  async function showAppointmentNotification(message, Date) {
+    let triggerOn = null;
+    
+    if (Date !== null) {
+      const formattedDate = new Date(Date);
+      
+      if (!isNaN(formattedDate)) {
+        triggerOn = {
+          type: 'date',
+          value: formattedDate.getTime(),
+        };
+      } else {
+        console.error("Invalid date format");
+      }
+    }
+  
     await Notifications.scheduleNotificationAsync({
       content: {
         title: 'Appointment Update',
         body: message,
         sound: 'default',
       },
-      trigger: null,
+      trigger: triggerOn,
     });
+  
     saveNotifications(message);
   }
+  
 
   const getNotifications = async () => {
     try {
@@ -158,20 +179,16 @@ export const useMediConnectStore = create((set) => {
 
   const saveNotifications = async (notificationText) => {
     try {
-      // Retrieve the current notifications object
       const existingNotifications = await getNotifications();
   
-      // Generate a unique ID for the new notification
       const id = Object.keys(existingNotifications).length;
       const notificationId = id+1;
   
-      // Add the new notification to the existing notifications object
       const updatedNotifications = {
         ...existingNotifications,
         [notificationId]: notificationText,
       };
   
-      // Save the updated object back to AsyncStorage
       await AsyncStorage.setItem('notifications', JSON.stringify(updatedNotifications));
   
       console.log('New notification added');

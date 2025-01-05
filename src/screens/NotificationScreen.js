@@ -64,7 +64,6 @@ const styles = StyleSheet.create({
         borderBottomWidth: hp(0.06),
         borderBottomColor: "#d4d2cd",
         paddingBottom: hp(1),
-        marginBottom: hp(1)
     },
     backArrow: {
         position: "absolute",
@@ -73,7 +72,7 @@ const styles = StyleSheet.create({
     BottomView: {
         flex: 1,
         flexGrow: 1,
-        paddingVertical: hp(1),
+        paddingBottom: hp(1),
         paddingHorizontal: wp(1)
     },
     LoadingText: {
@@ -103,6 +102,7 @@ const styles = StyleSheet.create({
     },
     NotificationIcon: {
         position:"absolute",
+
     },
     NotificationIconTextView:{
         flexDirection: "row",

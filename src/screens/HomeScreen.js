@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMediConnectStore } from '../Store/Store';
 import { FlatList } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import DataReloader from '../utils/DataReloader';
 
 export default function HomeScreen({navigation}) {
 
@@ -19,7 +20,6 @@ export default function HomeScreen({navigation}) {
     const Info = useMediConnectStore(state=>state.PatientData);
     const ReloadUpcomingAppointments = useMediConnectStore((state)=>state.ReloadUpcomingAppointments);
     const setReloadUpcomingAppointments = useMediConnectStore((state)=>state.setReloadUpcomingAppointments);
-    const getNotificationPermission = useMediConnectStore(state => state.getNotificationPermission);
     const setNotificationPermission = useMediConnectStore(state => state.setNotificationPermission);
 
     const fetchUpcomingAppointments = async () => {
@@ -143,6 +143,7 @@ const formatTimeTo12Hour = (time) => {
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="white" />
+                <DataReloader />
                 <View style={styles.TopView}>
                     <Text style={styles.LogoText}>MediConnect</Text>
                     <Ionicons style={styles.NotificationIcon} name="notifications-outline" size={hp(4)} color="black" onPress={()=>navigation.navigate("NotificationScreen")} />
