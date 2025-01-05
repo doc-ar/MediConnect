@@ -448,6 +448,12 @@ app.patch("/mobile/update-patient", authMiddleware, async (req, res) => {
       WHERE user_id = ${tokenData.user_id}
       RETURNING *
     `;
+    const user = await sql`
+      SELECT email FROM users
+      WHERE user_id = ${tokenData.user_id}
+    `;
+
+    result[0].email = user[0].email;
 
     return res.status(200).json(result[0]);
   } catch (error) {
