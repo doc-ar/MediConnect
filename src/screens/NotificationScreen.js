@@ -17,9 +17,11 @@ export default function NotificationScreen() {
         const fetchNotifications = async () => {
             const fetchedNotifications = await getNotifications();
             setNotifications(fetchedNotifications);
-            setLoading(false);
+            setLoading(false);            
+            console.log(Object.keys(notifications).map((key) => notifications[key]));
         };
         fetchNotifications();
+
     }, []);
 
     return (
@@ -32,7 +34,7 @@ export default function NotificationScreen() {
             <ScrollView contentContainerStyle={styles.BottomView}>
                 {loading && <Text style={styles.LoadingText}>Loading Notifications...</Text>}
                 {!loading && Object.keys(notifications).length === 0 && <Text style={styles.LoadingText}>No Notifications</Text>}
-                {!loading && Object.keys(notifications).map((key) => (
+                {!loading && Object.keys(notifications).reverse().map((key) => (
                     <View key={key} style={styles.NotificationView}>
                         <View style={styles.NotificationIconTextView}></View>
                         <MaterialIcons name="notifications-none" size={hp(3.5)} color="#2F3D7E" style={styles.NotificationIcon} />
@@ -70,7 +72,6 @@ const styles = StyleSheet.create({
         left: 0
     },
     BottomView: {
-        flex: 1,
         flexGrow: 1,
         paddingBottom: hp(1),
         paddingHorizontal: wp(1)

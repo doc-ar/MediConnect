@@ -23,9 +23,9 @@ export default function SettingsScreen() {
     const [ModalText, setModalText] = useState(null);
     const [isLoadingModalVisible,setIsLoadingModalVisible] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [imageModalVisible, setImageModalVisible] = useState(true);
+    const [imageModalVisible, setImageModalVisible] = useState(false);
     const [imageUrl, setImageUrl] = useState(false);
-
+    
     const handleImageUpdate = async () =>{
       try{
         const updatedPatient = {...PatientData, image: imageUrl} 

@@ -9,7 +9,7 @@ import { useMediConnectStore } from '../Store/Store';
 
 export default function SOAPNotesScreen() {
     const navigation = useNavigation();
-    const [SOAP, setSOAP] = useState({});
+    const [SOAP, setSOAP] = useState(null);
     const [Loading, setLoading] = useState(true);
     const fetchRequest = useMediConnectStore((state) => state.fetchWithRetry);
 
@@ -27,16 +27,6 @@ export default function SOAPNotesScreen() {
         fetchSOAP();
     }, []);
 
-    const renderObjectContent = (obj) => {
-        return obj && Array.isArray(obj) ? (
-            obj.map((item, index) => (
-                <Text key={index} style={styles.ObjectText}>{JSON.stringify(item)}</Text>
-            ))
-        ) : (
-            <Text style={styles.ObjectText}>{JSON.stringify(obj)}</Text>
-        );
-    };
-
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="white" />
@@ -47,21 +37,23 @@ export default function SOAPNotesScreen() {
             <ScrollView contentContainerStyle={styles.BottomView}>
                 {Loading && <Text style={styles.LoadingText}>Loading...</Text>}
                 {!Loading && Object.keys(SOAP).length === 0 && <Text style={styles.LoadingText}>No SOAP Notes Data Available</Text>}
-                {!Loading && Object.keys(SOAP).length > 0 && SOAP.soap_note_data && SOAP.soap_note_data.map((note, index) => (
-                    <View key={index} style={styles.NoteContainer}>
-                        <Text style={styles.DateText}>Last Updated: {note.LastUpdated}</Text>
-                        <Text style={styles.ObjectText}><Text style={{fontWeight:"bold"}}>Assessment:</Text> {note.assessment}</Text>
+                {!Loading && Object.keys(SOAP).length > 0 && SOAP.soap_note_data &&
+                    <View style={styles.NoteContainer}>
+                        {/*<Text style={styles.DateText}>Last Updated: {note.LastUpdated}</Text>*/}
+                        
+                        <Text style={styles.SectionTitle}>Assessment:</Text>
+                        <Text style={styles.ObjectText}>{SOAP.soap_note_data.assessment}</Text>
 
                         <Text style={styles.SectionTitle}>Subjective:</Text>
-                        {renderObjectContent(note.subjective)}
+                        <Text style={styles.ObjectText}>{SOAP.soap_note_data.subjective}</Text>
 
                         <Text style={styles.SectionTitle}>Objective:</Text>
-                        {renderObjectContent(note.objective)}
+                        <Text style={styles.ObjectText}>{SOAP.soap_note_data.objective}</Text>
 
                         <Text style={styles.SectionTitle}>Plan:</Text>
-                        {renderObjectContent(note.plan)}
+                        <Text style={styles.ObjectText}>{SOAP.soap_note_data.plan}</Text>
                     </View>
-                ))}
+                }
             </ScrollView>
         </SafeAreaView>
     );
