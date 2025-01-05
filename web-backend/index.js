@@ -338,6 +338,23 @@ app.get("/web/get-medicines", authMiddleware, async (req, res) => {
   }
 });
 
+app.get("/web/get-soapnotes/:patient_id", authMiddleware, async (req, res) => {
+  try {
+    if (!req.params.patient_id) {
+      return res.status(400).json({ error: "Patient ID is required" });
+    }
+
+    const soap_notes = await sql`
+      SELECT * FROM soap_notes
+      WHERE patient_id = ${req.params.patient_id}
+    `;
+
+    return res.status(200).json(soap_notes[0]);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 app.post("/web/generate-soap-notes", authMiddleware, async (req, res) => {
   try {
     // check if role is doctor
