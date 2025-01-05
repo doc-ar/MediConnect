@@ -1,20 +1,139 @@
-import { StyleSheet,Text,View,Image, TouchableOpacity} from "react-native";
+import { StyleSheet,Text,View,Image, TouchableOpacity, ActivityIndicator} from "react-native";
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Ionicons } from "@expo/vector-icons";
-import { Entypo } from "@expo/vector-icons";
+import { Entypo, AntDesign } from "@expo/vector-icons";
 import { Fontisto } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useMediConnectStore } from "../Store/Store";
+import Modal from 'react-native-modal';
+import { useState } from "react";
+import * as DocumentPicker from "expo-document-picker";
 
 export default function SettingsScreen() {
 
     const navigation = useNavigation();
     const PatientData = useMediConnectStore(state=>state.PatientData);
+    const setPatientData = useMediConnectStore(state=>state.setPatientData);
     const clearTokens = useMediConnectStore(state=>state.clearTokens);
+    const FetchRequest = useMediConnectStore((state)=>state.fetchWithRetry);
+    const [ModalText, setModalText] = useState(null);
+    const [isLoadingModalVisible,setIsLoadingModalVisible] = useState(false);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [imageModalVisible, setImageModalVisible] = useState(true);
+    const [imageUrl, setImageUrl] = useState(false);
+
+    const handleImageUpdate = async () =>{
+      try{
+        const updatedPatient = {...PatientData, image: imageUrl} 
+        console.log("updatedPatient: ", updatedPatient);
+        const response = await FetchRequest("https://www.mediconnect.live/mobile/update-patient","patch",updatedPatient);
+        if(response.status === 200){
+          console.log("Profile Picture Updated Successfully: ", response.data);
+          setPatientData(response.data);
+          setModalText("Profile picture changed successfully!");
+          setIsModalVisible(true);
+        }
+        else{
+          console.log("profile picture update Failed, response: ", response);
+          setModalText("error updating profile picture");
+          setIsModalVisible(true);
+        }
+        }
+        catch(error){
+          console.error("error updating profile picture: ", error);
+          setModalText("error updating profile picture");
+          setIsModalVisible(true);
+        }
+        
+    }
+    const handleImageUpload = async () => {
+            const doc = await pickDocument();
+            if (doc) {
+              const uri = doc.assets[0].uri;
+              const name = doc.assets[0].name || "Profile_Picture";
+              console.log("Uploading file: ", { name, uri });
+              
+              try{
+                setIsLoadingModalVisible(true);
+                const response = await FetchRequest("https://www.mediconnect.live/file/upload-avatar","POST",{file: uri,name:name});
+                if(response.status === 201){
+                  console.log("Image Uploaded Successfully: ",response.data);
+                  setImageUrl(response.data.file_url);
+                  handleImageUpdate();
+                }
+                else{
+                  console.log("Image Upload Failed, response: ", response);
+                  setModalText("Error Uploading Image");
+                  setIsModalVisible(true);
+                }
+                }
+              catch(error){
+                console.error("Error uploading image: ", error);
+                setModalText("Error Uploading Image");
+                setIsModalVisible(true);
+              }
+              finally{
+                setIsLoadingModalVisible(false);
+                setImageModalVisible(false);
+              }
+              }
+            }
+    
+        const pickDocument = async () => {
+            try {
+              const result = await DocumentPicker.getDocumentAsync({
+                type: ["image/jpeg"],
+              });
+              console.log(result);
+              if (result.canceled === false) {
+                console.log("Image picked: ", result);
+                return result;
+              } else {
+                console.log("Image picking was canceled.");
+                setModalText("Error getting image");
+                setIsModalVisible(true);
+                return null;
+              }
+            } catch (error) {
+              console.error("Error picking Image: ", error);
+              setModalText("Error getting image");
+              setIsModalVisible(true);
+            }
+          };
+        
+          const handleImageDelete = async () => {
+            try{
+              setIsLoadingModalVisible(true);
+              const updatedPatient = {...PatientData, image: null} 
+              const response = await FetchRequest("https://www.mediconnect.live/mobile/update-patient","patch",updatedPatient);
+              if(response.status === 200){
+                console.log("Image Deleted Successfully: ", response.data);
+                setPatientData(response.data);
+                setModalText("Image Deleted Successfully");
+                setIsModalVisible(true);
+              }
+              else{
+                console.log("Image Deletion Failed, response: ", response);
+                setModalText("Error Deleting Image");
+                setIsModalVisible(true);
+              }
+              }
+              catch(error){
+                console.error("Error deleting image: ", error);
+                setModalText("Error Deleting Image");
+                setIsModalVisible(true);
+              }
+              finally{
+                setIsLoadingModalVisible(false);
+                setImageModalVisible(false);
+              }
+            
+          }
+    
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="white"/>
@@ -24,7 +143,7 @@ export default function SettingsScreen() {
                 <View style={styles.BottomView}>
                     <View style={styles.imageContainer}>
                         <Image source={{ uri: PatientData.image }} style={styles.PatientImage} />
-                        <MaterialCommunityIcons name="pencil-circle" size={hp(5)} color="#2F3D7E" style={styles.pencilicon} onPress={()=>navigation.navigate("SetImage")}/>
+                        <MaterialCommunityIcons name="pencil-circle" size={hp(5)} color="#2F3D7E" style={styles.pencilicon} onPress={()=>setImageModalVisible(true)}/>
                     </View>
                     <Text style={styles.PatientName}>{PatientData.name}</Text>
                     <Text style={styles.PatientEmail}>{PatientData.email}</Text>
@@ -76,6 +195,31 @@ export default function SettingsScreen() {
                               <Text style={styles.LogOutText}>Log Out</Text>
                     </TouchableOpacity>
                 </View>
+                <Modal isVisible={isLoadingModalVisible}>
+                    <View style={styles.LoadingModal}>
+                      <ActivityIndicator size="large" color="#fafafa" />
+                    </View>
+                </Modal>
+                <Modal isVisible={isModalVisible}>
+                <View style={styles.ModalView}>
+                    <Text style={styles.ModalText}>{ModalText}</Text>
+                    {ModalText?.toLowerCase().includes("success")?
+                    <AntDesign name="checkcircle" size={hp(9)} color="#2F3D7E" style={styles.Modalcheck}/>:
+                    <Entypo name="emoji-sad" size={hp(9)} color="#a1020a" style={styles.Modalcheck}/>
+                    }
+                    <TouchableOpacity style={styles.ModalButton} onPress={()=>{setIsModalVisible(false);}}>
+                        <Text style={styles.ModalButtonText}>Okay</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+
+            <Modal isVisible={imageModalVisible}>
+                <View style={styles.ImageModalView}>
+                    <Entypo name="circle-with-cross" style={styles.ImageModalCrossIcon} size={hp(3)} color="#7B7B7C" onPress={()=>{setImageModalVisible(false)}} />
+                    <TouchableOpacity style={styles.ImageModalButton} onPress={()=>{handleImageUpload()}}><Text style={styles.ImageModalButtonText}>Edit Picture</Text></TouchableOpacity>
+                    <TouchableOpacity style={styles.ImageModalButton} onPress={()=>{handleImageDelete()}}><Text style={styles.ImageModalButtonText}>Delete Picture</Text></TouchableOpacity>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -165,5 +309,81 @@ const styles= StyleSheet.create({
     LogOutText:{
       color:"red",
       fontSize:hp(2.3)
+    },
+    LoadingModal:{
+      height:hp(30),
+      width:wp(80),
+      alignSelf:"center",
+      justifyContent:"center",
+      alignItems:"center"
+    },
+    ModalView:{
+      backgroundColor:"white",
+      borderRadius:20,
+      height:hp(27),
+      width:wp(80),
+      alignSelf:"center",
+      alignItems:"center",
+      justifyContent:"center",
+      paddingHorizontal:wp(2),
+      paddingVertical:hp(2)
+    },
+    ModalText:{
+      fontSize:hp(2),
+      fontWeight:"bold",
+      textAlign:"center",
+    },
+    Modalcheck:{
+      alignSelf:"center",
+      marginVertical:hp(2)
+    },
+    ModalButton:{
+      justifyContent:"center",
+      borderRadius:10,
+      width: wp(33),
+      height: hp(5),
+      alignItems:"center",
+      backgroundColor: "white",
+      borderColor:"#2F3D7E",
+      borderWidth:2,
+      marginTop: hp(1),
+      alignSelf:"center"
+    },
+    ModalButtonText:{
+      color:"#2F3D7E",
+      fontSize:hp(1.8),
+      fontWeight:"bold"
+    },
+    ImageModalView:{
+      height: hp(25),
+      width: wp(90),
+      backgroundColor: "white",
+      borderRadius: 20,
+      alignSelf:"centre",
+      justifyContent:"center",
+      alignItems:"center",
+      flexDirection:"column",
+      position:"relative"
+    },
+    ImageModalButton:{
+      height: hp(5),
+      width: wp(80),
+      backgroundColor: "white",
+      borderRadius: 10,
+      justifyContent:"center",
+      alignItems:"center",
+      marginVertical: hp(1),
+      borderColor:"#2F3D7E",
+      borderWidth:2,
+    },
+    ImageModalButtonText:{
+      color:"#2F3D7E",
+      fontSize:hp(2),
+      fontWeight:"bold"
+    },
+    ImageModalCrossIcon:{
+      position:"absolute",
+      right:wp(4),
+      top:hp(2)
     }
 })

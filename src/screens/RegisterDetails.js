@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { ScrollView,StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
+import { ScrollView,StyleSheet, Text, View, TextInput, TouchableOpacity, Image, ActivityIndicator} from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import {useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -9,7 +9,8 @@ import Modal from "react-native-modal";
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { AntDesign } from '@expo/vector-icons';
-
+import * as DocumentPicker from "expo-document-picker";
+import { MaterialCommunityIcons} from '@expo/vector-icons';
 export default function RegisterDetails() {
     const [isValidationModalVisible, setIsValidationModalVisible] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -27,7 +28,10 @@ export default function RegisterDetails() {
     const [BloodType, setBloodType] = useState(null);
     const [BloodGlucose, setBloodGlucose] = useState(null);
     const [BloodPressure, setBloodPressure] = useState(null);
+    const [ImageUrl, setImageUrl] = useState(null);
     const [Error, setError] = useState(null);
+    const [isLoadingModalVisible,setIsLoadingModalVisible] = useState(false);
+    
     const setRegistrationCheck = useMediConnectStore(state=>state.setRegistrationCheck);
 
     const handleSuccessfulRegistration = async () => {
@@ -37,6 +41,59 @@ export default function RegisterDetails() {
             setRegistrationCheck(true);
         }, 5000);
     };
+
+    const handleImageUpload = async () => {
+        const doc = await pickDocument();
+        if (doc) {
+          const uri = doc.assets[0].uri;
+          const name = doc.assets[0].name || "Profile_Picture";
+          console.log("Uploading file: ", { name, uri });
+          
+          try{
+            setIsLoadingModalVisible(true);
+            const response = await FetchRequest("https://www.mediconnect.live/file/upload-avatar","POST",{file: uri,name:name});
+            if(response.status === 201){
+              console.log("Image Uploaded Successfully: ",response.data);
+              setImageUrl(response.data.file_url);
+            }
+            else{
+              console.log("Image Upload Failed, response: ", response);
+              setError("Error Uploading Image");
+              setIsValidationModalVisible(true);
+            }
+            }
+          catch(error){
+            console.error("Error uploading image: ", error);
+            setError("Error uploading Image");
+            setIsValidationModalVisible(true);
+          }
+          finally{
+            setIsLoadingModalVisible(false);
+          }
+          }
+        }
+
+    const pickDocument = async () => {
+        try {
+          const result = await DocumentPicker.getDocumentAsync({
+            type: ["image/jpeg"],
+          });
+          console.log(result);
+          if (result.canceled === false) {
+            console.log("Image picked: ", result);
+            return result;
+          } else {
+            console.log("Image picking was canceled.");
+            setError("Error getting Image");
+            setIsValidationModalVisible(true);
+            return null;
+          }
+        } catch (error) {
+          console.error("Error picking Image: ", error);
+          setError("Error getting Image");
+          setIsValidationModalVisible(true);
+        }
+      };
     
     const validateAndSubmit = async () => {
         
@@ -94,7 +151,7 @@ export default function RegisterDetails() {
                     height: height,
                     bloodtype:BloodType,
                     allergies:Allergy,
-                    image: "https://cdn.openart.ai/published/6QLTkchH5F6bKgAmbRfc/aofdob56_vO8y_512.webp" 
+                    image: ImageUrl 
                   }
             );
             if (response.status === 200) { 
@@ -123,6 +180,13 @@ export default function RegisterDetails() {
             <StatusBar barStyle="dark-content" backgroundColor="white" />
                 <Text style={styles.MediConnectText}>MediConnect</Text>
                 <ScrollView contentContainerStyle={styles.inputContainer}>
+
+                    <View style={styles.imageContainer}>
+                        <Image source={{ uri: ImageUrl }} style={styles.PatientImage} />
+                        <MaterialCommunityIcons name="pencil-circle" size={hp(5)} color="#2F3D7E" style={styles.pencilicon} onPress={handleImageUpload} />
+                    </View>
+                    <Text style={styles.ImageSubtitle}>Set your Profile Picture</Text>
+
                     <Text style={styles.required}>*Required Fields</Text>
                    
                     <Text style={styles.label}>Name<Text style={styles.required}>*</Text>
@@ -270,6 +334,7 @@ export default function RegisterDetails() {
                         />
                     </View>
 
+                    
                 <View style={styles.Buttons}>
                     <TouchableOpacity style={styles.LogoutButton} onPress={handleLogout}>
                         <SimpleLineIcons name="logout" style={[styles.ButtonIcon]}  size={hp(2.3)} color="#a1020a" />
@@ -294,6 +359,12 @@ export default function RegisterDetails() {
                     <Text style={styles.ModalText}>Registration Successful!</Text>
                     <AntDesign name="checkcircle" size={hp(9)} color="#2F3D7E" style={styles.Modalcheck}/>
                 </View>
+                </Modal>
+
+                <Modal isVisible={isLoadingModalVisible}>
+                    <View style={styles.LoadingModal}>
+                      <ActivityIndicator size="large" color="#fafafa" />
+                    </View>
                 </Modal>
                 </ScrollView>
         </SafeAreaView>
@@ -426,5 +497,36 @@ const styles = StyleSheet.create({
       },
       Modalcheck:{
         alignSelf:"center",
+      },
+      imageContainer: {
+        position: 'relative',
+        alignSelf: 'center',
+        width: wp(28),
+        height: wp(28),
+      },
+      PatientImage: {
+        width: '100%',
+        height: '100%',
+        borderRadius: wp(15),
+        borderWidth: wp(2),
+        borderColor: "#EBEDF3",
+      },
+      pencilicon: {
+        position: "absolute",
+        bottom: -hp(1),
+        right: -wp(2),
+      },
+      ImageSubtitle:{
+        marginVertical: hp(2),
+        fontSize: hp(2.2),
+        fontWeight: 'bold',
+        textAlign:"center"
+      },
+      LoadingModal:{
+        height:hp(30),
+        width:wp(80),
+        alignSelf:"center",
+        justifyContent:"center",
+        alignItems:"center"
       }
 });

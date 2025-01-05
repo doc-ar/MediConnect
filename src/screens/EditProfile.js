@@ -25,6 +25,7 @@ export default function EditProfile(){
     const [BloodType, setBloodType] = useState(PatientData.bloodtype);
     const [BloodGlucose, setBloodGlucose] = useState(PatientData.blood_glucose);
     const [BloodPressure, setBloodPressure] = useState(PatientData.blood_pressure);
+    const [image, setImage] = useState(PatientData.image);
     const [Error, setError] = useState("");
     const [isModalVisible, setModalVisible] = useState(false);
     const [EditMessage, setEditMessage] = useState('');
@@ -89,7 +90,7 @@ export default function EditProfile(){
         const height = Height ? parseFloat(Height) : null;
         const bloodGlucose = BloodGlucose ? parseFloat(BloodGlucose) : null;
 
-        const response = await FetchRequest("https://www.mediconnect.live/mobile/update-patient","patch", {name:Name, gender:Gender, address:Address, weight:weight, blood_pressure:BloodPressure, image:"https://cdn.openart.ai/published/6QLTkchH5F6bKgAmbRfc/aofdob56_vO8y_512.webp", age:age, blood_glucose:bloodGlucose, contact:Contact, bloodtype:BloodType, allergies:Allergy, height:height}
+        const response = await FetchRequest("https://www.mediconnect.live/mobile/update-patient","patch", {name:Name, gender:Gender, address:Address, weight:weight, blood_pressure:BloodPressure, image:image, age:age, blood_glucose:bloodGlucose, contact:Contact, bloodtype:BloodType, allergies:Allergy, height:height}
         );
         if (response.status === 200) {
             console.log("Patient Data Updated , Back to Edit Screen Success: ",response.data);

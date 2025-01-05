@@ -38,7 +38,19 @@ export const useMediConnectStore = create((set) => {
       type: "application/pdf",
     });
   }
-
+  if (data && data.file) {
+    console.log("Detected image upload. Switching to multipart/form-data.");
+    console.log(data.file);
+    headers["Content-Type"] = "multipart/form-data";
+    formData = new FormData();
+    /*formData.append("avatar",
+      data.file);*/
+      formData.append("avatar", {
+        uri: data.file,
+        name: data.name,
+        type: "image/jpeg",
+      });
+  }
   const requestData = formData?formData: data;
 
       console.log("Making initial request");
