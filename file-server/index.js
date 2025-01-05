@@ -13,9 +13,22 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
-const storage = multer.diskStorage({
+const reportStorage = multer.diskStorage({
   destination: function (req, file, cb) {
     const dir = path.join(__dirname, "reports"); // Path to 'reports/' folder
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true }); // Create directory and parents if necessary
+    }
+    cb(null, dir);
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${Date.now()}-${file.originalname.replace(" ", "")}`);
+  },
+});
+
+const avatarStorage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const dir = path.join(__dirname, "avatars"); // Path to 'reports/' folder
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true }); // Create directory and parents if necessary
     }
@@ -29,7 +42,20 @@ const storage = multer.diskStorage({
 const sql = neon(process.env.DATABASE_URL);
 const PORT = process.env.FILE_SERVER_PORT || 3004;
 const corsOptions = { credentials: true, origin: process.env.URL || "*" };
-const upload = multer({ storage: storage });
+const upload_report = multer({ storage: reportStorage });
+const upload_avatar = multer({
+  storage: avatarStorage,
+  fileFilter: function (req, file, callback) {
+    var ext = path.extname(file.originalname);
+    if (ext !== ".png" && ext !== ".jpg" && ext !== ".jpeg") {
+      return callback(new Error("Only images are allowed"));
+    }
+    callback(null, true);
+  },
+  limits: {
+    fileSize: 1024 * 1024,
+  },
+});
 const app = express();
 
 //app.use(express.json());
@@ -37,11 +63,12 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use("/file/reports", express.static(path.join(__dirname, "reports")));
+app.use("/file/avatars", express.static(path.join(__dirname, "avatars")));
 
 app.post(
   "/file/upload",
   authMiddleware,
-  upload.single("report"),
+  upload_report.single("report"),
   async (req, res) => {
     try {
       const authHeader = req.headers["authorization"];
@@ -140,6 +167,25 @@ app.delete("/file/delete", authMiddleware, async (req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
+
+app.post(
+  "/file/upload-avatar",
+  authMiddleware,
+  upload_avatar.single("avatar"),
+  async (req, res) => {
+    try {
+      const fileUrl = `https://www.mediconnect.live/file/avatars/${req.file.filename}`;
+
+      res.status(201).json({
+        message: "Picture Uploaded Successfully",
+        file_url: fileUrl,
+        date_added: currentDate(),
+      });
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  },
+);
 
 app.listen(PORT, () => {
   console.log(`File Server is running on port ${PORT}`);
