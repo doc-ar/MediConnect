@@ -1,13 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator} from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 import { useMediConnectStore } from '../Store/Store';
-
+import Modal from 'react-native-modal';
 export default function LoginScreen({ navigation }) {
-
+    const [LoadingModalVisible, setLoadingModalVisible] = useState(false);
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
     const [error,setError] = useState('');
@@ -23,6 +23,7 @@ export default function LoginScreen({ navigation }) {
         }
 
         try {
+            setLoadingModalVisible(true);
             const response = await axios.post("https://www.mediconnect.live/auth/login", {
                 email: email,
                 password: password,
@@ -46,6 +47,10 @@ export default function LoginScreen({ navigation }) {
             console.error("Error:", error);
             setError("Login Failed. Try Again.");
         }
+        finally{
+            setLoadingModalVisible(false);
+        }
+        
     }
 
     return (
@@ -88,6 +93,11 @@ export default function LoginScreen({ navigation }) {
                 <TouchableOpacity onPress={()=>navigation.navigate('SignUp')} ><Text style={styles.FooterSignUpText}>Sign Up</Text></TouchableOpacity>
             </View>
             <TouchableOpacity onPress={()=>navigation.navigate('ForgotPassword')} ><Text style={styles.forgotPassword}>Forgot your Password?</Text></TouchableOpacity>
+        <Modal isVisible={LoadingModalVisible}>
+                  <View style={styles.LoadingModal}>
+                    <ActivityIndicator size="large" color="#fafafa"/>
+                  </View>
+        </Modal>
         </SafeAreaView>
     );
 }
@@ -179,5 +189,12 @@ const styles = StyleSheet.create({
         color:"red",
         marginTop:hp(2),
         fontSize:hp(2)
-    }
+    },
+    LoadingModal:{
+        height:hp(30),
+        width:wp(80),
+        alignSelf:"center",
+        justifyContent:"center",
+        alignItems:"center"
+      },
 });

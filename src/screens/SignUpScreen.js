@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity} from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator} from 'react-native';
 import axios from 'axios';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useState } from 'react';
@@ -18,6 +18,7 @@ export default function SignUpScreen() {
     const [isModalVisible, setModalVisible] = useState(false);
     const [isPasswordValid, setIsPasswordValid] = useState(false);
     const [showPasswordValidation, setShowPasswordValidation] = useState(false);
+    const [LoadingModalVisible, setLoadingModalVisible] = useState(false);
 
     const validatePassword = (password) => {
         const hasUppercase = /[A-Z]/.test(password);
@@ -50,6 +51,7 @@ export default function SignUpScreen() {
         }
 
         try {
+            setLoadingModalVisible(true);
             const response = await axios.post("https://www.mediconnect.live/auth/signup", {
                 email: email,
                 password: password,
@@ -69,6 +71,9 @@ export default function SignUpScreen() {
         } catch (error) {
             console.error("Error:",  error);
             setError("Sign Up Failed. Try Again.");
+        }
+        finally{
+            setLoadingModalVisible(false);
         }
     };
     
@@ -157,6 +162,11 @@ export default function SignUpScreen() {
                 </View>
             </Modal>     
             </ScrollView>
+            <Modal isVisible={LoadingModalVisible}>
+              <View style={styles.LoadingModal}>
+                    <ActivityIndicator size="large" color="#fafafa"/>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -308,5 +318,12 @@ const styles = StyleSheet.create({
       },
       Modalcheck:{
         alignSelf:"center",
-      }
+      },
+      LoadingModal:{
+        height:hp(30),
+        width:wp(80),
+        alignSelf:"center",
+        justifyContent:"center",
+        alignItems:"center"
+      },
 });
