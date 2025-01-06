@@ -24,11 +24,10 @@ export default function SettingsScreen() {
     const [isLoadingModalVisible,setIsLoadingModalVisible] = useState(false);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [imageModalVisible, setImageModalVisible] = useState(false);
-    const [imageUrl, setImageUrl] = useState(false);
     
-    const handleImageUpdate = async () =>{
+    const handleImageUpdate = async (uploadedImageUrl) =>{
       try{
-        const updatedPatient = {...PatientData, image: imageUrl} 
+        const updatedPatient = {...PatientData, image: uploadedImageUrl} 
         console.log("updatedPatient: ", updatedPatient);
         const response = await FetchRequest("https://www.mediconnect.live/mobile/update-patient","patch",updatedPatient);
         if(response.status === 200){
@@ -53,6 +52,7 @@ export default function SettingsScreen() {
     const handleImageUpload = async () => {
             const doc = await pickDocument();
             if (doc) {
+              let uploadedImageUrl = null;
               const uri = doc.assets[0].uri;
               const name = doc.assets[0].name || "Profile_Picture";
               console.log("Uploading file: ", { name, uri });
@@ -62,8 +62,8 @@ export default function SettingsScreen() {
                 const response = await FetchRequest("https://www.mediconnect.live/file/upload-avatar","POST",{file: uri,name:name});
                 if(response.status === 201){
                   console.log("Image Uploaded Successfully: ",response.data);
-                  setImageUrl(response.data.file_url);
-                  handleImageUpdate();
+                  uploadedImageUrl = response.data.file_url;
+                  handleImageUpdate(uploadedImageUrl);
                 }
                 else{
                   console.log("Image Upload Failed, response: ", response);

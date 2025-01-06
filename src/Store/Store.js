@@ -43,11 +43,9 @@ export const useMediConnectStore = create((set) => {
     console.log(data.file);
     headers["Content-Type"] = "multipart/form-data";
     formData = new FormData();
-    /*formData.append("avatar",
-      data.file);*/
       formData.append("avatar", {
         uri: data.file,
-        name: data.name,
+        name: data.name? data.name:"uploaded_file.jpeg",
         type: "image/jpeg",
       });
   }

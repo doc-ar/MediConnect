@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -21,8 +21,11 @@ export default function HomeScreen({navigation}) {
     const ReloadUpcomingAppointments = useMediConnectStore((state)=>state.ReloadUpcomingAppointments);
     const setReloadUpcomingAppointments = useMediConnectStore((state)=>state.setReloadUpcomingAppointments);
     const setNotificationPermission = useMediConnectStore(state => state.setNotificationPermission);
+    const [isLoadingIndicatorVisible, setisLoadingIndicatorVisible] = useState(true);
 
     const fetchUpcomingAppointments = async () => {
+        try{
+            setisLoadingIndicatorVisible(true);
         const response = await FetchRequest("https://www.mediconnect.live/mobile/upcoming-appointments", "get");
         
         if (response.status === 200) {
@@ -47,6 +50,12 @@ export default function HomeScreen({navigation}) {
             setLatestAppointmentData(formattedAppointments);
         } else {
             console.log("Error Fetching Upcoming App Data on Home Screen: ", response.data);
+        }}
+        catch(error){
+            console.log("Error Fetching Upcoming App Data on Home Screen: ", error);
+        }
+        finally{
+            setisLoadingIndicatorVisible(false);
         }
     };
     
@@ -179,8 +188,10 @@ const formatTimeTo12Hour = (time) => {
                         <Text style={styles.data}>Allergies: {Info.allergies?Info.allergies:"NA"}</Text>
                     </View>
                 </View></>}
-
-                {Object.keys(LatestAppointmentData).length === 0 &&
+                {isLoadingIndicatorVisible &&
+                    <ActivityIndicator size="large" color="#2F3D7E"/>
+                }
+                {!isLoadingIndicatorVisible && Object.keys(LatestAppointmentData).length === 0 &&
                 <>  
                     <View style={styles.AppointmentSectionHeading}>
                         <MaterialIcons name="sticky-note-2" size={hp(3)} color="gray"/>
@@ -192,7 +203,7 @@ const formatTimeTo12Hour = (time) => {
                     </View>
                 </>
                 }
-                {Object.keys(LatestAppointmentData).length !== 0 &&
+                {!isLoadingIndicatorVisible && Object.keys(LatestAppointmentData).length !== 0 &&
                     <>
                     <View style={styles.AppointmentSectionHeading}>
                             <MaterialIcons name="sticky-note-2" size={hp(2.5)} color="gray" style={{paddingTop:hp(0.4)}}/>
@@ -277,6 +288,15 @@ const styles = StyleSheet.create({
         color: "#41474D",
         fontWeight: "bold"
     },
+    LoadingModal:{
+        height:hp(10),
+        width:wp(80),
+        alignSelf:"center",
+        justifyContent:"center",
+        alignItems:"center",
+        backgroundColor:"white",
+        
+      },
     AppointmentText:{
         fontSize: hp(2.3), fontWeight: "bold", 
     },

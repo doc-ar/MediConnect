@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View, ScrollView} from "react-native";
+import { StyleSheet, Text, View, ActivityIndicator} from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
-import Entypo from '@expo/vector-icons/Entypo';
 import DropdownDates from "../components/DropDownDates";
 import AppointmentCard from "../components/AppointmentCard";
 import { useMediConnectStore } from "../Store/Store";
@@ -27,6 +26,7 @@ export default function AppointmentScreen() {
 
   useEffect(() => {
     if (ReloadAppointments) {
+      console.log("Reload Appointments Triggered");
       fetchAppointments();
       setReloadAppointments(false);
       setReloadUpcomingAppointments(true);
@@ -132,7 +132,7 @@ export default function AppointmentScreen() {
           <Text style={styles.NoAppointmentText}>You currently have no Appointment data available.</Text>
         ) : null}
 
-      {Loading && <Text>Loading Appointments ...</Text>}
+      {Loading && <ActivityIndicator size="large" color="#2F3D7E"/>}
       </View>
     </SafeAreaView>
   );
