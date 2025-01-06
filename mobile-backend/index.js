@@ -401,6 +401,8 @@ app.get("/mobile/get-soap-notes", authMiddleware, async (req, res) => {
     const soap_note = await sql`
       SELECT sn.soap_note_data FROM soap_notes sn
       JOIN patients p ON p.patient_id = sn.patient_id
+      JOIN users u ON u.user_id = p.user_id
+      WHERE u.user_id = ${tokenData.user_id}
     `;
     if (soap_note.length === 0) {
       return res.json({});
