@@ -28,7 +28,6 @@ def process_transcript():
     formatted_soap_notes = format_soap_note(soap_note_prediction[0])
 
     result = {
-        "transcript": transcript,
         "soap_notes": formatted_soap_notes
     }
     # Return the processed result as JSON

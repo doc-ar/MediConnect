@@ -7,7 +7,8 @@ import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { fileURLToPath } from "url";
 import { neon } from "@neondatabase/serverless";
-import { authMiddleware, currentDate } from "../utils/authorization.js";
+import { authMiddleware } from "./utils/authorization.js";
+import { currentDate } from "./utils/date.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

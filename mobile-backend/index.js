@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { neon } from "@neondatabase/serverless";
-import { authMiddleware } from "../utils/authorization.js";
+import { authMiddleware } from "./utils/authorization.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

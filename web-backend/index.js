@@ -5,7 +5,12 @@ import { fileURLToPath } from "url";
 import cors from "cors";
 import jwt from "jsonwebtoken";
 import { neon } from "@neondatabase/serverless";
-import { authMiddleware } from "../utils/authorization.js";
+import { authMiddleware } from "./utils/authorization.js";
+import {
+  getSOAPNotesFromGemini,
+  getSOAPNotesFromFlask,
+  getPrompt,
+} from "./utils/soap-helpers.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -365,21 +370,31 @@ app.post("/web/generate-soap-notes", authMiddleware, async (req, res) => {
       return res.status(403).json({ error: "The user is not a doctor" });
     }
 
-    const transcript = req.body.transcript;
-    const response = await fetch("http://127.0.0.1:5000", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ transcript: transcript }),
-    });
+    const geminiUse = req.body.geminiUse;
 
-    if (!response.ok) {
-      throw new Error(`Flask server responded with status ${response.status}`);
+    if (geminiUse) {
+      const patient = await sql`
+        SELECT * FROM patients
+        WHERE patient_id = ${req.body.patient_id}
+      `;
+      const prompt = getPrompt(
+        patient[0].name,
+        patient[0].age,
+        patient[0].gender,
+        req.body.transcript,
+      );
+      console.log(prompt);
+
+      const response = await getSOAPNotesFromGemini(prompt);
+      const result = {
+        soap_notes: response,
+        transcript: req.body.transcript,
+      };
+      return res.status(200).json(result);
     }
 
-    const result = await response.json();
-    return res.json(result);
+    const response = await getSOAPNotesFromFlask(req.body.transcript);
+    return res.status(200).json(response);
   } catch (error) {
     console.error("Error:", error.message);
     return res.status(500).json({ error: error.message });
@@ -443,6 +458,58 @@ app.patch("/web/update-appointment", authMiddleware, async (req, res) => {
     return res.json({ error: error.message });
   }
 });
+
+app.patch(
+  "/web/cancel-appointment/:appointment_id",
+  authMiddleware,
+  async (req, res) => {
+    try {
+      if (!req.params.appointment_id) {
+        return res.status(400).json({ error: "appointment_id is required" });
+      }
+
+      // Check that the user role is patient
+      const authHeader = req.headers["authorization"];
+      const token = authHeader && authHeader.split(" ")[1];
+      const tokenData = jwt.decode(token);
+      if (!(tokenData.role === "doctor")) {
+        return res.status(403).json({ error: "The user is not a doctor" });
+      }
+
+      // Check if appointment exists
+      const appointment = await sql`
+      SELECT * FROM appointments a
+      JOIN doctors d ON d.doctor_id = a.doctor_id
+      JOIN users u ON u.user_id = d.user_id
+      WHERE appointment_id = ${req.params.appointment_id}
+      AND   u.user_id = ${tokenData.user_id}
+    `;
+      if (appointment.length == 0) {
+        return res
+          .status(404)
+          .json({ error: "The appointment does not exist" });
+      }
+
+      // Execute Query
+      const updated_appointment = await sql`
+        UPDATE appointments
+        SET status = 'cancelled'
+        WHERE appointment_id = ${req.params.appointment_id}
+        RETURNING *
+      `;
+
+      await sql`
+        UPDATE time_slots
+        SET availability = 'TRUE'
+        WHERE slot_id = ${appointment[0].slot_id}
+      `;
+
+      res.status(200).json(updated_appointment[0]);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  },
+);
 
 app.patch("/web/update-soapnote", authMiddleware, async (req, res) => {
   try {
