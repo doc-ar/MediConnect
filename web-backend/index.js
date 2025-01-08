@@ -394,6 +394,7 @@ app.post("/web/generate-soap-notes", authMiddleware, async (req, res) => {
     }
 
     const response = await getSOAPNotesFromFlask(req.body.transcript);
+    response.transcript = req.body.transcript;
     return res.status(200).json(response);
   } catch (error) {
     console.error("Error:", error.message);
