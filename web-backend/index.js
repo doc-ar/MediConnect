@@ -7,6 +7,11 @@ import jwt from "jsonwebtoken";
 import { neon } from "@neondatabase/serverless";
 import { authMiddleware } from "./utils/authorization.js";
 import {
+  cancel_appointment,
+  complete_appointment,
+  reschedule_appointment,
+} from "./utils/update-appointment-queries.js";
+import {
   getSOAPNotesFromGemini,
   getSOAPNotesFromFlask,
   getPrompt,
@@ -436,81 +441,41 @@ app.patch("/web/update-doctor", authMiddleware, async (req, res) => {
 
 app.patch("/web/update-appointment", authMiddleware, async (req, res) => {
   try {
-    // Check if appointment exists
-    const object_exists = await sql`
-      SELECT appointment_id FROM appointments
-      WHERE appointment_id = ${req.body.appointment_id};
-    `;
-    if (object_exists.length === 0) {
-      return res.status(404).json({ error: "The appointment does not exist" });
+    if (!req.body.appointment_id || !req.body.status) {
+      return res
+        .status(400)
+        .json({ error: "appointment_id or status is missing" });
     }
 
-    // execute query
-    const result = await sql`
-      UPDATE appointments
-      SET slot_id       = ${req.body.slot_id},
-          status        = ${req.body.status}
-      WHERE appointment_id = ${req.body.appointment_id}
-      RETURNING *
-    `;
+    const authHeader = req.headers["authorization"];
+    const token = authHeader && authHeader.split(" ")[1];
+    const tokenData = jwt.decode(token);
+    if (!(tokenData.role === "doctor")) {
+      return res.status(403).json({ error: "The user is not a doctor" });
+    }
 
-    return res.json(result[0]);
+    let response;
+
+    if (req.body.status === "scheduled") {
+      return res
+        .status(403)
+        .json({ error: "Scheduling appointment not allowed" });
+    } else if (req.body.status === "cancelled") {
+      response = await cancel_appointment(sql, req);
+    } else if (req.body.status === "rescheduled") {
+      response = await reschedule_appointment(sql, req);
+    } else if (req.body.status === "completed") {
+      response = await complete_appointment(sql, req);
+    } else {
+      return res.status(400).json({ error: "Wrong Error Status" });
+    }
+
+    return res.json(response);
   } catch (error) {
-    return res.json({ error: error.message });
+    const statusCode = error.statusCode || 500;
+    return res.status(statusCode).json({ error: error.message });
   }
 });
-
-app.patch(
-  "/web/cancel-appointment/:appointment_id",
-  authMiddleware,
-  async (req, res) => {
-    try {
-      if (!req.params.appointment_id) {
-        return res.status(400).json({ error: "appointment_id is required" });
-      }
-
-      // Check that the user role is patient
-      const authHeader = req.headers["authorization"];
-      const token = authHeader && authHeader.split(" ")[1];
-      const tokenData = jwt.decode(token);
-      if (!(tokenData.role === "doctor")) {
-        return res.status(403).json({ error: "The user is not a doctor" });
-      }
-
-      // Check if appointment exists
-      const appointment = await sql`
-      SELECT * FROM appointments a
-      JOIN doctors d ON d.doctor_id = a.doctor_id
-      JOIN users u ON u.user_id = d.user_id
-      WHERE appointment_id = ${req.params.appointment_id}
-      AND   u.user_id = ${tokenData.user_id}
-    `;
-      if (appointment.length == 0) {
-        return res
-          .status(404)
-          .json({ error: "The appointment does not exist" });
-      }
-
-      // Execute Query
-      const updated_appointment = await sql`
-        UPDATE appointments
-        SET status = 'cancelled'
-        WHERE appointment_id = ${req.params.appointment_id}
-        RETURNING *
-      `;
-
-      await sql`
-        UPDATE time_slots
-        SET availability = 'TRUE'
-        WHERE slot_id = ${appointment[0].slot_id}
-      `;
-
-      res.status(200).json(updated_appointment[0]);
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  },
-);
 
 app.patch("/web/update-soapnote", authMiddleware, async (req, res) => {
   try {
