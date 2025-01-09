@@ -92,7 +92,7 @@ app.post("/mobile/create-appointment", authMiddleware, async (req, res) => {
 
     res.status(200).json(appointment[0]);
   } catch (error) {
-    res.json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
@@ -149,7 +149,7 @@ app.patch(
 
       res.status(200).json(updated_appointment[0]);
     } catch (error) {
-      res.json({ error: error.message });
+      res.status(500).json({ error: error.message });
     }
   },
 );
@@ -193,7 +193,7 @@ app.patch("/mobile/cancel-appointment", authMiddleware, async (req, res) => {
 
     res.status(200).json(updated_appointment[0]);
   } catch (error) {
-    res.json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 });
 
