@@ -388,7 +388,6 @@ app.post("/web/generate-soap-notes", authMiddleware, async (req, res) => {
         patient[0].gender,
         req.body.transcript,
       );
-      console.log(prompt);
 
       const response = await getSOAPNotesFromGemini(prompt);
       const result = {
