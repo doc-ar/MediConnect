@@ -116,7 +116,7 @@ app.post("/web/new-transcription", authMiddleware, async (req, res) => {
     // execute query
     const transcription = await sql`
       INSERT INTO transcriptions (appointment_id, data)
-      VALUES (${req.body.appointment_id}, ${req.body.data})
+      VALUES (${req.body.appointment_id}, ${req.body.transcript})
       RETURNING *
     `;
     res.json(transcription[0]);
