@@ -359,7 +359,7 @@ app.get("/web/get-soapnotes/:patient_id", authMiddleware, async (req, res) => {
       WHERE patient_id = ${req.params.patient_id}
     `;
 
-    return res.status(200).json(soap_notes[0]);
+    return res.status(200).json(soap_notes);
   } catch (error) {
     return res.status(500).json({ error: error.message });
   }
