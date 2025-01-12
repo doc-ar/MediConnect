@@ -17,7 +17,7 @@ export default function PrescriptionDetail({route}) {
             </View>
             <View style={styles.BottomView}>
             <Text style={styles.Text}>Medication:</Text>
-            <MedicationTable Medication={prescriptionDetails.prescription.medication}/>
+            <MedicationTable Prescription={prescriptionDetails.prescription}/>
             <Text style={styles.Text}>Dated: {prescriptionDetails.prescription.date}</Text>
             <Text style={styles.Text}>Doctor: {prescriptionDetails.prescription.doctor}</Text>
             </View>

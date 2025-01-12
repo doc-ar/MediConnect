@@ -16,43 +16,41 @@ export default function PurchaseMedication({ route }) {
     const [optionalContact, setOptionalContact] = useState('');
     const [address, setAddress] = useState(PatientData.address);
     const [email, setEmail] = useState(PatientData.email);
+    const [note, setNote] = useState('');
     const [isModalVisible, setModalVisible] = useState(false);
     const [error, setError] = useState('');
-    // State for tablets and prices for each medicine
     const [medicationData, setMedicationData] = useState(
         Medication.map((item) => ({
             ...item,
-            tablets: 5, // Default tablets
-            price: 2.5, // Default price: 5 tablets * $0.50
+            tablets: 5,
+            perTabletPrice: (item.price/5).toFixed(2)
+            
         }))
     );
 
-    // Function to handle increasing tablets for a specific medicine
     const handleIncrease = (index) => {
         setMedicationData((prevData) => {
             const updatedData = [...prevData];
             if (updatedData[index].tablets < 50) {
                 updatedData[index].tablets += 1;
-                updatedData[index].price = updatedData[index].tablets * 0.5;
+                updatedData[index].price = updatedData[index].tablets * updatedData[index].perTabletPrice;
             }
             return updatedData;
         });
     };
 
-    // Function to handle decreasing tablets for a specific medicine
     const handleDecrease = (index) => {
         setMedicationData((prevData) => {
             const updatedData = [...prevData];
             if (updatedData[index].tablets > 5) {
                 updatedData[index].tablets -= 1;
-                updatedData[index].price = updatedData[index].tablets * 0.5;
+                updatedData[index].price = updatedData[index].tablets * updatedData[index].perTabletPrice;
             }
             return updatedData;
         });
     };
 
-    // Calculate the total price
-    const totalPrice = medicationData.reduce((total, item) => total + item.price, 0);
+    const totalPrice = medicationData.reduce((total, item) => total + (item.perTabletPrice*item.tablets), 0);
 
     const handleConfirmPurchase = () => {
         setError('');
@@ -83,20 +81,22 @@ export default function PurchaseMedication({ route }) {
                 <View style={styles.headerRow}>
                     <Text style={styles.headerText}>Medicine</Text>
                     <Text style={styles.headerText}>Strength</Text>
-                    <Text style={styles.headerText}>Tablets</Text>
+                    <Text style={styles.headerText}>Quantity</Text>
                     <Text style={styles.headerText}>Price</Text>
                 </View>
 
                 {medicationData.map((item, index) => (
                     <View style={styles.dataRow} key={index}>
-                        <Text style={styles.dataText}>{item.Medicine}</Text>
-                        <Text style={styles.dataText}>{item.Strength}</Text>
+                        <Text style={styles.dataText}>{item.medicine_name}</Text>
+                        <Text style={styles.dataText}>{item.medicine_strength}</Text>
                         <View style={styles.TabletsView}>
+                            {item.dosage.toLowerCase().includes("tablet") ?  <> 
                             <Entypo name="circle-with-minus" size={hp(2.3)} color="#2F3D7E" onPress={() => handleDecrease(index)} />
                             <Text style={styles.TabletsText}>{item.tablets}</Text>
-                            <Entypo name="circle-with-plus" size={hp(2.3)} color="#2F3D7E" onPress={() => handleIncrease(index)} />
+                            <Entypo name="circle-with-plus" size={hp(2.3)} color="#2F3D7E" onPress={() => handleIncrease(index)} /></>:
+                                <Text></Text>}
                         </View>
-                        <Text style={styles.dataText}>${item.price.toFixed(2)}</Text>
+                        <Text style={styles.dataText}>$ {item.price}</Text>
                     </View>
                 ))}
 
@@ -147,19 +147,31 @@ export default function PurchaseMedication({ route }) {
                     value={email}
                     keyboardType="email-address"
                     onChangeText={setEmail}
+                    maxLength={40}
+
                 />
+
+                <Text style={styles.label}>Note</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Enter any additional information here"
+                    value={note}
+                    onChangeText={setNote}
+                    maxLength={60}
+                />
+
                 <Text style={styles.paymentText}>Payment: Cash on Delivery</Text>
 
-                {error && <Text style={styles.error}>{error}</Text>}
-
-                <TouchableOpacity style={styles.button} onPress={handleConfirmPurchase}>
-                    <Text style={styles.buttonText}>Confirm Purchase</Text>
-                </TouchableOpacity>
+                {error && <Text style={styles.error}>{error}</Text>} 
             </ScrollView>
+
+            <TouchableOpacity style={styles.button} onPress={handleConfirmPurchase}>
+                    <Text style={styles.buttonText}>Confirm Purchase</Text>
+            </TouchableOpacity>
 
             <Modal isVisible={isModalVisible}>
                 <View style={styles.modalView}>
-                    <Text style={styles.modalText}>Purchase Confirmed!</Text>
+                    <Text style={styles.modalText}>Your order has been placed!</Text>
                     <AntDesign name="checkcircle" size={hp(9)} color="#2F3D7E" style={styles.modalIcon} />
                     <TouchableOpacity style={styles.modalButton} onPress={() => navigation.goBack()}>
                         <Text style={styles.modalButtonText}>Go Back</Text>
@@ -227,12 +239,11 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         width: wp(26),
-
     },
     TabletsText: {
         fontSize: hp(2.3),
         color: "#646466",
-        marginLeft: wp(2),
+        marginLeft: wp(3.3),
         width: wp(6),
     },
     totalRow: {
@@ -242,30 +253,18 @@ const styles = StyleSheet.create({
         borderTopColor: "#ccc",
         paddingTop: hp(1),
         marginTop: hp(1),
+        marginBottom: hp(2),
+
     },
     totalText: {
         fontSize: hp(2.3),
         fontWeight: "bold",
         color: "#41474D",
-    },
-    button: {
-        backgroundColor: "#2F3D7E",
-        borderRadius: 10,
-        height: hp(5),
-        justifyContent: "center",
-        alignItems: "center",
-        marginVertical: hp(3),
-        marginHorizontal: wp(5),
-    },
-    buttonText: {
-        color: "white",
-        fontSize: hp(2.5),
-        fontWeight: "bold",
+
     },
     
     formContainer: {
         paddingHorizontal: wp(5),
-        paddingTop: hp(2),
     },
     label: {
         marginVertical: hp(1),
@@ -292,6 +291,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         marginVertical: hp(2),
+        width: wp(90),
+        alignSelf: "center",
     },
     buttonText: {
         color: "white",

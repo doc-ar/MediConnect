@@ -2,33 +2,39 @@ import { StyleSheet } from 'react-native';
 import { DataTable } from 'react-native-paper'; 
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { TouchableOpacity, View, Text } from 'react-native';
-import { FontAwesome6 } from '@expo/vector-icons';
+import { FontAwesome6, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-export default function MedicationTable({Medication}){ 
+import PrescriptionDownloader from '../utils/PrescriptionDownloader';
+export default function MedicationTable({Prescription}){ 
+  const Medication = Prescription.medication;
+
   const navigation = useNavigation();
+  const handleDownload = () => {
+    PrescriptionDownloader(Prescription);
+  };
 return (
-    <View style={styles.ContainerView}> 
+  <View style={styles.ContainerView}>
+  <TouchableOpacity style={styles.downloadbutton} onPress={handleDownload}><FontAwesome
+            name="download"  size={hp(2.5)} color="#2F3D7E" /></TouchableOpacity>
 	<DataTable style={styles.container}> 
 	<DataTable.Header> 
-		<DataTable.Title>Medicine</DataTable.Title> 
-        <DataTable.Title>Strength</DataTable.Title> 
-		<DataTable.Title>Dosage</DataTable.Title>
-        <DataTable.Title>Frequency</DataTable.Title> 
-		<DataTable.Title>Duration</DataTable.Title> 
+		<DataTable.Title><View style={styles.cellView}><Text style={styles.cellViewText}>Medicine</Text></View></DataTable.Title> 
+        <DataTable.Title><View style={styles.cellView}><Text style={styles.cellViewText}>Strength</Text></View></DataTable.Title> 
+		<DataTable.Title><View style={styles.cellView}><Text style={styles.cellViewText}>Dosage</Text></View></DataTable.Title>
+        <DataTable.Title><View style={styles.cellView}><Text style={styles.cellViewText}>Frequency</Text></View></DataTable.Title> 
+		<DataTable.Title><View style={styles.cellView}><Text style={styles.cellViewText}>Duration</Text></View></DataTable.Title> 
 	</DataTable.Header> 
     {Medication.map((Medication, Index) => (
         <DataTable.Row key={Index}>
-          <DataTable.Cell>{Medication.Medicine}</DataTable.Cell>
-          <DataTable.Cell>{Medication.Strength}</DataTable.Cell>
-          <DataTable.Cell>{Medication.dosage}</DataTable.Cell>
-          <DataTable.Cell>{Medication.Frequency}</DataTable.Cell>
-          <DataTable.Cell>{Medication.duration}</DataTable.Cell>
+          <DataTable.Cell><View style={styles.cellView}><Text >{Medication.medicine_name}</Text></View></DataTable.Cell>
+          <DataTable.Cell><View style={styles.cellView}><Text >{Medication.medicine_strength}</Text></View></DataTable.Cell>
+          <DataTable.Cell><View style={styles.cellView}><Text >{Medication.dosage}</Text></View></DataTable.Cell>
+          <DataTable.Cell><View style={styles.cellView}><Text >{Medication.medicine_frequency}</Text></View></DataTable.Cell>
+          <DataTable.Cell><View style={styles.cellView}><Text >{Medication.duration}</Text></View></DataTable.Cell>
         </DataTable.Row>
       ))}
-    
-
 	</DataTable> 
-    <TouchableOpacity style={styles.button} onPress={() =>navigation.navigate("PurchaseMedication",{Medication:Medication})}>
+  <TouchableOpacity style={styles.button} onPress={() =>navigation.navigate("PurchaseMedication",{Medication:Medication})}>
         <FontAwesome6 name="cart-shopping" size={hp(1.8)} color="white" />
         <Text style={styles.buttonText}>Buy</Text>
     </TouchableOpacity>
@@ -43,9 +49,24 @@ container: {
     paddingVertical: hp(1),
     backgroundColor: '#e1e5f5',
     marginVertical: hp(2),
-    borderRadius: 15
+    borderRadius: 15,
+    position:"relative",
 }, 
-button: {
+  
+  ContainerView:{
+    width:wp(95),
+    alignSelf:"center",
+  },
+  cellView:{
+    width: wp(15.5),
+    alignItems:"center"
+  },
+  downloadbutton:{
+    position:"absolute",
+    right:wp(2),
+    top:hp(-2),
+  },
+  button: {
     backgroundColor: '#2F3D7E',
     borderRadius: 5,
     marginTop: hp(1),
@@ -63,9 +84,8 @@ button: {
     fontWeight: 'bold',
     marginLeft:wp(2)
   },
-  ContainerView:{
-    width:wp(95),
-    alignSelf:"center"
+  cellViewText:{
+    fontWeight:"bold",
   }
-
+  
 });

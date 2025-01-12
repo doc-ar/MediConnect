@@ -92,7 +92,7 @@ export default function AppointmentDetails() {
             <>
             <Text style={styles.details}>Prescription: </Text>
             <View style={styles.MedicationView}>
-                <MedicationTable Medication={AppointmentDetail.prescription.Medication}/>
+                <MedicationTable Prescription={AppointmentDetail.prescription}/>
             </View>
             </>
             }
