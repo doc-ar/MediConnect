@@ -41,7 +41,7 @@ async function getSOAPNotesFromGemini(prompt) {
 }
 
 async function getSOAPNotesFromFlask(transcript) {
-  const response = await fetch("http://127.0.0.1:5000", {
+  const response = await fetch("http://soap-gen:5000", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ transcript }),
