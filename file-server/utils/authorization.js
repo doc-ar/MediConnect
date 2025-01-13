@@ -4,7 +4,7 @@ async function authMiddleware(req, res, next) {
   if (token == null) return res.status(401).json({ error: "Null Token" });
 
   try {
-    const response = await fetch("http://127.0.0.1:3000/auth/validate", {
+    const response = await fetch("http://auth-service:3000/auth/validate", {
       method: "GET",
       headers: {
         authorization: `Bearer ${token}`,

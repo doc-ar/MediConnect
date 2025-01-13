@@ -1,6 +1,6 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 import { generateResetToken, jwtTokens } from "../utils/jwt-helpers.js";
 import { neon } from "@neondatabase/serverless";
@@ -144,7 +144,7 @@ router.post("/forgot-password", async (req, res) => {
 
     // Email Options
     const mailOptions = {
-      from: "noreply.mediconnect@ygmail.com",
+      from: process.env.EMAIL_USERNAME,
       to: req.body.email,
       subject: "Password Reset Request",
       html: `

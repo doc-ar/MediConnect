@@ -1,0 +1,88 @@
+services:
+  auth-service:
+    build:
+      context: ./auth
+    image: auth-service
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - EMAIL_USERNAME=${EMAIL_USERNAME}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - DATABASE_URL=${DATABASE_URL}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - RESET_TOKEN_SECRET=${RESET_TOKEN_SECRET}
+      - ACCESS_TOKEN_EXPIRE=${ACCESS_TOKEN_EXPIRE}
+      - REFRESH_TOKEN_EXPIRE=${REFRESH_TOKEN_EXPIRE}
+      - RESET_TOKEN_EXPIRE=${RESET_TOKEN_EXPIRE}
+    restart: no
+    container_name: auth-service
+
+  web-backend:
+    build:
+      context: ./web-backend
+    image: web-backend
+    ports:
+      - "3001:3001"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    restart: no
+    container_name: web-backend
+
+  mobile-backend:
+    build:
+      context: ./mobile-backend
+    image: mobile-backend
+    ports:
+      - "3002:3002"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    restart: no
+    container_name: mobile-backend
+
+  web-client:
+    build:
+      context: ./web-client
+    image: web-client
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+    restart: no
+    container_name: web-client
+
+  file-server:
+    build:
+      context: ./file-server
+    image: file-server
+    ports:
+      - "3004:3004"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+    volumes:
+      - reports_data:/usr/src/app/reports
+      - avatars_data:/usr/src/app/avatars
+    restart: no
+    container_name: file-server
+
+  soap-gen:
+    build:
+      context: ./soap-gen-service
+    image: soap-gen
+    ports:
+      - "5000:5000"
+    restart: no
+    container_name: soap-gen
+
+volumes:
+  reports_data:
+  avatars_data:
