@@ -8,37 +8,40 @@ const PastAppointmentsTable = ({ appointments }) => {
     navigate(`/patients/${patientid}`);
   }
   return (
-    <div >
+    <div>
       <h2>Today's Past Appointments</h2>
-      <table >
-        <thead>
-          <tr>
-            
-            <th>Patient Name</th>
-            <th>Doctor Name</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Profile</th>
-          </tr>
-        </thead>
-        <tbody>
-          {appointments.map((appointment) => (
-            <tr key={appointment.appointmentid}>
-              
-              <td>{appointment.patientname}</td>
-              <td>{appointment.doctorname}</td>
-              <td>{appointment.starttime}</td>
-              <td>{appointment.endtime}</td>
-              
-              <td>
-                <button className='button-dashboard'  onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')} onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')} onClick={() => navigateToPatientProfile(appointment.patientid)}>
-                  Profile
-                </button>
-              </td>
+      <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+        <table>
+          <thead>
+            <tr>
+              <th>Patient Name</th>
+              <th>Doctor Name</th>
+              <th>Start Time</th>
+              <th>End Time</th>
+              <th>Status</th>
+              <th>Profile</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {appointments.map((appointment) => (
+              <tr key={appointment.appointmentid}>
+                <td>{appointment.patientname}</td>
+                <td>{appointment.doctorname}</td>
+                <td>{appointment.starttime}</td>
+                <td>{appointment.endtime}</td>
+                <td style={{ color: appointment.status === 'cancelled' ? 'red' : 'green' }}>
+                  {appointment.status}
+                </td>
+                <td>
+                  <button className='button-dashboard' onClick={() => navigateToPatientProfile(appointment.patientid)}>
+                    Profile
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

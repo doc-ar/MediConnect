@@ -94,11 +94,10 @@ const Dashboard = () => {
   
         const upcoming = todaysAppointments.filter(appointment => {
           const appointmentStart = new Date(`${appointment.date} ${appointment.starttime}`);
-          console.log("Appointment Start:", appointmentStart, "Current Time:", new Date());
-          return appointmentStart >= new Date();
+          
+          return appointmentStart >= new Date() && appointment.status !== 'cancelled';
         });
-  
-        console.log("Today's Date:", today);
+ 
         console.log("Today's Appointments:", todaysAppointments);
         console.log("Upcoming Appointments:", upcoming);
   
