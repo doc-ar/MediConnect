@@ -1,16 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useState, useEffect , useCallback } from 'react';
+import { StyleSheet, Text, View, Image, TouchableOpacity, ActivityIndicator, RefreshControl, ScrollView } from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import {MaterialIcons} from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMediConnectStore } from '../Store/Store';
-import { FlatList } from 'react-native';
-import * as Notifications from 'expo-notifications';
-import DataReloader from '../utils/DataReloader';
-
 export default function HomeScreen({navigation}) {
 
     const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
@@ -18,11 +14,15 @@ export default function HomeScreen({navigation}) {
     const [Loading, setLoading] = useState(true);
     const setPatientData = useMediConnectStore(state=>state.setPatientData);
     const Info = useMediConnectStore(state=>state.PatientData);
-    const ReloadUpcomingAppointments = useMediConnectStore((state)=>state.ReloadUpcomingAppointments);
-    const setReloadUpcomingAppointments = useMediConnectStore((state)=>state.setReloadUpcomingAppointments);
-    const setNotificationPermission = useMediConnectStore(state => state.setNotificationPermission);
+    const ReloadAppointments = useMediConnectStore((state)=>state.ReloadAppointments);
     const [isLoadingIndicatorVisible, setisLoadingIndicatorVisible] = useState(true);
-
+    const [isRefreshing, setIsRefreshing] = useState(false);
+    
+    const onRefresh = useCallback(() => {
+        setIsRefreshing(true);
+        fetchUpcomingAppointments().then(() => setIsRefreshing(false));
+      }, []);
+    
     const fetchUpcomingAppointments = async () => {
         try{
             setisLoadingIndicatorVisible(true);
@@ -31,13 +31,10 @@ export default function HomeScreen({navigation}) {
         if (response.status === 200) {
             console.log("Upcoming App Data, Back to Home Screen Success: ", response.data);
             
-            // Format each appointment's date
             const formattedAppointments = response.data.map((appointment) => {
                 const { yearMonth, date } = formatDate(appointment.date);
                 const start_time = formatTimeTo12Hour(appointment.start_time);
                 const end_time = formatTimeTo12Hour(appointment.end_time);
-    
-                // Add formatted yearMonth and date properties to each appointment object
                 return {
                     ...appointment,
                     month: yearMonth,
@@ -45,8 +42,7 @@ export default function HomeScreen({navigation}) {
                     start_time: start_time,
                     end_time: end_time
                 };
-            });
-    
+            });            
             setLatestAppointmentData(formattedAppointments);
         } else {
             console.log("Error Fetching Upcoming App Data on Home Screen: ", response.data);
@@ -77,42 +73,22 @@ export default function HomeScreen({navigation}) {
     },
     []
 );
-
-useEffect(()=>{
-    if(ReloadUpcomingAppointments){
-    fetchUpcomingAppointments();
-    setReloadUpcomingAppointments(false);
-    }
-},[ReloadUpcomingAppointments]);
-
 useEffect(() => {
-    const getPermission = async () => {
-        const { status } = await Notifications.getPermissionsAsync();
-        console.log(status);
-        if (status !== 'granted') {
-            const { granted } = await Notifications.requestPermissionsAsync();
-            if (granted) {
-                setNotificationPermission(true);
-            } else {
-                console.log("Notification permission denied");
-            }
-        } else {
-            setNotificationPermission(true);
-
-        }
-    };
-    getPermission();
-}, []);
-
-
+    if (ReloadAppointments) {
+      console.log("fetching Upcoming appointments, Reload Appointments Triggered");
+      setTimeout(() => {
+        fetchUpcomingAppointments();
+      },1000)
+    }
+  }, [ReloadAppointments]);
     
 const formatTimeTo12Hour = (time) => {
     const [hours, minutes] = time.split(':');
     const hour = parseInt(hours, 10);
     const period = hour >= 12 ? 'PM' : 'AM';
-    const formattedHour = hour % 12 || 12; // Convert to 12-hour format, with 0 as 12
+    const formattedHour = hour % 12 || 12;
   
-    return `${formattedHour} ${period}`;
+    return `${formattedHour}:00 ${period}`;
   };
 
     const formatDate=(dateString)=> {
@@ -121,8 +97,8 @@ const formatTimeTo12Hour = (time) => {
         const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
     
         const year = date.getFullYear();
-        const month = monthNames[date.getMonth()]; // getMonth() returns month index (0-11)
-        const day = date.getDate(); // getDate() returns the day of the month (1-31)
+        const month = monthNames[date.getMonth()];
+        const day = date.getDate();
     
         const formattedYearMonth = `${month} ${year}`;
         const formattedDate = day.toString();
@@ -130,7 +106,7 @@ const formatTimeTo12Hour = (time) => {
         return { yearMonth: formattedYearMonth, date: formattedDate };
     }
 
-    const renderAppointmentItem=({item})=>{
+    const renderAppointmentItem=(item)=>{
         return(
         <TouchableOpacity style={styles.LatestAppView} onPress={()=>navigation.navigate("AppointmentDetails", {AppointmentDetail: item})}>
                 <View style={styles.DateView}>
@@ -152,11 +128,11 @@ const formatTimeTo12Hour = (time) => {
     return (
         <SafeAreaView style={styles.container}>
             <StatusBar barStyle="dark-content" backgroundColor="white" />
-                <DataReloader />
                 <View style={styles.TopView}>
                     <Text style={styles.LogoText}>MediConnect</Text>
                     <Ionicons style={styles.NotificationIcon} name="notifications-outline" size={hp(4)} color="black" onPress={()=>navigation.navigate("NotificationScreen")} />
                 </View>
+            <ScrollView refreshControl={<RefreshControl refreshing={isRefreshing} onRefresh={onRefresh} />} >
                 {Loading && <Text style={styles.LoadingText}>Loading...</Text>}
                 {!Loading&&<>
                 <View style={styles.PatientView}>
@@ -168,7 +144,7 @@ const formatTimeTo12Hour = (time) => {
                 </View>
 
                 <View style={styles.BioView}>
-                    <Text style={styles.BioDataText}>Medical Data:</Text>
+                    <Text style={styles.BioDataText}>Medical Data</Text>
                     <AntDesign name="edit" size={hp(3)} color="#2F3D7E" style={styles.editicon} onPress={()=>navigation.navigate('EditProfile')}/>
                 </View>
                 <View style={styles.BioView2}>
@@ -207,18 +183,13 @@ const formatTimeTo12Hour = (time) => {
                     <>
                     <View style={styles.AppointmentSectionHeading}>
                             <MaterialIcons name="sticky-note-2" size={hp(2.5)} color="gray" style={{paddingTop:hp(0.4)}}/>
-                            <Text style={styles.AppointmentText}> Upcoming Appointments</Text>
+                            <Text style={styles.AppointmentText}> Upcoming Appointment</Text>
                     </View>
-                        <FlatList
-                            data={LatestAppointmentData}
-                            renderItem={renderAppointmentItem}
-                            keyExtractor={(item) => item.appointment_id}
-                            contentContainerStyle={styles.AppointmentList}
-                        />
-                        
-                        
+                    {console.log(LatestAppointmentData[0])}
+                    {renderAppointmentItem(LatestAppointmentData[0])}
                     </>
                 }
+                </ScrollView>
         </SafeAreaView>
     );
 }

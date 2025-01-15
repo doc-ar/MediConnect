@@ -1,13 +1,14 @@
-import { StyleSheet, Text, View, FlatList, Image, ScrollView } from "react-native";
+import { StyleSheet, Text, View, FlatList, Image, } from "react-native";
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import { TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { useState, useEffect } from "react";
+import { useState, useEffect} from "react";
 const AppointmentItem = ({ appointment }) => {
   const navigation = useNavigation();
+      
   return (
     <View style={styles.card}>
       <View style={styles.row}>
@@ -68,8 +69,6 @@ const AppointmentItem = ({ appointment }) => {
 export default function AppointmentCard({Appointments}) {
 
   const [AppointmentMonthYear, setAppointmentMonthYear] = useState("");
-
-
   if (!Appointments || Object.keys(Appointments).length === 0) {
     return (
        <View>

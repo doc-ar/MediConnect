@@ -4,11 +4,37 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import { useState } from "react";
-
+import { useEffect, useState } from "react";
+import * as Notifications from 'expo-notifications';
+import * as linking from 'expo-linking';
 export default function NotificationSettings(){
     const navigation = useNavigation();
-    const [IsNotificationOn, setIsNotificationOn] = useState(true);
+    const [IsNotificationOn, setIsNotificationOn] = useState(false);
+
+    useEffect(() => {
+        const getPermission = async () => {
+            const { status } = await Notifications.getPermissionsAsync();
+            console.log(status);
+            if (status !== 'granted') {
+                const { granted } = await Notifications.requestPermissionsAsync();
+                if (granted) {
+                    setIsNotificationOn(true);
+
+                } else {
+                    console.log("Notification permission denied");
+
+                }
+            } else {
+                setIsNotificationOn(true);
+    
+            }
+        };
+        getPermission();
+    }, []);
+
+    const handleToggleNotifications=async()=>{
+        linking.openSettings();
+    }
 
     return (
         <SafeAreaView style={styles.container}>
@@ -17,17 +43,17 @@ export default function NotificationSettings(){
                 <AntDesign name="arrowleft" size={hp(3.5)} color="#646466" style={styles.backArrow} onPress={()=>navigation.goBack()}/>
                 <Text style={styles.SettingsText}>Notification Settings</Text>
             </View>
-            <TouchableOpacity style={styles.button} onPress={()=>setIsNotificationOn(!IsNotificationOn)}>
+            <TouchableOpacity style={styles.button} onPress={()=>handleToggleNotifications()}>
                 <View style={styles.buttonstartView}>
                     <AntDesign name="notification" size={hp(3)} color="#7B7B7C"/>
-                    <Text style={styles.buttonText}>Push Notifications</Text>
+                    <Text style={styles.buttonText}>Notifications</Text>
                 </View>
-                {IsNotificationOn && <AntDesign name="checkcircle" size={hp(3)} color="#55A914"/>}
+                {IsNotificationOn && <AntDesign name="checkcircle" size={hp(3)} color="#2F3D7E"/>}
                 {!IsNotificationOn && <AntDesign name="checkcircle" size={hp(3)} color="#d4d2cd"/>}
 
             </TouchableOpacity>
             <Text style={styles.InfoText}>
-                It is suggested to keep the notifications on to stay up to date and keep getting appointment reminders.
+                It is suggested to keep the notifications on to stay up to date.
             </Text>
         </SafeAreaView>
     );

@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator} from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, ScrollView} from 'react-native';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -61,6 +61,8 @@ export default function LoginScreen({ navigation }) {
                 <Text style={styles.subtitleText}>Login to Access your</Text>
                 <Text style={styles.subtitleText}>MediConnect Experience</Text>
             </View>
+            <ScrollView keyboardShouldPersistTaps="never" contentContainerStyle={styles.BottomView} >
+
             <View style={styles.inputContainer}>
                 <Text style={styles.label}>Email Address</Text>
                 <View style={styles.inputWrapper}>
@@ -93,6 +95,7 @@ export default function LoginScreen({ navigation }) {
                 <TouchableOpacity onPress={()=>navigation.navigate('SignUp')} ><Text style={styles.FooterSignUpText}>Sign Up</Text></TouchableOpacity>
             </View>
             <TouchableOpacity onPress={()=>navigation.navigate('ForgotPassword')} ><Text style={styles.forgotPassword}>Forgot your Password?</Text></TouchableOpacity>
+        </ScrollView>
         <Modal isVisible={LoadingModalVisible}>
                   <View style={styles.LoadingModal}>
                     <ActivityIndicator size="large" color="#fafafa"/>
@@ -114,6 +117,9 @@ const styles = StyleSheet.create({
         height: hp(30),
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    BottomView:{
+        alignItems:"center",
     },
     TopSignInText: {
         color: 'white',

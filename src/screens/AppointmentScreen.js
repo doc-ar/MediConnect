@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { StyleSheet, Text, View, ActivityIndicator} from "react-native";
+import { useEffect, useState} from "react";
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity} from "react-native";
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import DropdownDates from "../components/DropDownDates";
 import AppointmentCard from "../components/AppointmentCard";
@@ -7,19 +7,19 @@ import { useMediConnectStore } from "../Store/Store";
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, FontAwesome } from "@expo/vector-icons";
 export default function AppointmentScreen() {
   const navigation = useNavigation();
   const [Appointments, setAppointments] = useState([]);
   const [MonthData, setMonthData] = useState([]);
-  const [Loading, setLoading] = useState(true);
+  const [Loading, setLoading] = useState(null);
   const selectedAppointmentMonth = useMediConnectStore((state) => state.selectedAppointmentMonth);
   const setSelectedAppointmentMonth = useMediConnectStore((state) => state.setSelectedAppointmentMonth);
   const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
   const ReloadAppointments = useMediConnectStore(state=>state.ReloadAppointments);
   const setReloadAppointments = useMediConnectStore(state=>state.setReloadAppointments);
-  const setReloadUpcomingAppointments = useMediConnectStore(state=>state.setReloadUpcomingAppointments);
-
+  
+    
   useEffect(() => {
     fetchAppointments();
   }, []);
@@ -27,9 +27,10 @@ export default function AppointmentScreen() {
   useEffect(() => {
     if (ReloadAppointments) {
       console.log("Reload Appointments Triggered");
-      fetchAppointments();
+      setTimeout(()=>{
+        fetchAppointments();
+      },2000);
       setReloadAppointments(false);
-      setReloadUpcomingAppointments(true);
     }
   }, [ReloadAppointments]);
 
@@ -40,13 +41,21 @@ export default function AppointmentScreen() {
   }, [MonthData]);
 
   const fetchAppointments = async () => {
+    try{
+    setLoading(true);
     const response = await FetchRequest("https://www.mediconnect.live/mobile/all-appointments","get");
     if (response.status === 200) { 
       console.log("Back to Appointment Screen Success: ",response.data);
       groupAppointmentsByMonthYear(response.data);
       return;
     }
-    console.log("Error: ",response.data);
+    console.log("Error: ",response.data);}
+    catch(error){
+      console.log("Error fetching appointments: ", error);
+    }
+    finally{
+      setLoading(false);
+    }
   };
 
   const formatTimeTo12Hour = (time) => {
@@ -89,18 +98,8 @@ export default function AppointmentScreen() {
         groupedData[key][day].push(appointment);
     });
 
-    // Convert the set to an array and update MonthData with unique values
     setMonthData(Array.from(uniqueMonthData));
     setAppointments(groupedData);
-    setLoading(false); 
-    console.log(Array.from(uniqueMonthData)); // Optional: Log unique month data for debugging
-  
-
-    // Convert the set to an array and update MonthData with unique values
-    setMonthData(Array.from(uniqueMonthData));
-    setAppointments(groupedData);
-    setLoading(false); 
-    console.log(Array.from(uniqueMonthData)); // Optional: Log unique month data for debugging
 }
 
   function formatDate(dateString) {
@@ -114,6 +113,10 @@ export default function AppointmentScreen() {
     return `${year}-${month}-${day}`;
   }
 
+  const handleRefresh=async()=>{
+    console.log("Refreshing Appointments");
+    await fetchAppointments();
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -121,8 +124,8 @@ export default function AppointmentScreen() {
       <View style={styles.AppointmentView}>
         <Text style={styles.AppointmentText}>My Appointments</Text>
       </View>
-      
-        <AntDesign name="pluscircle" size={hp(5)} color="#2F3D7E" style={styles.plusIcon} onPress={()=>navigation.navigate("NewAppointment")} />
+      <FontAwesome name="refresh" size={hp(3)} color="#2F3D7E" style={styles.refreshIcon} onPress={()=>handleRefresh()}/>
+      <AntDesign name="pluscircle" size={hp(6)} color="#2F3D7E" style={styles.plusIcon} onPress={()=>navigation.navigate("NewAppointment")} />
       <DropdownDates Data={MonthData}/>
       <View>
       {!Loading && selectedAppointmentMonth && Appointments[selectedAppointmentMonth] ?
@@ -133,9 +136,11 @@ export default function AppointmentScreen() {
         ) : null}
 
       {Loading && <ActivityIndicator size="large" color="#2F3D7E"/>}
+      
       </View>
     </SafeAreaView>
   );
+  
 }
 
 const styles = StyleSheet.create({
@@ -146,6 +151,18 @@ const styles = StyleSheet.create({
     paddingVertical: hp(1),
     paddingHorizontal: wp(1),
     position: "relative"
+  },
+  refreshIcon:{
+    alignItems: "center",
+    position: "absolute",
+    right: wp(6),
+    bottom: hp(1),
+    zIndex:1,
+    borderRadius:28,
+    justifyContent:"center",
+    backgroundColor:"white",
+    borderRadius:25,
+    elevation:5
   },
   AppointmentView:{
     paddingTop: hp(0.5),
@@ -164,7 +181,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     position: "absolute",
     right: wp(4),
-    bottom: hp(3),
+    bottom: hp(5),
     zIndex:1,
     borderRadius:28,
     justifyContent:"center",

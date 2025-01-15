@@ -35,7 +35,10 @@ export default function PatientDocuments() {
 
   useEffect(()=>{
     if(isModalVisible===false){
-    setSuccess(false); setModalText("");
+      setTimeout(()=>{
+      setSuccess(false); 
+      setModalText("")
+    },1000);
   }
   },[isModalVisible])
   const pickDocument = async () => {

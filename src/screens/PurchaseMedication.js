@@ -55,7 +55,7 @@ export default function PurchaseMedication({ route }) {
     const handleConfirmPurchase = () => {
         setError('');
         if (!username || !contact || !address || !email) {
-            setError("All required fields must be filled!");
+            setError("All required fields must be filled");
             return;
         }
         const emailPattern = /^[a-zA-Z0-9._-]+@gmail\.com$/;
@@ -106,7 +106,9 @@ export default function PurchaseMedication({ route }) {
                 </View>
             </View>
             <ScrollView contentContainerStyle={styles.formContainer}>
-                <Text style={styles.label}>Name</Text>
+            {error? <Text style={styles.error}>{error}</Text>:<Text style={styles.error}>*required fileds</Text>} 
+
+                <Text style={styles.label}>Name<Text style={styles.required}>*</Text></Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Enter your name"
@@ -114,7 +116,7 @@ export default function PurchaseMedication({ route }) {
                     onChangeText={setUsername}
                     maxLength={20}
                 />
-                <Text style={styles.label}>Contact</Text>
+                <Text style={styles.label}>Contact<Text style={styles.required}>*</Text></Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Enter your contact"
@@ -132,7 +134,7 @@ export default function PurchaseMedication({ route }) {
                     onChangeText={setOptionalContact}
                     maxLength={15}
                 />
-                <Text style={styles.label}>Address</Text>
+                <Text style={styles.label}>Address<Text style={styles.required}>*</Text></Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Enter your address"
@@ -140,7 +142,7 @@ export default function PurchaseMedication({ route }) {
                     onChangeText={setAddress}
                     maxLength={30}
                 />
-                <Text style={styles.label}>Email</Text>
+                <Text style={styles.label}>Email<Text style={styles.required}>*</Text></Text>
                 <TextInput
                     style={styles.input}
                     placeholder="Enter your email"
@@ -162,7 +164,6 @@ export default function PurchaseMedication({ route }) {
 
                 <Text style={styles.paymentText}>Payment: Cash on Delivery</Text>
 
-                {error && <Text style={styles.error}>{error}</Text>} 
             </ScrollView>
 
             <TouchableOpacity style={styles.button} onPress={handleConfirmPurchase}>
@@ -210,6 +211,10 @@ const styles = StyleSheet.create({
     Reciept: {
         marginHorizontal: wp(5),
         marginTop: hp(2),
+    },
+    required:{
+        color:"red",
+        fontSize:hp(2.2)
     },
     headerRow: {
         flexDirection: "row",

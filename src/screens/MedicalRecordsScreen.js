@@ -1,9 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity} from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Fontisto from '@expo/vector-icons/Fontisto';
-import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -29,11 +28,6 @@ export default function MedicalReacordsScreen(){
                     <Ionicons name="document-text-outline" size={hp(6)} color="#2F3D7E" style={styles.ButtonIcon} />
                     <Text style={styles.ButtonText}>Documents</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.ButtonView} onPress={()=>navigation.navigate("MedicalDataScreen")}>
-                    <FontAwesome5 name="stethoscope" size={hp(6)} color="#2F3D7E" style={styles.ButtonIcon} />
-                    <Text style={styles.ButtonText}>Medical Data</Text>
-                </TouchableOpacity>
-                
             </View>
         </SafeAreaView>
     )

@@ -19,7 +19,7 @@ export default function LanguageScreen(){
                     <Fontisto name="world-o" size={hp(3)} color="#7B7B7C"/>
                     <Text style={styles.buttonText}>English</Text>
                 </View>
-                <AntDesign name="checkcircle" size={hp(3)} color="#55A914"/>
+                <AntDesign name="checkcircle" size={hp(3)} color="#2F3D7E"/>
             </TouchableOpacity>
             <Text style={styles.LanguageInfoText}>
                 Default language is English. Additional languages will be available soon.

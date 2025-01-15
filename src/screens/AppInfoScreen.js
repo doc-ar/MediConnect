@@ -61,20 +61,23 @@ const styles = StyleSheet.create({
         borderBottomWidth:hp(0.06),
         borderBottomColor:"#d4d2cd",
         paddingBottom:hp(1),
-        marginBottom:hp(2)
+        },
+        MediConnect:{
+            fontSize:hp(2.5),
+            fontWeight:"bold",
+            marginBottom:hp(1)
         },
     backArrow:{
         position:"absolute",
         left: 0
     },
     AppInfoView:{
-        flexGrow:1,
+        marginTop:hp(3),
         justifyContent:"center",
         alignItems:"center",
         width: wp(90),
         marginHorizontal:wp(5),
         paddingBottom:hp(1)
-
     },
     AppInfo:{
         fontSize:hp(1.8),

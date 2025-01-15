@@ -14,6 +14,7 @@ import Modal from "react-native-modal";
 export default function NewAppointment() {
     const navigation = useNavigation();
     const setReloadAppointments = useMediConnectStore((state) => state.setReloadAppointments)
+    const setReloadUpcomingAppointments = useMediConnectStore((state) => state.setReloadUpcomingAppointments)
     const FetchRequest = useMediConnectStore((state)=>state.fetchWithRetry);
     const PatientData = useMediConnectStore(state=>state.PatientData);
     const [DoctorsList, setDoctorsList] = useState([]);
@@ -179,7 +180,7 @@ export default function NewAppointment() {
                 setSubmitMessage("Appointment Scheduled Successfully");
                 setModalVisible(true);
                 showAppointmentNotification(`Appointment Scheduled with ${DoctorsName} on ${selectedDate} at ${selectedTime}`,null);
-                setReloadAppointments(true);
+                setReloadAppointments(prev => !prev);
             }
             else{
                 console.log("Error on new app Screen: ", response.data);

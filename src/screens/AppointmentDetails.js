@@ -15,6 +15,7 @@ export default function AppointmentDetails() {
     const route = useRoute(); 
     const navigation = useNavigation();
     const setReloadAppointments = useMediConnectStore((state) => state.setReloadAppointments)
+    const setReloadUpcomingAppointments = useMediConnectStore((state) => state.setReloadUpcomingAppointments)
     const FetchRequest = useMediConnectStore((state) => state.fetchWithRetry);
     const [isCancelModalVisible, setCancelModalVisible] = useState(false);
     const { AppointmentDetail } = route.params;
@@ -38,7 +39,7 @@ export default function AppointmentDetails() {
               setSubmitMessage("Appointment Cancelled Successfully");
               setCancelModalVisible(false);
               setSubmitModalVisible(true);
-              setReloadAppointments(true);
+              setReloadAppointments(prev => !prev);
               showAppointmentNotification(`Appointment cancelled with ${AppointmentDetail.name} on ${AppointmentDetail.date}`,null);
           } else {
               console.error("Error cancelling appointment:", response);
@@ -92,11 +93,11 @@ export default function AppointmentDetails() {
             <>
             <Text style={styles.details}>Prescription: </Text>
             <View style={styles.MedicationView}>
-                <MedicationTable Prescription={AppointmentDetail.prescription}/>
+                <MedicationTable Medications={AppointmentDetail.prescription} DoctorName={AppointmentDetail.name} AppointmentDate={AppointmentDetail.date}/>
             </View>
             </>
             }
-            {(AppointmentDetail.status === 'Scheduled' || AppointmentDetail.status === 'scheduled' || AppointmentDetail.status === 'rescheduled' || AppointmentDetail.status === 'Rescheduled' || AppointmentDetail.status === 'ReScheduled') && (
+            {(AppointmentDetail.status === 'Scheduled'|| AppointmentDetail.status === 'scheduled' || AppointmentDetail.status === 'rescheduled' || AppointmentDetail.status === 'Rescheduled' || AppointmentDetail.status === 'ReScheduled') && (
               <>
               <View style={styles.BottomButtons}>
                 <TouchableOpacity onPress={()=>navigation.navigate('RescheduleScreen',{appointment_id: AppointmentDetail.appointment_id, doctor_name: AppointmentDetail.name})} style={styles.RescheduleButton}>

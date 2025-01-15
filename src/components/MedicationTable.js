@@ -5,12 +5,19 @@ import { TouchableOpacity, View, Text } from 'react-native';
 import { FontAwesome6, FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import PrescriptionDownloader from '../utils/PrescriptionDownloader';
-export default function MedicationTable({Prescription}){ 
-  const Medication = Prescription.medication;
+export default function MedicationTable({Prescription, Medications, DoctorName, AppointmentDate}) { 
+  let PrescriptionData;
+  if (Prescription) {
+    PrescriptionData = Prescription;
+  } else {
+    PrescriptionData = {medication: Medications, date: AppointmentDate, doctor: DoctorName};
+  }
 
+  const Medication = PrescriptionData.medication;
+  
   const navigation = useNavigation();
   const handleDownload = () => {
-    PrescriptionDownloader(Prescription);
+    PrescriptionDownloader(PrescriptionData);
   };
 return (
   <View style={styles.ContainerView}>

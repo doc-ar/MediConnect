@@ -121,15 +121,6 @@ export const useMediConnectStore = create((set) => {
     await SecureStore.setItemAsync('refreshToken', refreshToken);
     checkRefreshToken();
   };
-
-  const setNotificationPermission = async (bool) => {
-    await SecureStore.setItemAsync('NotificationPermission', bool ? "true" : "false");
-  };
-
-  const getNotificationPermission = async () => {
-    const NotificationPermission = await SecureStore.getItemAsync('NotificationPermission');
-    return NotificationPermission === "true"?true:false;
-  };
   
   const setIsRegistered = async (bool) => {
     await SecureStore.setItemAsync('isRegistered', bool ? "true" : "false");
@@ -149,6 +140,10 @@ export const useMediConnectStore = create((set) => {
   });
 
   async function showAppointmentNotification(message, Date) {
+    const { status } = await Notifications.getPermissionsAsync();
+    if (status !== 'granted') {
+      return;
+    }
     let triggerOn = null;
     
     if (Date !== null) {
@@ -238,8 +233,6 @@ export const useMediConnectStore = create((set) => {
     getNotifications,
     saveNotifications,
     clearNotifications,
-    getNotificationPermission,
-    setNotificationPermission,
     showAppointmentNotification
   };
 });
