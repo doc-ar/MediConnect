@@ -71,10 +71,17 @@ const Appointment = () => {
         const startDate = new Date(data.StartTime);
         const endDate = new Date(data.EndTime);
 
+        const originalAppointment = appointments.find(apt => apt.Id === data.Id);
+        const isRescheduled = originalAppointment && (
+            originalAppointment.StartTime.getTime() !== startDate.getTime() ||
+            originalAppointment.EndTime.getTime() !== endDate.getTime() ||
+            formatDate(originalAppointment.StartTime) !== formatDate(startDate)
+        );
+
         const updateData = {
             appointment_id: data.Id,
             slot_id: data.slot_id,
-            status: 'rescheduled',
+            status: isRescheduled ? 'rescheduled' : 'completed',
             date: formatDate(startDate),
             start_time: formatTime(startDate),
             end_time: formatTime(endDate),

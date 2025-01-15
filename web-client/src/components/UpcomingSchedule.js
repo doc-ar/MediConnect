@@ -8,13 +8,17 @@ const UpcomingSchedule = ({ appointments }) => {
   };
 
   return (
-    <div >
+    <div>
       <h2>Upcoming Appointments</h2>
       <ul className='appointment-list'>
         {appointments.map((appointment, index) => (
           <li key={appointment.appointmentid}>
-            <div>
+            <div className='appointment-list-item'>
               <strong>{appointment.starttime}</strong> - <strong>{appointment.endtime}</strong> - {appointment.patientname} 
+              <p>{appointment.date}</p>
+              <p style={{ color: appointment.status === 'cancelled' ? 'red' : 'green' }}>
+                {appointment.status}
+              </p>
             </div>
             <button
               onClick={() => handleStartAppointment(appointment.appointmentid, appointment.patientid)}
