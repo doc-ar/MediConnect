@@ -15,3 +15,11 @@
 .e-btn.e-flat.e-primary{
     color:#2F3D7E;
 }
+
+.e-schedule-dialog .e-all-day-time-zone-row{
+  display: none;
+}
+
+.e-recurrenceeditor .e-input-wrapper{
+  display: none;
+}

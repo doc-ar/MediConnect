@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import "../styles/DashboardPage.css"
 const UpcomingSchedule = ({ appointments }) => {
   const navigate = useNavigate();
-  const handleStartAppointment = (appointmentId) => {
-    navigate(`/soap-note-generation/${appointmentId}`);
+  const handleStartAppointment = (appointmentId, patientId) => {
+    navigate(`/soap-note-generation/${appointmentId}/${patientId}`);
   };
 
   return (
@@ -12,18 +12,12 @@ const UpcomingSchedule = ({ appointments }) => {
       <h2>Upcoming Appointments</h2>
       <ul className='appointment-list'>
         {appointments.map((appointment, index) => (
-          <li
-            key={appointment.appointmentId}
-        
-          >
+          <li key={appointment.appointmentid}>
             <div>
-              <strong>{appointment.startTime}</strong> - {appointment.patientName} ({appointment.purpose || 'General Check-up'})
+              <strong>{appointment.starttime}</strong> - <strong>{appointment.endtime}</strong> - {appointment.patientname} 
             </div>
             <button
-            
-              onMouseOver={(e) => (e.target.style.backgroundColor = '#059669')}
-              onMouseOut={(e) => (e.target.style.backgroundColor = '#10b981')}
-              onClick={() => handleStartAppointment(appointment.appointmentId)}
+              onClick={() => handleStartAppointment(appointment.appointmentid, appointment.patientid)}
             >
               Start Appointment
             </button>

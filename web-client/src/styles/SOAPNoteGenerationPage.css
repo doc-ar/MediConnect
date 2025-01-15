@@ -62,7 +62,9 @@
   
   /* Transcription and SOAP Notes Sections */
   .transcription-box,
-  .soap-notes-box {
+  .soap-notes-box,
+  .prescription-box,
+  .past-prescriptions {
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -76,6 +78,7 @@
     height: 300px;
     text-align: center;
     color: #7a7a7a;
+    overflow-y: auto;
   }
   
   /* Text Styles for Placeholder and Results */
@@ -102,12 +105,57 @@
     padding: 20px;
     width: 100%;
     max-width: 1200px;
-    height: 150px;
+    height: auto;
     text-align: center;
     margin-top: 20px;
     color: #7a7a7a;
+    flex-direction: column;
+  }
+
+  .prescription-box{
+    width: 100%;
+    margin-top: 40px;
+ 
+  }
+  .prescription-input{
+    display: block;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+
+  }
+
+  .medicine-add-button{
+    border: 1px solid #233B69;
+    padding: 16px 30px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 15px;
+    margin-right: 30px;
+    font-weight: 600;
+  }
+  .prescription-submit-button,
+  .save-soap-notes-button{
+  
+    padding: 16px 30px;
+    background-color: #233B69;
+    color: #fff;
+    font-size: 13px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+    
   }
   
+ 
+  .soapsoap-notes-content{
+   
+  }
   /* Responsive Design for Smaller Screens */
   @media (max-width: 768px) {
     .top-section {

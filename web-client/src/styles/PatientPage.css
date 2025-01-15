@@ -106,3 +106,52 @@
 .review-btn:hover {
     background-color: #1f3260;
 }
+
+
+.report-title{
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-top: 40px;
+}
+
+/* Container for the unordered list */
+.report-list {
+    list-style-type: none; /* Remove default bullets */
+    padding: 0;            /* Remove default padding */
+    margin: 0;             /* Remove default margin */
+    max-width: 400px;       /* Limit the width of the list */
+    margin: 20px;      /* Center the list on the page */
+    padding: 10px;          /* Add some padding */
+    border: 1px solid #ddd; /* Add a border around the list */
+    border-radius: 8px;     /* Rounded corners */
+    background-color: #f9f9f9; /* Light background color */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  }
+  
+  /* Each list item */
+  .report-list .report-item {
+    margin: 10px 0; /* Add spacing between list items */
+  }
+  
+  /* Anchor tags (links) inside the list */
+  .report-list .report-link {
+    text-decoration: none;         /* Remove underline from links */
+    color: #007BFF;                /* Set link color */
+    font-size: 16px;               /* Set font size */
+    font-weight: bold;             /* Make the text bold */
+    transition: color 0.3s ease;   /* Smooth color transition for hover effect */
+  }
+  
+  /* Hover effect for links */
+  .report-list .report-link:hover {
+    color: #0056b3; /* Darker shade for hover effect */
+    text-decoration: underline; /* Add underline on hover */
+  }
+  
+  /* Add icons before each list item (optional) */
+  .report-list .report-item::before {
+    content: "📄";  /* Use a document emoji */
+    margin-right: 8px; /* Space between icon and text */
+  }
+  

@@ -4,6 +4,8 @@ import AppointmentCard from '../components/AppointmentCard';
 import PastAppointmentsTable from '../components/PastAppointmentsTable';
 import UpcomingSchedule from '../components/UpcomingSchedule';
 import Topbar from '../components/TopBar';
+import { selectCurrentAccessToken } from '../features/authSlice';
+import { useSelector } from 'react-redux';
 
 const Dashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -11,36 +13,106 @@ const Dashboard = () => {
   const [cancelledAppointments, setCancelledAppointments] = useState(0);
   const [pastAppointments, setPastAppointments] = useState([]);
   const [upcomingAppointments, setUpcomingAppointments] = useState([]);
+  const accessToken = useSelector(selectCurrentAccessToken);
+  // useEffect(() => {
+  //   // Fetch appointments from the API
+  //   fetch('https://www.mediconnect.live/web/get-appointments',{
+  //     method: 'GET',
+  //     headers: {
+  //       'Authorization': `Bearer ${accessToken}`,
+  //       'Content-Type': 'application/json'
+  //     }
+  //   })
+  // .then((response) => response.json())  
+  // .then((data) => {
+  //   const today = new Date();
+  //     today.setHours(0, 0, 0, 0);
 
+  //     const todaysAppointments = data.filter(appointment => {
+  //       const [year, month, day] = appointment.date.split("-");
+  //       const parsedDate = new Date(`${day}-${month}-${year}`);
+  //       return parsedDate.getTime() === today.getTime();
+  //     });
+
+   
+  //   const cancelled = todaysAppointments.filter(appointment => appointment.status === 'cancelled');
+  //   const past = todaysAppointments.filter(appointment => new Date(`${appointment.date} ${appointment.endtime}`) < new Date());
+   
+
+  //   // const upcoming = todaysAppointments.filter(appointment => {
+  //   //   // Parse the appointment start date and time
+  //   //   const appointmentStart = new Date(`${appointment.date} ${appointment.starttime}`);
+  //   //   console.log("Appointment Start:", appointmentStart, "Current Time:", new Date());
+    
+  //   //   // Compare the appointment start time with the current time
+  //   //   return appointmentStart >= new Date();
+  //   // });
+    
+  //   const upcoming = todaysAppointments.filter(appointment => {
+  //     const appointmentStart = new Date(`${appointment.date} ${appointment.starttime}`);
+  //     const appointmentEnd = new Date(`${appointment.date} ${appointment.endtime}`);
+  //     // Check if the current time is between the start and end times
+  //     console.log("Appointment Start:", appointmentStart, "Current Time:", new Date(), "Appointment End:", appointmentEnd);
+  //     return new Date() >= appointmentStart && new Date() < appointmentEnd;
+  //   });
+    
+  
+  //       setAppointments(data);
+  //       setAppointmentsToday(todaysAppointments.length);
+  //       setCancelledAppointments(cancelled.length);
+  //       setPastAppointments(past);
+        
+  //       setUpcomingAppointments(upcoming);
+  //     })
+  //     .catch((error) => {
+  //       console.error("Error fetching appointments:", error);
+  //     });
+  // }, []);
   useEffect(() => {
-    // Fetch appointments from the API
-    fetch('https://my-json-server.typicode.com/EmamaBilalKhan/MediConnect-API/Appointments')
-  .then((response) => response.json())  
-  .then((data) => {
-    const todayDate = new Date();
-    const today = todayDate.toLocaleDateString('en-CA', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    }); 
-
-    const todaysAppointments = data.filter(appointment => appointment.date === today);
-    
-    const cancelled = todaysAppointments.filter(appointment => appointment.status === 'cancelled');
-    const past = todaysAppointments.filter(appointment => new Date(`${appointment.date} ${appointment.endTime}`) < new Date());
-    const upcoming = todaysAppointments.filter(appointment => new Date(`${appointment.date} ${appointment.startTime}`) > new Date());
-    
+    fetch('https://www.mediconnect.live/web/get-appointments', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(response => response.json())
+      .then(data => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+  
+        const todaysAppointments = data.filter(appointment => {
+          const appointmentDate = new Date(appointment.date);
+          return appointmentDate.toDateString() === today.toDateString();
+        });
+  
+        const cancelled = todaysAppointments.filter(appointment => appointment.status === 'cancelled');
+        const past = todaysAppointments.filter(appointment => {
+          const appointmentEnd = new Date(`${appointment.date} ${appointment.endtime}`);
+          return appointmentEnd < new Date();
+        });
+  
+        const upcoming = todaysAppointments.filter(appointment => {
+          const appointmentStart = new Date(`${appointment.date} ${appointment.starttime}`);
+          console.log("Appointment Start:", appointmentStart, "Current Time:", new Date());
+          return appointmentStart >= new Date();
+        });
+  
+        console.log("Today's Date:", today);
+        console.log("Today's Appointments:", todaysAppointments);
+        console.log("Upcoming Appointments:", upcoming);
+  
         setAppointments(data);
         setAppointmentsToday(todaysAppointments.length);
         setCancelledAppointments(cancelled.length);
         setPastAppointments(past);
         setUpcomingAppointments(upcoming);
       })
-      .catch((error) => {
+      .catch(error => {
         console.error("Error fetching appointments:", error);
       });
   }, []);
-
+  
   return (
     <>
       <Topbar pageTitle="Dashboard" />
