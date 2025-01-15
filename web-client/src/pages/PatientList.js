@@ -2,14 +2,22 @@ import React, { useEffect, useState } from 'react';
 import PatientCard from '../components/PatientCard';
 import '../styles/PatientList.css';
 import Topbar from '../components/TopBar';
+import { selectCurrentAccessToken } from '../features/authSlice';
+import { useSelector } from 'react-redux';
 
 const PatientList = () => {
   const [patients, setPatients] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortOrder, setSortOrder] = useState('asc'); // state to store sort order
-
+  const accessToken = useSelector(selectCurrentAccessToken);
   useEffect(() => {
-    fetch('https://my-json-server.typicode.com/EmamaBilalKhan/MediConnect-API-2/Patients')
+    fetch('https://www.mediconnect.live/web/get-patients',{
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
       .then((response) => response.json())
       .then((data) => {
         setPatients(data);
@@ -27,7 +35,7 @@ const PatientList = () => {
     setSortOrder(e.target.value); // set the sort order based on the selected option
   };
 
-  const sortedPatients = [...patients].sort((a, b) => {
+  const sortedPatients = [...patients]?.sort((a, b) => {
     if (sortOrder === 'asc') {
       return a.name.localeCompare(b.name); // sort in ascending order
     } else if (sortOrder === 'desc') {
@@ -59,8 +67,8 @@ const PatientList = () => {
         </div>
 
         <div className="patient-grid">
-          {filteredPatients.map((patient) => (
-            <PatientCard key={patient.patientid} patient={patient} />
+          {filteredPatients.map((patient, index) => (
+            <PatientCard key={patient.patient_id || index} patient={patient} />
           ))}
         </div>
       </div>

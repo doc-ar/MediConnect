@@ -1,110 +1,144 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/SOAPNotesListPage.css';
 import Topbar from '../components/TopBar';
+import { selectCurrentAccessToken } from '../features/authSlice';
+import { useSelector } from 'react-redux';
+
 function SOAPNotesListPage() {
   const [patients, setPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState('');
+  const accessToken = useSelector(selectCurrentAccessToken);
 
   // Fetch patient data from API
   useEffect(() => {
-    fetch('https://my-json-server.typicode.com/EmamaBilalKhan/MediConnect-API-2/Patients')
-      .then((response) => response.json())
-      .then((data) => setPatients(data))
+    fetch('https://www.mediconnect.live/web/get-patients', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      }
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("API response data:", data); // Log the entire response data
+        setPatients(Array.isArray(data) ? data : []);
+      })
       .catch((error) => console.error('Error fetching patients:', error));
-  }, []);
+  }, [accessToken]);
+  
 
-  // Open Edit Modal
-  // Open Edit Modal with formatted content
+  // Open Edit Modal with formatted SOAP note content
+
 const handleEdit = (patient) => {
+  
   setSelectedPatient(patient);
 
-  // Get the full SOAP Note content as a formatted string
-  const note = patient.SOAP_Notes?.[0];
+  const note = patient.soap_notes
 
-  const formattedNote = `
-    ${note.subjective.chief_complaint ? `Subjective:\n- Chief Complaint: ${note.subjective.chief_complaint}\n` : ''}
-    ${note.subjective.history_of_present_illness ? `- History of Present Illness: ${note.subjective.history_of_present_illness}\n` : ''}
-    ${note.subjective.past_psychiatric_history ? `- Past Psychiatric History: ${note.subjective.past_psychiatric_history}\n` : ''}
-    ${note.subjective.medications ? `- Medications: ${note.subjective.medications}\n` : ''}
-    ${note.subjective.allergies ? `- Allergies: ${note.subjective.allergies}\n` : ''}
-    ${note.subjective.social_history ? `- Social History: ${note.subjective.social_history}\n` : ''}
-    ${note.subjective.family_history ? `- Family History: ${note.subjective.family_history}\n` : ''}
+  if (note) {
+    const formattedNote = `
+      Subjective:
+      - ${note.subjective|| 'N/A'}
 
-    ${note.objective.mood ? `Objective:\n- Mood: ${note.objective.mood}\n` : ''}
-    ${note.objective.affect ? `- Affect: ${note.objective.affect}\n` : ''}
-    ${note.objective.thought_process ? `- Thought Process: ${note.objective.thought_process}\n` : ''}
-    ${note.objective.speech ? `- Speech: ${note.objective.speech}\n` : ''}
-    ${note.objective.judgment ? `- Judgment: ${note.objective.judgment}\n` : ''}
 
-    ${note.assessment ? `Assessment:\n${note.assessment}\n` : ''}
+      Objective:
+      - ${note.objective || 'N/A'}
+      
 
-    ${note.plan.medications ? `Plan:\n- Medications: ${note.plan.medications}\n` : ''}
-    ${note.plan.therapy ? `- Therapy: ${note.plan.therapy}\n` : ''}
-    ${note.plan.follow_up ? `- Follow Up: ${note.plan.follow_up}\n` : ''}
-    ${note.plan.instructions ? `- Instructions: ${note.plan.instructions}\n` : ''}
-  `.trim(); 
+      Assessment: 
+      - ${note.assessment || 'N/A'}
 
-  setEditText(formattedNote);
-  setIsEditing(true);
+      Plan:
+      - ${note.plan|| 'N/A'}
+      
+    `.trim();
+
+    setEditText(formattedNote);
+    setIsEditing(true);
+ 
+  } else {
+    console.log("No SOAP notes found for this patient"); 
+  }
 };
 
 
-  // Save edited SOAP Note
+  // Update SOAP note and send to API
   const handleUpdate = () => {
     if (!selectedPatient) return;
 
-    // Update the patient's SOAP Note
-    const updatedPatients = patients.map((patient) => {
-      if (patient.patientid === selectedPatient.patientid) {
-        const updatedNotes = [...patient.SOAP_Notes];
-        if (updatedNotes[0]) {
-          // Parse the editText back into the structured SOAP Note if needed
-          updatedNotes[0].subjective.chief_complaint = extractField('Chief Complaint', editText);
-          updatedNotes[0].subjective.history_of_present_illness = extractField('History of Present Illness', editText);
-          updatedNotes[0].subjective.past_psychiatric_history = extractField('Past Psychiatric History', editText);
-          updatedNotes[0].subjective.medications = extractField('Medications', editText);
-          updatedNotes[0].subjective.allergies = extractField('Allergies', editText);
-          updatedNotes[0].subjective.social_history = extractField('Social History', editText);
-          updatedNotes[0].subjective.family_history = extractField('Family History', editText);
-          updatedNotes[0].objective.mood = extractField('Mood', editText);
-          updatedNotes[0].objective.affect = extractField('Affect', editText);
-          updatedNotes[0].objective.thought_process = extractField('Thought Process', editText);
-          updatedNotes[0].objective.speech = extractField('Speech', editText);
-          updatedNotes[0].objective.judgment = extractField('Judgment', editText);
-          updatedNotes[0].assessment = extractField('Assessment', editText);
-          updatedNotes[0].plan.medications = extractField('Medications', editText);
-          updatedNotes[0].plan.therapy = extractField('Therapy', editText);
-          updatedNotes[0].plan.follow_up = extractField('Follow Up', editText);
-          updatedNotes[0].plan.instructions = extractField('Instructions', editText);
-        }
-        return { ...patient, SOAP_Notes: updatedNotes };
-      }
-      return patient;
-    });
+    const soapNoteId = selectedPatient.soap_note_id;
+    console.log('SOAP note ID:', soapNoteId); 
+    if (!soapNoteId) {
+      console.error('SOAP note ID is missing.');
+      return;
+    }
 
-    setPatients(updatedPatients);
-    setIsEditing(false);
-    setSelectedPatient(null);
-    setEditText('');
+    const updatedSoapNoteData = {
+      subjective: extractField('Subjective', editText),
+      objective: extractField('Objective', editText),
+      assessment: extractField('Assessment', editText),
+      plan: extractField('Plan', editText),
+    };
+  
+    console.log("Updated SOAP note data:", updatedSoapNoteData);
+
+    // Send the updated data to the API
+    fetch('https://www.mediconnect.live/web/update-soapnote', {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        soap_note_id: soapNoteId,
+        soap_note_data: updatedSoapNoteData,
+      }),
+    })
+    .then((response) => {
+      if (response.ok) {
+        // Update the local state to reflect the changes
+        const updatedPatients = patients.map((patient) => {
+          if (patient.patientid === selectedPatient.patientid) {
+            return {
+              ...patient,
+              soap_notes: {
+                ...patient.soap_notes, // Preserve other existing fields
+                ...updatedSoapNoteData, // Overwrite with the updated data
+              },
+            };
+          }
+          return patient;
+        });
+          setPatients(updatedPatients);
+          setIsEditing(false);
+          setSelectedPatient(null);
+          setEditText('');
+        } else {
+          console.error('Failed to update SOAP note:', response.statusText);
+        }
+      })
+      .catch((error) => console.error('Error updating SOAP note:', error));
   };
 
-  // Helper function to extract fields from the formatted text
   const extractField = (label, text) => {
     const regex = new RegExp(`${label}:\\s*(.*)`, 'i');
     const match = text.match(regex);
     return match ? match[1].trim() : '';
   };
 
-  // Cancel editing
   const handleCancel = () => {
     setIsEditing(false);
     setSelectedPatient(null);
     setEditText('');
   };
 
-  // Delete SOAP Note
   const handleDelete = (patientId) => {
     const updatedPatients = patients.filter(patient => patient.patientid !== patientId);
     setPatients(updatedPatients);
@@ -112,8 +146,7 @@ const handleEdit = (patient) => {
 
   return (
     <div>
-
-     <Topbar pageTitle="SOAP Notes" />
+      <Topbar pageTitle="SOAP Notes" />
       <table>
         <thead>
           <tr>
@@ -123,36 +156,32 @@ const handleEdit = (patient) => {
           </tr>
         </thead>
         <tbody>
-          {patients
-    .filter((patient) => patient.SOAP_Notes && patient.SOAP_Notes.length > 0)
-          .map((patient) => (
-            <tr key={patient.patientid}>
-              <td>
-                <div className="soapnote-patient-info">
-                <img src={patient.image} alt={patient.name} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
-                {patient.name}
-                </div>
-              </td>
-              <td>
-                {patient.SOAP_Notes?.length > 0 && patient.SOAP_Notes[0].LastUpdated
-                  ? new Date(patient.SOAP_Notes[0].LastUpdated).toLocaleDateString()
-                  : 'N/A'}
-              </td>
-              <td className='soapnote-action-btn'>
-                <button onClick={() => handleEdit(patient)}>Edit</button>
-                <button onClick={() => handleDelete(patient.patientid)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
+  {patients
+    .filter((patient) => patient.soap_notes && Object.keys(patient.soap_notes).length > 0)
+    .map((patient, index) => (
+      <tr key={patient.patientid || index}>
+        <td>
+          <div className="soapnote-patient-info">
+            <img src={patient.image || 'https://www.vecteezy.com/png/20911746-user-profile-icon-profile-avatar-user-icon-male-icon-face-icon-profile-icon'} alt={patient.name} style={{ width: '50px', height: '50px', borderRadius: '50%' }} />
+            {patient.name}
+          </div>
+          
+        </td>
+        <td>
+          {patient.soap_notes?.LastUpdated
+            ? new Date(patient.soap_notes.LastUpdated).toLocaleDateString()
+            : 'N/A'}
+        </td>
+        <td className='soapnote-action-btn'>
+          <button onClick={() => handleEdit(patient)}>Edit</button>
+          <button onClick={() => handleDelete(patient.patientid)}>Delete</button>
+        </td>
+      </tr>
+    ))}
+</tbody>
 
-
-
-
-        
       </table>
 
-      {/* Edit Modal */}
       {isEditing && (
         <div className="modal">
           <div className="modal-content">

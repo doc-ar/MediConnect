@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import '../styles/PatientPage.css'; 
-
+import { selectCurrentAccessToken } from '../features/authSlice';
+import { useSelector } from 'react-redux';
 const PatientPage = () => {
     const { id } = useParams();  // Get the patient ID from the URL
     const [patientData, setPatientData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
-
+const accessToken = useSelector(selectCurrentAccessToken);
 
     useEffect(() => {
-        fetch('https://my-json-server.typicode.com/EmamaBilalKhan/MediConnect-API-2/Patients')
+        fetch('https://www.mediconnect.live/web/get-patients',{
+            method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json'
+            }
+          })
             .then(response => response.json())
             .then(data => {
+                console.log(data);
                 const patient = data.find(p => p.patientid === id);
                 setPatientData(patient);
                 setIsLoading(false);
@@ -58,6 +66,16 @@ const PatientPage = () => {
             <div className="follow-up-section">
                 <h3>Contact Info</h3>
                 <p>{patientData.contact}</p> 
+                <h3 className='report-title'>Patient Reports</h3>
+                <ul className='report-list'>
+                    {patientData.reports.map((report, index) => (
+                        <li className='report-item' key={index}>
+                            <a href={report.url} target="_blank" rel="noopener noreferrer">
+                                {report.name}
+                            </a>
+                        </li>
+                    ))}
+                </ul>
             </div>
 
             

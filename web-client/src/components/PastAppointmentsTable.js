@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 const PastAppointmentsTable = ({ appointments }) => {
   const navigate = useNavigate();
 
-  const navigateToPatientProfile = (patientId) => {
-    navigate(`/patients/${patientId}`);
+  const navigateToPatientProfile = (patientid) => {
+    navigate(`/patients/${patientid}`);
   }
   return (
     <div >
@@ -13,22 +13,25 @@ const PastAppointmentsTable = ({ appointments }) => {
       <table >
         <thead>
           <tr>
-            <th>Appointment ID</th>
+            
             <th>Patient Name</th>
             <th>Doctor Name</th>
-            <th>Status</th>
-            <th>Action</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Profile</th>
           </tr>
         </thead>
         <tbody>
           {appointments.map((appointment) => (
-            <tr key={appointment.appointmentId}>
-              <td>{appointment.appointmentId}</td>
-              <td>{appointment.patientName}</td>
-              <td>{appointment.doctorName}</td>
-              <td>{appointment.status}</td>
+            <tr key={appointment.appointmentid}>
+              
+              <td>{appointment.patientname}</td>
+              <td>{appointment.doctorname}</td>
+              <td>{appointment.starttime}</td>
+              <td>{appointment.endtime}</td>
+              
               <td>
-                <button className='button-dashboard'  onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')} onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')} onClick={() => navigateToPatientProfile()}>
+                <button className='button-dashboard'  onMouseOver={(e) => (e.target.style.backgroundColor = '#2563eb')} onMouseOut={(e) => (e.target.style.backgroundColor = '#3b82f6')} onClick={() => navigateToPatientProfile(appointment.patientid)}>
                   Profile
                 </button>
               </td>

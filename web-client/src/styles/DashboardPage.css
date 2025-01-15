@@ -133,12 +133,18 @@ button:hover {
 
 ul li div {
     font-weight: 600;
+  
 }
 
-ul li button {
-    background-color: #10b981;
+ul > li button {
+    background-color: #233B69;
+    color: white;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+
 }
 
-ul li button:hover {
-    background-color: #059669;
+ul > li > button:hover {
+    background-color: #1d4ed8;
 }
