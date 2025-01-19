@@ -1,0 +1,2 @@
+0 * * * * /home/docar/mediconnect_ap_ts_cron.sh >> /home/docar/log/update_time_slots.log 2>&1
+0 0 * * 0 /home/docar/mediconnect_create_ts_cron.sh >> /home/docar/log/create_time_slots.log 2>&1

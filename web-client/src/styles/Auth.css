@@ -1,0 +1,215 @@
+/* General Styling for Login and Signup */
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f7f9fc;
+  }
+  #login-container{
+    height: 100vh !important;
+  }
+  
+  .auth-box {
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 400px;
+    text-align: center;
+  }
+  
+  .auth-box h2 {
+    color: #233B69;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .designation-dropdown{
+    width: 100%;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .auth-box input {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+  }
+
+  .qualification-dropdown{
+    width: 100%;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s ease;
+
+  }
+
+
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    /* margin: 10px 0; */
+  }
+  
+  .tag {
+    background-color: #e0e0e0;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    padding: 3px 5px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .tag .remove-tag {
+    background: none;
+    border: none;
+    margin-left: 5px;
+    color: #3d3b3b;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+
+  
+  .auth-box input:focus {
+    border-color: #233B69;
+  }
+  
+  .action-btn {
+    width: 100%;
+    padding: 12px 0;
+    background-color: #233B69;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+  }
+  
+  .auth-box button:hover {
+    background-color: #1f3260;
+  }
+  
+  /* Link Styling */
+  /* .auth-box  {
+    color: #233B69;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+  } */
+  
+  .auth-link{
+    display: inline;
+    margin-top: 15px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #233B69;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  .link-line{
+    margin-top: 10px;
+  }
+  .auth-box .auth-link:hover {
+    color: #233B69;
+  }
+
+  label{
+    margin-top: 10px;
+  }
+
+/* Darkened background overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  z-index: 999; /* Ensures it appears above the content */
+}
+
+/* Modal container */
+.login-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000; /* Above the overlay */
+  width: 50%;
+  max-width: 90%;
+  box-sizing: border-box;
+  height: 40%;
+  justify-content: center;
+  display: flex
+;
+}
+
+/* Modal content styles */
+#reset-pass-title{
+  margin-bottom: 40px;
+}
+
+.login-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+
+}
+
+.login-modal-content input {
+  margin-bottom: 10px;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.login-modal-content button {
+  margin: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: #233B69;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  width: 30%;
+  font-size: 13px;
+}
+
+.login-modal-content button:hover {
+  background-color: #233B69;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
