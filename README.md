@@ -1,4 +1,5 @@
 #### Table of Contents
+
 - [Introduction](#introduction)
 - [Tool and Technologies](#tool-and-technologies)
 - [Setup](#setup)
@@ -38,6 +39,16 @@ cd MediConnect
 ```bash
 sudo docker compose build
 sudo docker compose up
+```
+
+# Run
+
+After all containers are up you can access the project on `http://localhost`
+
+- You can stop all containers and remove them using the following command:
+
+```
+docker compose down --rmi all
 ```
 
 # Documentation
