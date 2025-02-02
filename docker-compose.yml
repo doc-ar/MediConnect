@@ -1,4 +1,20 @@
 services:
+  nginx:
+    build:
+      context: ./nginx
+    image: nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - auth-service
+      - web-backend
+      - mobile-backend
+      - web-client
+      - file-server
+    networks:
+      - app-network
+
   auth-service:
     build:
       context: ./auth
@@ -20,6 +36,8 @@ services:
       - RESET_TOKEN_EXPIRE=${RESET_TOKEN_EXPIRE}
     restart: no
     container_name: auth-service
+    networks:
+      - app-network
 
   web-backend:
     build:
@@ -33,6 +51,8 @@ services:
       - DATABASE_URL=${DATABASE_URL}
     restart: no
     container_name: web-backend
+    networks:
+      - app-network
 
   mobile-backend:
     build:
@@ -46,6 +66,8 @@ services:
       - DATABASE_URL=${DATABASE_URL}
     restart: no
     container_name: mobile-backend
+    networks:
+      - app-network
 
   web-client:
     build:
@@ -57,6 +79,8 @@ services:
       - PORT=3003
     restart: no
     container_name: web-client
+    networks:
+      - app-network
 
   file-server:
     build:
@@ -73,6 +97,8 @@ services:
       - avatars_data:/usr/src/app/avatars
     restart: no
     container_name: file-server
+    networks:
+      - app-network
 
   soap-gen:
     build:
@@ -82,7 +108,13 @@ services:
       - "5000:5000"
     restart: no
     container_name: soap-gen
+    networks:
+      - app-network
 
 volumes:
   reports_data:
   avatars_data:
+
+networks:
+  app-network:
+    driver: bridge

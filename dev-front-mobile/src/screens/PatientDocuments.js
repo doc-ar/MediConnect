@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
   FlatList,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { AntDesign, MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import {
@@ -18,29 +18,29 @@ import * as DocumentPicker from "expo-document-picker";
 import Entypo from "@expo/vector-icons/Entypo";
 import { StatusBar } from "expo-status-bar";
 import { useMediConnectStore } from "../Store/Store";
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import Modal from "react-native-modal";
 export default function PatientDocuments() {
   const navigation = useNavigation();
   const [ModalText, setModalText] = useState("");
   const [Success, setSuccess] = useState(false);
-  const FetchRequest = useMediConnectStore(state=>state.fetchWithRetry);
+  const FetchRequest = useMediConnectStore((state) => state.fetchWithRetry);
   const [isModalVisible, setModalVisible] = useState(false);
-  const [isLoadingModalVisible,setIsLoadingModalVisible] = useState(false);
+  const [isLoadingModalVisible, setIsLoadingModalVisible] = useState(false);
   const PatientDocuments = useMediConnectStore(
-    (state) => state.PatientData.reports
+    (state) => state.PatientData.reports,
   );
-  const setPatientData = useMediConnectStore((state)=> state.setPatientData);
+  const setPatientData = useMediConnectStore((state) => state.setPatientData);
 
-  useEffect(()=>{
-    if(isModalVisible===false){
-      setTimeout(()=>{
-      setSuccess(false); 
-      setModalText("")
-    },1000);
-  }
-  },[isModalVisible])
+  useEffect(() => {
+    if (isModalVisible === false) {
+      setTimeout(() => {
+        setSuccess(false);
+        setModalText("");
+      }, 1000);
+    }
+  }, [isModalVisible]);
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -69,48 +69,49 @@ export default function PatientDocuments() {
       const uri = doc.assets[0].uri;
       const name = doc.assets[0].name || "uploaded_file";
       console.log("Uploading file: ", { name, uri });
-      
-      try{
+
+      try {
         setIsLoadingModalVisible(true);
-        const response = await FetchRequest("https://www.mediconnect.live/file/upload","POST",{name: name, report: uri});
-        if(response.status === 201){
+        const response = await FetchRequest(
+          "http://localhost:3004/file/upload",
+          "POST",
+          { name: name, report: uri },
+        );
+        if (response.status === 201) {
           console.log("File Uploaded Successfully");
           setModalText("File Uploaded Successfully!");
           setSuccess(true);
           setModalVisible(true);
           fetchPatientData();
-        }
-        else{
+        } else {
           console.log("File Upload Failed, response: ", response);
           setModalText("File Upload Failed, Try Again");
           setModalVisible(true);
         }
-        }
-      catch(error){
+      } catch (error) {
         console.error("Error uploading file: ", error);
         setModalText("File Upload Failed, Try Again");
         setModalVisible(true);
-      }
-      finally{
+      } finally {
         setIsLoadingModalVisible(false);
       }
-      }
     }
+  };
 
   const handleDownload = async (fileUrl, fileName) => {
     try {
-      setIsLoadingModalVisible(true)
+      setIsLoadingModalVisible(true);
       const fileUri = `${FileSystem.documentDirectory}${fileName}`;
       console.log("Downloading file to: ", fileUri);
-  
+
       const downloadResumable = FileSystem.createDownloadResumable(
         fileUrl,
-        fileUri
+        fileUri,
       );
       const { uri } = await downloadResumable.downloadAsync();
-  
+
       console.log("File downloaded successfully: ", uri);
-  
+
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri);
       } else {
@@ -122,54 +123,58 @@ export default function PatientDocuments() {
       console.error("Error downloading file: ", error);
       setModalText("Error Downloading File");
       setModalVisible(true);
-    }
-    finally{
+    } finally {
       setIsLoadingModalVisible(false);
     }
-    
-  
-  }
-  
+  };
 
-  const handleDelete = async(file_Url) => {
+  const handleDelete = async (file_Url) => {
     console.log("Deleting file: ", file_Url);
-    try{
+    try {
       setIsLoadingModalVisible(true);
-      const response = await FetchRequest("https://www.mediconnect.live/file/delete","DELETE",{file_url: file_Url});
-      if(response.status === 200){
+      const response = await FetchRequest(
+        "http://localhost:3004/file/delete",
+        "DELETE",
+        { file_url: file_Url },
+      );
+      if (response.status === 200) {
         console.log("File Deleted Successfully");
         setModalText("File Deleted Successfully!");
         setSuccess(true);
         setModalVisible(true);
         fetchPatientData();
-      }
-      else{
+      } else {
         console.log("File Deletion Failed, response: ", response);
         setModalText("File Deletion Failed, Try Again");
         setModalVisible(true);
       }
-      }
-    catch(error){
+    } catch (error) {
       console.error("Error Deleting file: ", error);
       setModalText("File Deletion Failed, Try Again");
       setModalVisible(true);
-    }
-    finally{
+    } finally {
       setIsLoadingModalVisible(false);
     }
-
   };
 
-  const fetchPatientData=async()=>{
-    const response = await FetchRequest("https://www.mediconnect.live/mobile/patient-data","get"
+  const fetchPatientData = async () => {
+    const response = await FetchRequest(
+      "http://localhost:3004/mobile/patient-data",
+      "get",
     );
     if (response.status === 200) {
-        console.log("Patient Data , Back to Patient doc Screen Success: ",response.data);
-        setPatientData(response.data);
+      console.log(
+        "Patient Data , Back to Patient doc Screen Success: ",
+        response.data,
+      );
+      setPatientData(response.data);
+    } else {
+      console.log(
+        "Error Fetching Patient Data on Home Screen: ",
+        response.data,
+      );
     }
-    else{
-    console.log("Error Fetching Patient Data on Home Screen: ",response.data);
-}}
+  };
 
   const renderFileItem = ({ item }) => (
     <TouchableOpacity style={styles.fileItem}>
@@ -179,7 +184,7 @@ export default function PatientDocuments() {
           name="download"
           size={hp(2.8)}
           color="#2F3D7E"
-          onPress={() => handleDownload(item.url,item.name)}
+          onPress={() => handleDownload(item.url, item.name)}
         />
         <MaterialIcons
           name="delete-outline"
@@ -228,14 +233,32 @@ export default function PatientDocuments() {
         )}
       </View>
       <Modal isVisible={isModalVisible}>
-          <View style={styles.ModalView}>
-            
-              <Text style={styles.ModalText}>{ModalText}</Text>
-              {Success ? <AntDesign name="checkcircle" size={hp(9)} color="#2F3D7E" style={styles.ModalIcon}/> :
-              <Entypo name="emoji-sad" size={hp(9)} color="#a1020a" style={styles.ModalIcon}/>}
-              <TouchableOpacity onPress={()=>{setModalVisible(false)}} style={styles.ModalButton}><Text style={styles.ModalButtonText}>Back</Text></TouchableOpacity>
-              
-          </View>
+        <View style={styles.ModalView}>
+          <Text style={styles.ModalText}>{ModalText}</Text>
+          {Success ? (
+            <AntDesign
+              name="checkcircle"
+              size={hp(9)}
+              color="#2F3D7E"
+              style={styles.ModalIcon}
+            />
+          ) : (
+            <Entypo
+              name="emoji-sad"
+              size={hp(9)}
+              color="#a1020a"
+              style={styles.ModalIcon}
+            />
+          )}
+          <TouchableOpacity
+            onPress={() => {
+              setModalVisible(false);
+            }}
+            style={styles.ModalButton}
+          >
+            <Text style={styles.ModalButtonText}>Back</Text>
+          </TouchableOpacity>
+        </View>
       </Modal>
       <Modal isVisible={isLoadingModalVisible}>
         <View style={styles.LoadingModal}>
@@ -291,7 +314,7 @@ const styles = StyleSheet.create({
     width: wp(95),
     alignSelf: "center",
     marginTop: hp(2),
-    marginBottom: hp(1)
+    marginBottom: hp(1),
   },
   header: {
     fontSize: hp(2),
@@ -324,42 +347,42 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: wp(15),
   },
-  ModalView:{
-    backgroundColor:"white",
-    borderRadius:20,
-    height:hp(30),
-    width:wp(80),
-    alignSelf:"center"
+  ModalView: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    height: hp(30),
+    width: wp(80),
+    alignSelf: "center",
   },
-  ModalText:{
-    fontSize:hp(2),
-    fontWeight:"bold",
-    textAlign:"center",
-    marginVertical:hp(3)
+  ModalText: {
+    fontSize: hp(2),
+    fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: hp(3),
   },
-  ModalIcon:{
-    alignSelf:"center",
+  ModalIcon: {
+    alignSelf: "center",
   },
-  ModalButton:{
-    justifyContent:"center",
-    borderRadius:10,
+  ModalButton: {
+    justifyContent: "center",
+    borderRadius: 10,
     width: wp(33),
     height: hp(5),
-    alignItems:"center",
-    alignSelf:"center",
+    alignItems: "center",
+    alignSelf: "center",
     backgroundColor: "#2F3D7E",
-    marginVertical: hp(3)
+    marginVertical: hp(3),
   },
-  ModalButtonText:{
-    color:"white",
-    fontSize:hp(1.8),
-    fontWeight:"bold"
+  ModalButtonText: {
+    color: "white",
+    fontSize: hp(1.8),
+    fontWeight: "bold",
   },
-  LoadingModal:{
-    height:hp(30),
-    width:wp(80),
-    alignSelf:"center",
-    justifyContent:"center",
-    alignItems:"center"
-  }
+  LoadingModal: {
+    height: hp(30),
+    width: wp(80),
+    alignSelf: "center",
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });
